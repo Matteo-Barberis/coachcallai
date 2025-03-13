@@ -32,6 +32,9 @@ const UserMenu = () => {
 
   return (
     <div className="flex items-center space-x-4">
+      <Button variant="outline" onClick={handleSignOut}>
+        Sign Out
+      </Button>
       <Button 
         variant="ghost" 
         size="icon" 
@@ -39,9 +42,6 @@ const UserMenu = () => {
         onClick={() => window.location.href = "/dashboard"}
       >
         <UserRound className="h-5 w-5 text-gray-600" />
-      </Button>
-      <Button variant="outline" onClick={handleSignOut}>
-        Sign Out
       </Button>
     </div>
   );
