@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
 import { useToast } from "@/components/ui/use-toast";
+import { UserRound } from 'lucide-react';
 
 const UserMenu = () => {
   const { session, signOut } = useSessionContext();
@@ -31,9 +32,14 @@ const UserMenu = () => {
 
   return (
     <div className="flex items-center space-x-4">
-      <span className="hidden md:inline text-sm text-gray-600">
-        {session.user.email}
-      </span>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="rounded-full" 
+        onClick={() => window.location.href = "/dashboard"}
+      >
+        <UserRound className="h-5 w-5 text-gray-600" />
+      </Button>
       <Button variant="outline" onClick={handleSignOut}>
         Sign Out
       </Button>
