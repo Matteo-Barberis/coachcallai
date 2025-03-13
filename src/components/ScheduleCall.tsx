@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Copy, Plus, PlusCircle, Trash2, X } from 'lucide-react';
+import { CalendarIcon, Clock, Plus, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -86,12 +86,15 @@ const dayOptions = [
   { value: 'sunday', label: 'Sunday' },
 ];
 
-// Generate time options (hour-based, without minutes)
+// Generate time options in 30-minute intervals
 const generateTimeOptions = () => {
-  return Array.from({ length: 24 }, (_, i) => {
-    const hour = i.toString().padStart(2, '0');
-    return { value: `${hour}:00`, label: `${hour}:00` };
-  });
+  const options = [];
+  for (let hour = 0; hour < 24; hour++) {
+    const hourFormatted = hour.toString().padStart(2, '0');
+    options.push({ value: `${hourFormatted}:00`, label: `${hourFormatted}:00` });
+    options.push({ value: `${hourFormatted}:30`, label: `${hourFormatted}:30` });
+  }
+  return options;
 };
 
 const timeOptions = generateTimeOptions();
@@ -213,6 +216,34 @@ const ScheduleCall = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Call Duration - Global Setting */}
+        <FormField
+          control={form.control}
+          name="callDuration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Call Duration</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select call duration" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="45">45 minutes</SelectItem>
+                  <SelectItem value="60">60 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                All your coaching calls will be this duration
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Weekday Schedules */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -277,7 +308,7 @@ const ScheduleCall = () => {
                             <SelectValue placeholder="Select time" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="max-h-[200px] overflow-y-auto">
                           {timeOptions.map(option => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
@@ -295,6 +326,7 @@ const ScheduleCall = () => {
                   variant="ghost" 
                   size="icon"
                   onClick={() => removeWeekdaySchedule(index)}
+                  className="flex-shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -392,7 +424,7 @@ const ScheduleCall = () => {
                             <SelectValue placeholder="Select time" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="max-h-[200px] overflow-y-auto">
                           {timeOptions.map(option => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
@@ -410,6 +442,7 @@ const ScheduleCall = () => {
                   variant="ghost" 
                   size="icon"
                   onClick={() => removeSpecificDateSchedule(index)}
+                  className="flex-shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -429,34 +462,6 @@ const ScheduleCall = () => {
           </Button>
         </div>
 
-        {/* Call Duration */}
-        <FormField
-          control={form.control}
-          name="callDuration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Call Duration</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select call duration" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="15">15 minutes</SelectItem>
-                  <SelectItem value="30">30 minutes</SelectItem>
-                  <SelectItem value="45">45 minutes</SelectItem>
-                  <SelectItem value="60">60 minutes</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                How long would you like your coaching calls to be
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Goals */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -468,7 +473,7 @@ const ScheduleCall = () => {
               onClick={addGoal}
               className="flex items-center gap-1"
             >
-              <PlusCircle className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
               Add Goal
             </Button>
           </div>
@@ -497,6 +502,7 @@ const ScheduleCall = () => {
                         variant="ghost" 
                         size="icon"
                         onClick={() => removeGoal(index)}
+                        className="flex-shrink-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
