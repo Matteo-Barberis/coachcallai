@@ -77,8 +77,7 @@ const formSchema = z.object({
       name: z.string().min(1, 'Goal name is required'),
       description: z.string().min(3, 'Goal description must be at least 3 characters')
     })
-  ).min(1, 'Add at least one goal'),
-  callDuration: z.string().min(1, 'Select call duration')
+  ).min(1, 'Add at least one goal')
 });
 
 // Days of the week
@@ -120,7 +119,6 @@ const ScheduleCall = () => {
       weekdaySchedules: [],
       specificDateSchedules: [],
       goals: [{ name: 'Morning Session', description: '' }],
-      callDuration: '30'
     },
   });
 
@@ -264,34 +262,6 @@ const ScheduleCall = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Call Duration - Global Setting */}
-        <FormField
-          control={form.control}
-          name="callDuration"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Call Duration</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select call duration" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="15">15 minutes</SelectItem>
-                  <SelectItem value="30">30 minutes</SelectItem>
-                  <SelectItem value="45">45 minutes</SelectItem>
-                  <SelectItem value="60">60 minutes</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                All your coaching calls will be this duration
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Weekday Schedules */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -599,14 +569,13 @@ const ScheduleCall = () => {
             {goals.map((goal, index) => (
               <div key={goal.id} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-sm font-medium">Goal {index + 1}</h3>
                   {goals.length > 1 && (
                     <Button 
                       type="button" 
                       variant="ghost" 
                       size="icon"
                       onClick={() => removeGoal(index)}
-                      className="flex-shrink-0 h-8 w-8"
+                      className="flex-shrink-0 h-8 w-8 ml-auto"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
