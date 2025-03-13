@@ -292,98 +292,6 @@ const ScheduleCall = () => {
           )}
         />
 
-        {/* Goals Definition */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <FormLabel className="text-base">Define Your Coaching Goals</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addGoal}
-              className="flex items-center gap-1"
-            >
-              <Plus className="h-4 w-4" />
-              Add Goal
-            </Button>
-          </div>
-          <FormDescription>
-            Define goals for your coaching sessions. You'll be able to assign these goals to specific time slots.
-          </FormDescription>
-          
-          <div className="space-y-4">
-            {goals.map((goal, index) => (
-              <div key={goal.id} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-sm font-medium">Goal {index + 1}</h3>
-                  {goals.length > 1 && (
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => removeGoal(index)}
-                      className="flex-shrink-0 h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="space-y-3">
-                  {/* Goal Name */}
-                  <FormField
-                    control={form.control}
-                    name={`goals.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Goal Name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="e.g., Morning Session, Evening Reflection..."
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              const updatedGoals = [...goals];
-                              updatedGoals[index].name = e.target.value;
-                              setGoals(updatedGoals);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {/* Goal Description */}
-                  <FormField
-                    control={form.control}
-                    name={`goals.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Goal Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe what you want to achieve..."
-                            className="resize-none"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              const updatedGoals = [...goals];
-                              updatedGoals[index].description = e.target.value;
-                              setGoals(updatedGoals);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Weekday Schedules */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -666,6 +574,98 @@ const ScheduleCall = () => {
             <Plus className="h-4 w-4" />
             Add specific date
           </Button>
+        </div>
+
+        {/* Goals Definition - MOVED HERE */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <FormLabel className="text-base">Define Your Coaching Goals</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addGoal}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add Goal
+            </Button>
+          </div>
+          <FormDescription>
+            Define goals for your coaching sessions. You'll be able to assign these goals to specific time slots.
+          </FormDescription>
+          
+          <div className="space-y-4">
+            {goals.map((goal, index) => (
+              <div key={goal.id} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-sm font-medium">Goal {index + 1}</h3>
+                  {goals.length > 1 && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => removeGoal(index)}
+                      className="flex-shrink-0 h-8 w-8"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  {/* Goal Name */}
+                  <FormField
+                    control={form.control}
+                    name={`goals.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Goal Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g., Morning Session, Evening Reflection..."
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              const updatedGoals = [...goals];
+                              updatedGoals[index].name = e.target.value;
+                              setGoals(updatedGoals);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Goal Description */}
+                  <FormField
+                    control={form.control}
+                    name={`goals.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Goal Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Describe what you want to achieve..."
+                            className="resize-none"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              const updatedGoals = [...goals];
+                              updatedGoals[index].description = e.target.value;
+                              setGoals(updatedGoals);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <Button type="submit" className="w-full">Schedule Calls</Button>
