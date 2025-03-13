@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, MessageCircle, PhoneCall, TrendingUp, Target, Robot, User, Activity } from "lucide-react";
+import { Check, MessageCircle, PhoneCall, TrendingUp, Target, Bot, User, Activity } from "lucide-react";
 
 const FeaturesSection = () => {
   const features = [
@@ -20,7 +20,7 @@ const FeaturesSection = () => {
       description: "Visualize your progress with detailed analytics and insights to stay motivated."
     },
     {
-      icon: <Robot className="w-10 h-10 text-brand-primary" />,
+      icon: <Bot className="w-10 h-10 text-brand-primary" />,
       title: "AI Powered Coach",
       description: "Our advanced AI understands your goals and adapts to your unique needs and schedule."
     },
