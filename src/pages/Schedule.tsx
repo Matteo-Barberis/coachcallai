@@ -17,8 +17,9 @@ const Schedule = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold mb-6">Schedule Your Coaching Calls</h1>
+        <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold mb-2">Schedule Your Coaching Calls</h1>
+          <p className="text-gray-500 mb-6">Set up regular coaching sessions or schedule calls for specific events</p>
           <ScheduleCall />
         </div>
       </main>

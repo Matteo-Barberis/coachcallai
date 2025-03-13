@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, CheckIcon, PlusCircle } from 'lucide-react';
+import { CalendarIcon, Clock, Copy, Plus, PlusCircle, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -24,7 +24,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -35,81 +34,152 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-// Days of the week for recurring calls
-const daysOfWeek = [
-  { id: 'monday', label: 'Monday' },
-  { id: 'tuesday', label: 'Tuesday' },
-  { id: 'wednesday', label: 'Wednesday' },
-  { id: 'thursday', label: 'Thursday' },
-  { id: 'friday', label: 'Friday' },
-  { id: 'saturday', label: 'Saturday' },
-  { id: 'sunday', label: 'Sunday' },
-];
+// Define types for schedule entries
+type WeekdaySchedule = {
+  id: string;
+  day: string;
+  time: string;
+};
 
-// Time slots
-const timeSlots = Array.from({ length: 24 }, (_, i) => {
-  const hour = i.toString().padStart(2, '0');
-  return [
-    { value: `${hour}:00`, label: `${hour}:00` },
-    { value: `${hour}:30`, label: `${hour}:30` },
-  ];
-}).flat();
+type SpecificDateSchedule = {
+  id: string;
+  date: Date;
+  time: string;
+};
+
+type GoalItem = {
+  id: string;
+  description: string;
+};
 
 // Form schema
 const formSchema = z.object({
-  scheduleType: z.enum(['recurring', 'specific']),
-  recurring: z.object({
-    days: z.array(z.string()).min(1, 'Select at least one day'),
-    time: z.string().min(1, 'Select a time')
-  }).optional(),
-  specific: z.object({
-    date: z.date().optional(),
-    time: z.string().optional()
-  }).optional(),
-  goals: z.array(z.object({
-    description: z.string().min(3, 'Goal description must be at least 3 characters')
-  })).min(1, 'Add at least one goal'),
+  weekdaySchedules: z.array(
+    z.object({
+      day: z.string(),
+      time: z.string()
+    })
+  ),
+  specificDateSchedules: z.array(
+    z.object({
+      date: z.date(),
+      time: z.string()
+    })
+  ),
+  goals: z.array(
+    z.object({
+      description: z.string().min(3, 'Goal description must be at least 3 characters')
+    })
+  ).min(1, 'Add at least one goal'),
   callDuration: z.string().min(1, 'Select call duration')
 });
 
-type FormValues = z.infer<typeof formSchema>;
+// Days of the week
+const dayOptions = [
+  { value: 'monday', label: 'Monday' },
+  { value: 'tuesday', label: 'Tuesday' },
+  { value: 'wednesday', label: 'Wednesday' },
+  { value: 'thursday', label: 'Thursday' },
+  { value: 'friday', label: 'Friday' },
+  { value: 'saturday', label: 'Saturday' },
+  { value: 'sunday', label: 'Sunday' },
+];
+
+// Generate time options (hour-based, without minutes)
+const generateTimeOptions = () => {
+  return Array.from({ length: 24 }, (_, i) => {
+    const hour = i.toString().padStart(2, '0');
+    return { value: `${hour}:00`, label: `${hour}:00` };
+  });
+};
+
+const timeOptions = generateTimeOptions();
 
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [goals, setGoals] = useState([{ description: '' }]);
-
-  const form = useForm<FormValues>({
+  
+  // Local state for managing entries
+  const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
+  const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
+  const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', description: '' }]);
+  
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      scheduleType: 'recurring',
-      recurring: {
-        days: [],
-        time: ''
-      },
-      specific: {
-        date: undefined,
-        time: ''
-      },
+      weekdaySchedules: [],
+      specificDateSchedules: [],
       goals: [{ description: '' }],
       callDuration: '30'
     },
   });
 
-  // Watch the schedule type to conditionally render fields
-  const scheduleType = form.watch('scheduleType');
+  // Add a new weekday schedule
+  const addWeekdaySchedule = () => {
+    const newId = `weekday-${Date.now()}`;
+    const newSchedule: WeekdaySchedule = {
+      id: newId,
+      day: 'monday',
+      time: '09:00'
+    };
+    
+    setWeekdaySchedules([...weekdaySchedules, newSchedule]);
+    
+    const currentSchedules = form.getValues('weekdaySchedules') || [];
+    form.setValue('weekdaySchedules', [...currentSchedules, { day: 'monday', time: '09:00' }]);
+  };
 
-  // Add a new goal field
+  // Add a specific date schedule
+  const addSpecificDateSchedule = () => {
+    const newId = `date-${Date.now()}`;
+    const newSchedule: SpecificDateSchedule = {
+      id: newId,
+      date: new Date(),
+      time: '09:00'
+    };
+    
+    setSpecificDateSchedules([...specificDateSchedules, newSchedule]);
+    
+    const currentSchedules = form.getValues('specificDateSchedules') || [];
+    form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00' }]);
+  };
+
+  // Add a new goal
   const addGoal = () => {
-    setGoals([...goals, { description: '' }]);
+    const newId = `goal-${Date.now()}`;
+    setGoals([...goals, { id: newId, description: '' }]);
+    
     const currentGoals = form.getValues('goals') || [];
     form.setValue('goals', [...currentGoals, { description: '' }]);
   };
 
-  // Remove a goal field
+  // Remove a weekday schedule
+  const removeWeekdaySchedule = (index: number) => {
+    const updatedSchedules = [...weekdaySchedules];
+    updatedSchedules.splice(index, 1);
+    setWeekdaySchedules(updatedSchedules);
+    
+    const currentSchedules = form.getValues('weekdaySchedules');
+    currentSchedules.splice(index, 1);
+    form.setValue('weekdaySchedules', currentSchedules);
+  };
+
+  // Remove a specific date schedule
+  const removeSpecificDateSchedule = (index: number) => {
+    const updatedSchedules = [...specificDateSchedules];
+    updatedSchedules.splice(index, 1);
+    setSpecificDateSchedules(updatedSchedules);
+    
+    const currentSchedules = form.getValues('specificDateSchedules');
+    currentSchedules.splice(index, 1);
+    form.setValue('specificDateSchedules', currentSchedules);
+  };
+
+  // Remove a goal
   const removeGoal = (index: number) => {
+    if (goals.length <= 1) return; // Keep at least one goal
+    
     const updatedGoals = [...goals];
     updatedGoals.splice(index, 1);
     setGoals(updatedGoals);
@@ -120,220 +190,244 @@ const ScheduleCall = () => {
   };
 
   // Handle form submission
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log('Form data:', data);
-    
-    // In a real app, you would save this data to your backend
-    // For now, we'll just show a success message and redirect
     
     toast({
       title: "Calls Scheduled",
       description: "Your coaching calls have been scheduled successfully!",
     });
     
-    // Redirect to dashboard
     setTimeout(() => {
       navigate('/dashboard');
     }, 1500);
   };
 
+  // Initialize with one weekday schedule if empty
+  React.useEffect(() => {
+    if (weekdaySchedules.length === 0) {
+      addWeekdaySchedule();
+    }
+  }, []);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Schedule Type Selection */}
-        <FormField
-          control={form.control}
-          name="scheduleType"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Schedule Type</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col space-y-1"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="recurring" id="recurring" />
-                    <label htmlFor="recurring" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Recurring Weekly Calls
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="specific" id="specific" />
-                    <label htmlFor="specific" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Specific Date Call
-                    </label>
-                  </div>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Recurring Schedule Fields */}
-        {scheduleType === 'recurring' && (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="recurring.days"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Select Days</FormLabel>
-                    <FormDescription>
-                      Choose which days of the week you want to schedule your calls
-                    </FormDescription>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {daysOfWeek.map((day) => (
-                      <FormField
-                        key={day.id}
-                        control={form.control}
-                        name="recurring.days"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={day.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(day.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...field.value, day.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== day.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {day.label}
-                              </FormLabel>
-                            </FormItem>
-                          )
+        {/* Weekday Schedules */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <FormLabel className="text-base">Weekly Schedule</FormLabel>
+          </div>
+          <FormDescription>
+            Select which days of the week you want to have coaching calls.
+          </FormDescription>
+          
+          <div className="space-y-3">
+            {weekdaySchedules.map((schedule, index) => (
+              <div key={schedule.id} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                {/* Day Selection */}
+                <FormField
+                  control={form.control}
+                  name={`weekdaySchedules.${index}.day`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const updated = [...weekdaySchedules];
+                          updated[index].day = value;
+                          setWeekdaySchedules(updated);
                         }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        defaultValue={schedule.day}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select day" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {dayOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
 
-            {/* Time Selection for Recurring Calls */}
-            <FormField
-              control={form.control}
-              name="recurring.time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Call Time</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a time for your calls" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    This is the time when your calls will start on your selected days
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Time Selection */}
+                <FormField
+                  control={form.control}
+                  name={`weekdaySchedules.${index}.time`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const updated = [...weekdaySchedules];
+                          updated[index].time = value;
+                          setWeekdaySchedules(updated);
+                        }}
+                        defaultValue={schedule.time}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {timeOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Delete button */}
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeWeekdaySchedule(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
           </div>
-        )}
 
-        {/* Specific Date Fields */}
-        {scheduleType === 'specific' && (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="specific.date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>
-                    Select a specific date for your coaching call
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addWeekdaySchedule}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add weekday
+          </Button>
+        </div>
 
-            {/* Time Selection for Specific Date */}
-            <FormField
-              control={form.control}
-              name="specific.time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Call Time</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a time for your call" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    This is the time when your call will start on the selected date
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Specific Date Schedules */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <FormLabel className="text-base">Specific Date Schedule</FormLabel>
           </div>
-        )}
+          <FormDescription>
+            Add calls for specific dates if you have important events coming up.
+          </FormDescription>
+          
+          <div className="space-y-3">
+            {specificDateSchedules.map((schedule, index) => (
+              <div key={schedule.id} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                {/* Date Selection */}
+                <FormField
+                  control={form.control}
+                  name={`specificDateSchedules.${index}.date`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(date) => {
+                              field.onChange(date);
+                              if (date) {
+                                const updated = [...specificDateSchedules];
+                                updated[index].date = date;
+                                setSpecificDateSchedules(updated);
+                              }
+                            }}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Time Selection */}
+                <FormField
+                  control={form.control}
+                  name={`specificDateSchedules.${index}.time`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const updated = [...specificDateSchedules];
+                          updated[index].time = value;
+                          setSpecificDateSchedules(updated);
+                        }}
+                        defaultValue={schedule.time}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {timeOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Delete button */}
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeSpecificDateSchedule(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addSpecificDateSchedule}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add specific date
+          </Button>
+        </div>
 
         {/* Call Duration */}
         <FormField
@@ -384,7 +478,7 @@ const ScheduleCall = () => {
           
           {goals.map((goal, index) => (
             <FormField
-              key={index}
+              key={goal.id}
               control={form.control}
               name={`goals.${index}.description`}
               render={({ field }) => (
@@ -400,12 +494,11 @@ const ScheduleCall = () => {
                     {goals.length > 1 && (
                       <Button 
                         type="button" 
-                        variant="destructive" 
-                        size="sm"
+                        variant="ghost" 
+                        size="icon"
                         onClick={() => removeGoal(index)}
-                        className="mt-2"
                       >
-                        Remove
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
