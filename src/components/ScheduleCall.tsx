@@ -107,7 +107,7 @@ const ScheduleCall = () => {
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [defaultGoals, setDefaultGoals] = useState<GoalItem[]>([{ id: '1', description: '' }]);
   
-  const form = useFormProvider<z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       weekdaySchedules: [],
