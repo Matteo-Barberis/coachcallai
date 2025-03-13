@@ -1,0 +1,44 @@
+
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { useSessionContext } from '@/context/SessionContext';
+import { useToast } from "@/components/ui/use-toast";
+
+const UserMenu = () => {
+  const { session, signOut } = useSessionContext();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+  };
+
+  if (!session) {
+    return (
+      <div className="flex space-x-2">
+        <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
+          Sign In
+        </Button>
+        <Button className="bg-brand-primary hover:bg-brand-primary/90" onClick={() => window.location.href = "/auth/sign-up"}>
+          Sign Up
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-4">
+      <span className="hidden md:inline text-sm text-gray-600">
+        {session.user.email}
+      </span>
+      <Button variant="outline" onClick={handleSignOut}>
+        Sign Out
+      </Button>
+    </div>
+  );
+};
+
+export default UserMenu;

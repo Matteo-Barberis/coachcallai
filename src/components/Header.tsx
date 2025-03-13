@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import UserMenu from "@/components/UserMenu";
 
 const Header = () => {
   const { toast } = useToast();
@@ -38,12 +39,7 @@ const Header = () => {
           >
             Contact
           </Button>
-          <Button 
-            className="bg-brand-primary hover:bg-brand-primary/90"
-            onClick={handleEarlyAccess}
-          >
-            Get Early Access
-          </Button>
+          <UserMenu />
         </div>
       </div>
     </header>
