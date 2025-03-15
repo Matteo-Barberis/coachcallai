@@ -4,7 +4,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
@@ -28,6 +28,19 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold">Get Started</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 className="font-medium mb-2">Set Your Objectives</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Define what you want to achieve with your coaching sessions to get personalized guidance.
+                </p>
+                <Button asChild>
+                  <Link to="/objectives" className="flex items-center gap-2">
+                    <Target className="h-4 w-4" /> 
+                    Set Objectives
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">Schedule Your Coaching Calls</h3>
                 <p className="text-sm text-gray-500 mb-4">
                   Set up regular coaching calls that fit your schedule, or schedule calls for specific dates.
@@ -39,14 +52,30 @@ const Dashboard = () => {
                   </Link>
                 </Button>
               </div>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h3 className="font-medium mb-2">Your Coaching Sessions</h3>
+                <h3 className="font-medium mb-2">Connect to WhatsApp</h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  You don't have any upcoming coaching sessions scheduled yet.
+                  Link your WhatsApp account to receive coaching session reminders and quick updates.
                 </p>
                 <Button variant="outline" asChild>
-                  <Link to="/schedule">Set up your first call</Link>
+                  <Link to="/connect-whatsapp" className="flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    Connect WhatsApp
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 className="font-medium mb-2">See Your Progress</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Track your growth and achievements over time with personalized analytics.
+                </p>
+                <Button variant="outline" asChild>
+                  <Link to="/progress" className="flex items-center gap-2">
+                    <BarChart2 className="h-4 w-4" />
+                    View Progress
+                  </Link>
                 </Button>
               </div>
             </div>
