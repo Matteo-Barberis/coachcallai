@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -140,12 +141,13 @@ const ScheduleCall = () => {
   
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
-  const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', name: 'Morning Session', description: '' }]);
+  const [goals, setGoals] = useState<GoalItem[]>([{ id: 'new-1', name: 'Morning Session', description: '' }]);
   const [timeZone, setTimeZone] = useState('GMT');
   const [timeZoneWithTimes, setTimeZoneWithTimes] = useState(timeZoneOptions.map(tz => ({
     ...tz,
     currentTime: getTimeInZone(tz.timeZone)
   })));
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -167,6 +169,7 @@ const ScheduleCall = () => {
         .eq('id', session.user.id);
         
       if (error) throw error;
+      console.log('Profile timezone updated successfully');
     } catch (error) {
       console.error('Error updating profile timezone:', error);
       toast({
@@ -181,6 +184,7 @@ const ScheduleCall = () => {
     if (!session?.user) return [];
     
     try {
+      // Fetch existing goals to determine if we need to update or insert
       const { data: existingGoals, error: fetchError } = await supabase
         .from('goals')
         .select('id, name')
@@ -188,13 +192,19 @@ const ScheduleCall = () => {
         
       if (fetchError) throw fetchError;
       
+      console.log('Existing goals:', existingGoals);
+      
       const savedGoalIds: string[] = [];
       
       for (const [index, goal] of goalsData.entries()) {
         const goalId = goals[index]?.id;
-        const existingGoal = goalId && existingGoals?.find(g => g.id === goalId);
         
-        if (existingGoal) {
+        // Skip saving goals with temporary IDs that start with "new-"
+        const isExistingGoal = goalId && !goalId.startsWith('new-') && existingGoals?.find(g => g.id === goalId);
+        
+        if (isExistingGoal) {
+          // Update existing goal
+          console.log(`Updating goal ${goalId}:`, goal);
           const { error } = await supabase
             .from('goals')
             .update({
@@ -205,7 +215,10 @@ const ScheduleCall = () => {
             
           if (error) throw error;
           savedGoalIds.push(goalId);
+          console.log(`Goal updated: ${goalId}`);
         } else {
+          // Insert new goal
+          console.log(`Inserting new goal:`, goal);
           const { data, error } = await supabase
             .from('goals')
             .insert({
@@ -218,9 +231,11 @@ const ScheduleCall = () => {
             
           if (error) throw error;
           savedGoalIds.push(data.id);
+          console.log(`New goal inserted: ${data.id}`);
         }
       }
       
+      console.log('All saved goal IDs:', savedGoalIds);
       return savedGoalIds;
     } catch (error) {
       console.error('Error saving goals:', error);
@@ -241,6 +256,8 @@ const ScheduleCall = () => {
     if (!session?.user) return;
     
     try {
+      // First delete all existing scheduled calls for this user
+      console.log('Deleting existing scheduled calls');
       const { error: deleteError } = await supabase
         .from('scheduled_calls')
         .delete()
@@ -248,37 +265,56 @@ const ScheduleCall = () => {
         
       if (deleteError) throw deleteError;
       
+      // Prepare data for weekday schedules
       const weekdayInserts = weekdaySchedules.map((schedule) => {
         const weekdayMap: Record<string, number> = {
           monday: 1, tuesday: 2, wednesday: 3, thursday: 4, 
           friday: 5, saturday: 6, sunday: 7
         };
         
+        // If goalId starts with "new-", use the first saved goal ID
+        const goalIdToUse = schedule.goalId && !schedule.goalId.startsWith('new-') 
+          ? schedule.goalId 
+          : goalIds[0];
+        
         return {
           user_id: session.user.id,
           weekday: weekdayMap[schedule.day],
           time: schedule.time,
-          goal_id: schedule.goalId ? schedule.goalId : goalIds[0],
+          goal_id: goalIdToUse,
           specific_date: null
         };
       });
       
-      const specificDateInserts = specificDateSchedules.map(schedule => ({
-        user_id: session.user.id,
-        specific_date: schedule.date.toISOString().split('T')[0],
-        time: schedule.time,
-        goal_id: schedule.goalId ? schedule.goalId : goalIds[0],
-        weekday: null
-      }));
+      // Prepare data for specific date schedules
+      const specificDateInserts = specificDateSchedules.map(schedule => {
+        // If goalId starts with "new-", use the first saved goal ID
+        const goalIdToUse = schedule.goalId && !schedule.goalId.startsWith('new-') 
+          ? schedule.goalId 
+          : goalIds[0];
+          
+        return {
+          user_id: session.user.id,
+          specific_date: schedule.date.toISOString().split('T')[0],
+          time: schedule.time,
+          goal_id: goalIdToUse,
+          weekday: null
+        };
+      });
       
       const allSchedules = [...weekdayInserts, ...specificDateInserts];
+      console.log('Schedules to insert:', allSchedules);
       
       if (allSchedules.length > 0) {
         const { error: insertError } = await supabase
           .from('scheduled_calls')
           .insert(allSchedules);
           
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Error inserting schedules:', insertError);
+          throw insertError;
+        }
+        console.log('Inserted schedules successfully');
       }
     } catch (error) {
       console.error('Error saving schedules:', error);
@@ -321,7 +357,7 @@ const ScheduleCall = () => {
   };
 
   const addGoal = () => {
-    const newId = `goal-${Date.now()}`;
+    const newId = `new-${Date.now()}`;
     setGoals([...goals, { id: newId, name: '', description: '' }]);
     
     const currentGoals = form.getValues('goals') || [];
@@ -409,6 +445,7 @@ const ScheduleCall = () => {
     }
     
     try {
+      setIsSubmitting(true);
       console.log('Form data:', data);
       
       await saveProfile(data.timeZone);
@@ -436,6 +473,8 @@ const ScheduleCall = () => {
         title: 'Error scheduling calls',
         description: 'There was a problem saving your scheduled calls.',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -443,7 +482,35 @@ const ScheduleCall = () => {
     if (weekdaySchedules.length === 0) {
       addWeekdaySchedule();
     }
-  }, []);
+    
+    // Load any existing goals from the database
+    const loadGoals = async () => {
+      if (!session?.user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('goals')
+          .select('id, name, description')
+          .eq('user_id', session.user.id);
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setGoals(data);
+          form.setValue('goals', data.map(g => ({ 
+            name: g.name, 
+            description: g.description || '' 
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading goals:', error);
+      }
+    };
+    
+    if (session?.user) {
+      loadGoals();
+    }
+  }, [session]);
 
   useEffect(() => {
     const updateTimes = () => {
@@ -570,8 +637,9 @@ const ScheduleCall = () => {
                       <FormItem className="flex-1 min-w-[180px]">
                         <Select 
                           onValueChange={(value) => {
-                            field.onChange(value);
-                            setWeekdayScheduleGoal(index, value === "none" ? null : value);
+                            const goalIdValue = value === "none" ? null : value;
+                            field.onChange(goalIdValue);
+                            setWeekdayScheduleGoal(index, goalIdValue);
                           }}
                           defaultValue={schedule.goalId || "none"}
                         >
@@ -694,8 +762,9 @@ const ScheduleCall = () => {
                       <FormItem className="flex-1 min-w-[180px]">
                         <Select 
                           onValueChange={(value) => {
-                            field.onChange(value);
-                            setSpecificDateScheduleGoal(index, value === "none" ? null : value);
+                            const goalIdValue = value === "none" ? null : value;
+                            field.onChange(goalIdValue);
+                            setSpecificDateScheduleGoal(index, goalIdValue);
                           }}
                           defaultValue={schedule.goalId || "none"}
                         >
@@ -845,7 +914,13 @@ const ScheduleCall = () => {
           </Button>
         </div>
 
-        <Button type="submit" className="w-full">Schedule Calls</Button>
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Saving..." : "Schedule Calls"}
+        </Button>
       </form>
     </Form>
   );
