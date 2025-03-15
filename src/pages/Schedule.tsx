@@ -1,15 +1,12 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
 import Header from '@/components/Header';
 import ScheduleCall from '@/components/ScheduleCall';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
 
 const Schedule = () => {
   const { session, loading } = useSessionContext();
-  const { toast } = useToast();
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
