@@ -100,22 +100,35 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
+const getTimeInZone = (timeZone: string) => {
+  try {
+    const options: Intl.DateTimeFormatOptions = { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: timeZone
+    };
+    return new Date().toLocaleTimeString(undefined, options);
+  } catch (error) {
+    return '';
+  }
+};
+
 const timeZoneOptions = [
-  { value: 'GMT', label: 'Greenwich Mean Time (GMT)' },
-  { value: 'UTC', label: 'Coordinated Universal Time (UTC)' },
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'Europe/London', label: 'British Time (BST)' },
-  { value: 'Europe/Paris', label: 'Central European Time (CET)' },
-  { value: 'Europe/Athens', label: 'Eastern European Time (EET)' },
-  { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST)' },
-  { value: 'Asia/Kolkata', label: 'India Standard Time (IST)' },
-  { value: 'Asia/Shanghai', label: 'China Standard Time (CST)' },
-  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
-  { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' },
-  { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)' },
+  { value: 'GMT', label: 'Greenwich Mean Time (GMT)', timeZone: 'GMT' },
+  { value: 'UTC', label: 'Coordinated Universal Time (UTC)', timeZone: 'UTC' },
+  { value: 'America/New_York', label: 'Eastern Time (ET)', timeZone: 'America/New_York' },
+  { value: 'America/Chicago', label: 'Central Time (CT)', timeZone: 'America/Chicago' },
+  { value: 'America/Denver', label: 'Mountain Time (MT)', timeZone: 'America/Denver' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)', timeZone: 'America/Los_Angeles' },
+  { value: 'Europe/London', label: 'British Time (BST)', timeZone: 'Europe/London' },
+  { value: 'Europe/Paris', label: 'Central European Time (CET)', timeZone: 'Europe/Paris' },
+  { value: 'Europe/Athens', label: 'Eastern European Time (EET)', timeZone: 'Europe/Athens' },
+  { value: 'Asia/Dubai', label: 'Gulf Standard Time (GST)', timeZone: 'Asia/Dubai' },
+  { value: 'Asia/Kolkata', label: 'India Standard Time (IST)', timeZone: 'Asia/Kolkata' },
+  { value: 'Asia/Shanghai', label: 'China Standard Time (CST)', timeZone: 'Asia/Shanghai' },
+  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)', timeZone: 'Asia/Tokyo' },
+  { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)', timeZone: 'Australia/Sydney' },
+  { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)', timeZone: 'Pacific/Auckland' },
 ];
 
 const ScheduleCall = () => {
@@ -126,6 +139,10 @@ const ScheduleCall = () => {
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', name: 'Morning Session', description: '' }]);
   const [timeZone, setTimeZone] = useState('GMT');
+  const [timeZoneWithTimes, setTimeZoneWithTimes] = useState(timeZoneOptions.map(tz => ({
+    ...tz,
+    currentTime: getTimeInZone(tz.timeZone)
+  })));
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -257,10 +274,22 @@ const ScheduleCall = () => {
     }, 1500);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (weekdaySchedules.length === 0) {
       addWeekdaySchedule();
     }
+  }, []);
+
+  useEffect(() => {
+    const updateTimes = () => {
+      setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
+        ...tz,
+        currentTime: getTimeInZone(tz.timeZone)
+      })));
+    };
+    
+    const interval = setInterval(updateTimes, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -288,9 +317,9 @@ const ScheduleCall = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {timeZoneOptions.map((tz) => (
+                      {timeZoneWithTimes.map((tz) => (
                         <SelectItem key={tz.value} value={tz.value}>
-                          {tz.label}
+                          {tz.label} ({tz.currentTime})
                         </SelectItem>
                       ))}
                     </SelectContent>
