@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
+import { UserObjective } from '@/types/supabase';
 
 import {
   Form,
@@ -199,21 +199,16 @@ const ScheduleCall = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('user_objectives')
-        .select('objectives')
-        .eq('user_id', session.user.id)
-        .single();
+        .rpc('get_user_objectives', { user_id_param: session.user.id });
       
       if (error) {
-        if (error.code !== 'PGRST116') { // PGRST116 is "No rows returned" error
-          console.error('Error fetching user objectives:', error);
-        }
+        console.error('Error fetching user objectives:', error);
         return;
       }
       
-      if (data) {
-        setUserObjectives(data.objectives);
-        form.setValue('objectives', data.objectives);
+      if (data && data.length > 0) {
+        setUserObjectives(data[0].objectives || '');
+        form.setValue('objectives', data[0].objectives || '');
       }
     } catch (error) {
       console.error('Error in fetchUserObjectives:', error);
@@ -448,54 +443,22 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // Save or update user objectives
-      const { data: existingObjectives, error: fetchError } = await supabase
-        .from('user_objectives')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
+      // Save or update user objectives using RPC
+      const { error: objectivesError } = await supabase
+        .rpc('upsert_user_objectives', { 
+          user_id_param: session.user.id,
+          objectives_param: data.objectives
+        });
       
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Error checking existing objectives:', fetchError);
-      }
-      
-      if (existingObjectives) {
-        // Update existing objectives
-        const { error: updateError } = await supabase
-          .from('user_objectives')
-          .update({ objectives: data.objectives, updated_at: new Date().toISOString() })
-          .eq('id', existingObjectives.id)
-          .eq('user_id', session.user.id);
-          
-        if (updateError) {
-          console.error('Error updating objectives:', updateError);
-          toast({
-            title: "Error",
-            description: "Failed to update your objectives. Please try again.",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        // Insert new objectives
-        const { error: insertError } = await supabase
-          .from('user_objectives')
-          .insert({
-            user_id: session.user.id,
-            objectives: data.objectives
-          });
-          
-        if (insertError) {
-          console.error('Error inserting objectives:', insertError);
-          toast({
-            title: "Error",
-            description: "Failed to save your objectives. Please try again.",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
+      if (objectivesError) {
+        console.error('Error updating objectives:', objectivesError);
+        toast({
+          title: "Error",
+          description: "Failed to update your objectives. Please try again.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
       }
       
       // Delete schedules marked for deletion
