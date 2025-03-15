@@ -308,7 +308,7 @@ const ScheduleCall = () => {
           .map(item => ({
             id: item.id,
             day: weekdayMap[item.weekday as number] || 'monday',
-            time: item.time,
+            time: item.time || '09:00', // Fix: Ensure time is never empty
             goalId: item.goal_id,
             isFromDb: true
           }));
@@ -319,7 +319,7 @@ const ScheduleCall = () => {
           .map(item => ({
             id: item.id,
             date: new Date(item.specific_date as string),
-            time: item.time,
+            time: item.time || '09:00', // Fix: Ensure time is never empty
             goalId: item.goal_id,
             isFromDb: true
           }));
@@ -391,9 +391,16 @@ const ScheduleCall = () => {
         description: "Your coaching calls have been scheduled successfully!",
       });
       
-      // Refresh data
-      await loadGoals();
-      await loadScheduledCalls();
+      // Refresh data to show updated information
+      setDeletedGoalIds([]);
+      setDeletedWeekdayScheduleIds([]);
+      setDeletedSpecificDateScheduleIds([]);
+      
+      // Reload data
+      await Promise.all([
+        loadGoals(),
+        loadScheduledCalls()
+      ]);
       
       // Navigate to dashboard
       setTimeout(() => {
@@ -418,11 +425,16 @@ const ScheduleCall = () => {
     
     // Handle goal deletions first
     if (deletedGoalIds.length > 0) {
-      console.log('Deleting goals with IDs:', deletedGoalIds);
-      await supabase
-        .from('goals')
-        .delete()
-        .in('id', deletedGoalIds);
+      // Filter out any "new-" IDs since they're not in the database
+      const dbIdsToDelete = deletedGoalIds.filter(id => !id.startsWith('new-'));
+      
+      if (dbIdsToDelete.length > 0) {
+        console.log('Deleting goals with IDs:', dbIdsToDelete);
+        await supabase
+          .from('goals')
+          .delete()
+          .in('id', dbIdsToDelete);
+      }
       
       setDeletedGoalIds([]);
     }
@@ -505,6 +517,9 @@ const ScheduleCall = () => {
       const originalSchedule = weekdaySchedules[index];
       const isFromDb = originalSchedule?.isFromDb;
       
+      // Fix: Ensure we're using a valid time (never empty)
+      const time = schedule.time || '09:00';
+      
       // Use valid goal ID or first available goal
       let goalId = schedule.goalId;
       if (!goalId || goalId === "none" || goalId.startsWith('new-')) {
@@ -515,7 +530,7 @@ const ScheduleCall = () => {
         ...(isFromDb ? { id: originalSchedule.id } : {}),
         user_id: session.user.id,
         weekday: weekdayMap[schedule.day],
-        time: schedule.time,
+        time: time,
         goal_id: goalId,
         specific_date: null
       };
@@ -525,6 +540,9 @@ const ScheduleCall = () => {
     const dateUpserts = specificDateData.map((schedule, index) => {
       const originalSchedule = specificDateSchedules[index];
       const isFromDb = originalSchedule?.isFromDb;
+      
+      // Fix: Ensure we're using a valid time (never empty)
+      const time = schedule.time || '09:00';
       
       // Format date as YYYY-MM-DD for Supabase
       const formattedDate = schedule.date.toISOString().split('T')[0];
@@ -539,7 +557,7 @@ const ScheduleCall = () => {
         ...(isFromDb ? { id: originalSchedule.id } : {}),
         user_id: session.user.id,
         specific_date: formattedDate,
-        time: schedule.time,
+        time: time,
         goal_id: goalId,
         weekday: null
       };
