@@ -85,10 +85,10 @@ const SelectContent = React.forwardRef<
       }}
       onPointerDownOutside={(event) => {
         // This prevents scrolling issues when clicking outside the select
-        const target = event.target as HTMLElement;
+        const target = event.originalEvent.target as HTMLElement;
         const isScrollbarClick = 
           target.tagName === 'HTML' && 
-          event.clientX > document.documentElement.clientWidth;
+          window.innerWidth < document.documentElement.getBoundingClientRect().right;
           
         if (isScrollbarClick) {
           event.preventDefault();
