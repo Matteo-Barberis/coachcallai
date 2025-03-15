@@ -73,9 +73,7 @@ const formSchema = z.object({
     z.object({
       date: z.date(),
       time: z.string(),
-      goalId: z.string().refine(val => val !== null && val !== "none", {
-        message: "A goal must be selected for specific date schedules"
-      })
+      goalId: z.string().nullable()
     })
   ),
   goals: z.array(
@@ -144,6 +142,7 @@ const ScheduleCall = () => {
   const navigate = useNavigate();
   const { session } = useSessionContext();
   
+  // State for UI elements
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -153,10 +152,12 @@ const ScheduleCall = () => {
     currentTime: getTimeInZone(tz.timeZone)
   })));
   
+  // State for tracking deletions
   const [deletedGoalIds, setDeletedGoalIds] = useState<string[]>([]);
   const [deletedWeekdayScheduleIds, setDeletedWeekdayScheduleIds] = useState<string[]>([]);
   const [deletedSpecificDateScheduleIds, setDeletedSpecificDateScheduleIds] = useState<string[]>([]);
   
+  // Loading state
   const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -169,6 +170,7 @@ const ScheduleCall = () => {
     },
   });
 
+  // Fetch goals from the database
   const fetchGoals = async () => {
     if (!session?.user?.id) return;
     
@@ -185,6 +187,7 @@ const ScheduleCall = () => {
       }
       
       if (data && data.length > 0) {
+        // Mark goals as coming from the database
         const dbGoals = data.map(goal => ({
           ...goal,
           isFromDb: true
@@ -192,11 +195,13 @@ const ScheduleCall = () => {
         
         setGoals(dbGoals);
         
+        // Update form values
         form.setValue('goals', data.map(({ name, description }) => ({ 
           name, 
           description 
         })));
       } else {
+        // Add a default goal if none exist
         const defaultGoal = { id: `goal-${Date.now()}`, name: 'Morning Session', description: '', isFromDb: false };
         setGoals([defaultGoal]);
         form.setValue('goals', [{ name: 'Morning Session', description: '' }]);
@@ -208,12 +213,14 @@ const ScheduleCall = () => {
     }
   };
 
+  // Fetch schedules from the database
   const fetchSchedules = async () => {
     if (!session?.user?.id) return;
     
     try {
       setIsLoading(true);
       
+      // Fetch weekday schedules
       const { data: weekdayData, error: weekdayError } = await supabase
         .from('scheduled_calls')
         .select('id, weekday, time, goal_id')
@@ -223,13 +230,16 @@ const ScheduleCall = () => {
       if (weekdayError) {
         console.error('Error fetching weekday schedules:', weekdayError);
       } else if (weekdayData && weekdayData.length > 0) {
+        // Convert weekday number to day string
         const weekdaySchedulesFromDb = weekdayData.map((schedule) => {
           const weekdayNum = schedule.weekday;
           const dayOption = dayOptions.find(day => day.weekdayNum === weekdayNum);
           const dayString = dayOption ? dayOption.value : 'monday';
           
+          // Format time properly - this is the fix for the time display issue
           let timeValue = schedule.time;
           if (typeof timeValue === 'string' && timeValue.includes(':')) {
+            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
             const timeParts = timeValue.split(':');
             if (timeParts.length >= 2) {
               timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
@@ -247,6 +257,7 @@ const ScheduleCall = () => {
         
         setWeekdaySchedules(weekdaySchedulesFromDb);
         
+        // Update form values
         form.setValue('weekdaySchedules', weekdaySchedulesFromDb.map(({ day, time, goalId }) => ({ 
           day, 
           time, 
@@ -254,6 +265,7 @@ const ScheduleCall = () => {
         })));
       }
       
+      // Fetch specific date schedules
       const { data: dateData, error: dateError } = await supabase
         .from('scheduled_calls')
         .select('id, specific_date, time, goal_id')
@@ -264,8 +276,10 @@ const ScheduleCall = () => {
         console.error('Error fetching specific date schedules:', dateError);
       } else if (dateData && dateData.length > 0) {
         const specificDateSchedulesFromDb = dateData.map((schedule) => {
+          // Format time properly - this is the fix for the time display issue
           let timeValue = schedule.time;
           if (typeof timeValue === 'string' && timeValue.includes(':')) {
+            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
             const timeParts = timeValue.split(':');
             if (timeParts.length >= 2) {
               timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
@@ -283,6 +297,7 @@ const ScheduleCall = () => {
         
         setSpecificDateSchedules(specificDateSchedulesFromDb);
         
+        // Update form values
         form.setValue('specificDateSchedules', specificDateSchedulesFromDb.map(({ date, time, goalId }) => ({ 
           date, 
           time, 
@@ -301,6 +316,7 @@ const ScheduleCall = () => {
     fetchSchedules();
   }, [session]);
 
+  // Add a new goal
   const addGoal = () => {
     const newId = `goal-${Date.now()}`;
     const newGoal = { 
@@ -316,24 +332,29 @@ const ScheduleCall = () => {
     form.setValue('goals', [...currentGoals, { name: '', description: '' }]);
   };
 
+  // Remove a goal
   const removeGoal = (index: number) => {
     if (goals.length <= 1) return;
     
     const goalToRemove = goals[index];
     const updatedGoals = [...goals];
     
+    // If the goal is from the database, track it for deletion
     if (goalToRemove.isFromDb) {
       setDeletedGoalIds([...deletedGoalIds, goalToRemove.id]);
     }
     
+    // Remove the goal from the state
     updatedGoals.splice(index, 1);
     setGoals(updatedGoals);
     
+    // Remove the goal from the form values
     const currentGoals = form.getValues('goals');
     currentGoals.splice(index, 1);
     form.setValue('goals', currentGoals);
   };
 
+  // Functions for weekday schedules
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
     const newSchedule = {
@@ -354,18 +375,22 @@ const ScheduleCall = () => {
     const scheduleToRemove = weekdaySchedules[index];
     const updatedSchedules = [...weekdaySchedules];
     
+    // If the schedule is from the database, track it for deletion
     if (scheduleToRemove.isFromDb) {
       setDeletedWeekdayScheduleIds([...deletedWeekdayScheduleIds, scheduleToRemove.id]);
     }
     
+    // Remove the schedule from the state
     updatedSchedules.splice(index, 1);
     setWeekdaySchedules(updatedSchedules);
     
+    // Remove the schedule from the form values
     const currentSchedules = form.getValues('weekdaySchedules');
     currentSchedules.splice(index, 1);
     form.setValue('weekdaySchedules', currentSchedules);
   };
 
+  // Functions for specific date schedules
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
     const newSchedule = {
@@ -386,18 +411,22 @@ const ScheduleCall = () => {
     const scheduleToRemove = specificDateSchedules[index];
     const updatedSchedules = [...specificDateSchedules];
     
+    // If the schedule is from the database, track it for deletion
     if (scheduleToRemove.isFromDb) {
       setDeletedSpecificDateScheduleIds([...deletedSpecificDateScheduleIds, scheduleToRemove.id]);
     }
     
+    // Remove the schedule from the state
     updatedSchedules.splice(index, 1);
     setSpecificDateSchedules(updatedSchedules);
     
+    // Remove the schedule from the form values
     const currentSchedules = form.getValues('specificDateSchedules');
     currentSchedules.splice(index, 1);
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
+  // Handle goal association
   const setWeekdayScheduleGoal = (index: number, goalId: string | null) => {
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules[index].goalId = goalId;
@@ -418,6 +447,7 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
+  // Handle form submission
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     if (!session?.user?.id) {
       toast({
@@ -428,22 +458,10 @@ const ScheduleCall = () => {
       return;
     }
     
-    const hasInvalidDateSchedules = data.specificDateSchedules.some(
-      schedule => !schedule.goalId || schedule.goalId === "none"
-    );
-    
-    if (hasInvalidDateSchedules) {
-      toast({
-        title: "Invalid scheduling",
-        description: "All specific date schedules must have a goal assigned",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     setIsLoading(true);
     
     try {
+      // Process goals first
       if (deletedGoalIds.length > 0) {
         for (const goalId of deletedGoalIds) {
           if (goalId.startsWith('goal-')) continue;
@@ -611,7 +629,7 @@ const ScheduleCall = () => {
             
           if (error) {
             console.error(`Failed to update specific date schedule ${schedule.id}:`, error);
-            throw error;
+            continue;
           }
           
           savedSpecificDateSchedules.push({ 
@@ -636,7 +654,7 @@ const ScheduleCall = () => {
             
           if (error) {
             console.error('Failed to insert new specific date schedule:', error);
-            throw error;
+            continue;
           }
           
           savedSpecificDateSchedules.push({ 
@@ -938,7 +956,7 @@ const ScheduleCall = () => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Assign a goal (required)" />
+                              <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
