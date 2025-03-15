@@ -20,7 +20,7 @@ const Schedule = () => {
         <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
           <h1 className="text-2xl font-bold mb-2">Schedule Your Coaching Calls</h1>
           <p className="text-gray-500 mb-6">Set up regular coaching sessions or schedule one-time calls using our predefined templates</p>
-          <ScheduleCall />
+          <ScheduleCall hideObjectives={true} />
         </div>
       </main>
     </div>

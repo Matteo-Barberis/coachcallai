@@ -37,7 +37,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-// Types for templates and schedules
 type Template = {
   id: string;
   name: string;
@@ -136,12 +135,15 @@ const timeZoneOptions = [
   { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)', timeZone: 'Pacific/Auckland' },
 ];
 
-const ScheduleCall = () => {
+interface ScheduleCallProps {
+  hideObjectives?: boolean;
+}
+
+const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
   
-  // State for UI elements
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -152,11 +154,9 @@ const ScheduleCall = () => {
     currentTime: getTimeInZone(tz.timeZone)
   })));
   
-  // State for tracking deletions
   const [deletedWeekdayScheduleIds, setDeletedWeekdayScheduleIds] = useState<string[]>([]);
   const [deletedSpecificDateScheduleIds, setDeletedSpecificDateScheduleIds] = useState<string[]>([]);
   
-  // Loading state
   const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -169,7 +169,6 @@ const ScheduleCall = () => {
     },
   });
 
-  // Fetch templates from the database
   const fetchTemplates = async () => {
     try {
       setIsLoading(true);
@@ -192,14 +191,15 @@ const ScheduleCall = () => {
     }
   };
 
-  // Fetch user objectives from the database
   const fetchUserObjectives = async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || hideObjectives) return;
     
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .rpc('get_user_objectives', { user_id_param: session.user.id });
+        .from('user_objectives')
+        .select('*')
+        .eq('user_id', session.user.id);
       
       if (error) {
         console.error('Error fetching user objectives:', error);
@@ -217,14 +217,12 @@ const ScheduleCall = () => {
     }
   };
 
-  // Fetch schedules from the database
   const fetchSchedules = async () => {
     if (!session?.user?.id) return;
     
     try {
       setIsLoading(true);
       
-      // Fetch weekday schedules
       const { data: weekdayData, error: weekdayError } = await supabase
         .from('scheduled_calls')
         .select('id, weekday, time, template_id')
@@ -234,16 +232,13 @@ const ScheduleCall = () => {
       if (weekdayError) {
         console.error('Error fetching weekday schedules:', weekdayError);
       } else if (weekdayData && weekdayData.length > 0) {
-        // Convert weekday number to day string
         const weekdaySchedulesFromDb = weekdayData.map((schedule) => {
           const weekdayNum = schedule.weekday;
           const dayOption = dayOptions.find(day => day.weekdayNum === weekdayNum);
           const dayString = dayOption ? dayOption.value : 'monday';
           
-          // Format time properly
           let timeValue = schedule.time;
           if (typeof timeValue === 'string' && timeValue.includes(':')) {
-            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
             const timeParts = timeValue.split(':');
             if (timeParts.length >= 2) {
               timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
@@ -261,7 +256,6 @@ const ScheduleCall = () => {
         
         setWeekdaySchedules(weekdaySchedulesFromDb);
         
-        // Update form values
         form.setValue('weekdaySchedules', weekdaySchedulesFromDb.map(({ day, time, templateId }) => ({ 
           day, 
           time, 
@@ -269,7 +263,6 @@ const ScheduleCall = () => {
         })));
       }
       
-      // Fetch specific date schedules
       const { data: dateData, error: dateError } = await supabase
         .from('scheduled_calls')
         .select('id, specific_date, time, template_id')
@@ -280,10 +273,8 @@ const ScheduleCall = () => {
         console.error('Error fetching specific date schedules:', dateError);
       } else if (dateData && dateData.length > 0) {
         const specificDateSchedulesFromDb = dateData.map((schedule) => {
-          // Format time properly
           let timeValue = schedule.time;
           if (typeof timeValue === 'string' && timeValue.includes(':')) {
-            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
             const timeParts = timeValue.split(':');
             if (timeParts.length >= 2) {
               timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
@@ -301,7 +292,6 @@ const ScheduleCall = () => {
         
         setSpecificDateSchedules(specificDateSchedulesFromDb);
         
-        // Update form values
         form.setValue('specificDateSchedules', specificDateSchedulesFromDb.map(({ date, time, templateId }) => ({ 
           date, 
           time, 
@@ -322,10 +312,8 @@ const ScheduleCall = () => {
     });
   }, [session]);
 
-  // Functions for weekday schedules
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
-    // If there are templates, assign the first one by default
     const defaultTemplateId = templates.length > 0 ? templates[0].id : null;
     
     const newSchedule = {
@@ -350,25 +338,20 @@ const ScheduleCall = () => {
     const scheduleToRemove = weekdaySchedules[index];
     const updatedSchedules = [...weekdaySchedules];
     
-    // If the schedule is from the database, track it for deletion
     if (scheduleToRemove.isFromDb) {
       setDeletedWeekdayScheduleIds([...deletedWeekdayScheduleIds, scheduleToRemove.id]);
     }
     
-    // Remove the schedule from the state
     updatedSchedules.splice(index, 1);
     setWeekdaySchedules(updatedSchedules);
     
-    // Remove the schedule from the form values
     const currentSchedules = form.getValues('weekdaySchedules');
     currentSchedules.splice(index, 1);
     form.setValue('weekdaySchedules', currentSchedules);
   };
 
-  // Functions for specific date schedules
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
-    // If there are templates, assign the first one by default
     const defaultTemplateId = templates.length > 0 ? templates[0].id : null;
     
     const newSchedule = {
@@ -393,22 +376,18 @@ const ScheduleCall = () => {
     const scheduleToRemove = specificDateSchedules[index];
     const updatedSchedules = [...specificDateSchedules];
     
-    // If the schedule is from the database, track it for deletion
     if (scheduleToRemove.isFromDb) {
       setDeletedSpecificDateScheduleIds([...deletedSpecificDateScheduleIds, scheduleToRemove.id]);
     }
     
-    // Remove the schedule from the state
     updatedSchedules.splice(index, 1);
     setSpecificDateSchedules(updatedSchedules);
     
-    // Remove the schedule from the form values
     const currentSchedules = form.getValues('specificDateSchedules');
     currentSchedules.splice(index, 1);
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  // Handle template association
   const setWeekdayScheduleTemplate = (index: number, templateId: string | null) => {
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules[index].templateId = templateId;
@@ -429,7 +408,6 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  // Handle form submission
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     if (!session?.user?.id) {
       toast({
@@ -443,25 +421,29 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // Save or update user objectives using RPC
-      const { error: objectivesError } = await supabase
-        .rpc('upsert_user_objectives', { 
-          user_id_param: session.user.id,
-          objectives_param: data.objectives
-        });
-      
-      if (objectivesError) {
-        console.error('Error updating objectives:', objectivesError);
-        toast({
-          title: "Error",
-          description: "Failed to update your objectives. Please try again.",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-        return;
+      if (!hideObjectives) {
+        const { error: objectivesError } = await supabase
+          .from('user_objectives')
+          .upsert({
+            user_id: session.user.id,
+            objectives: data.objectives,
+            updated_at: new Date().toISOString()
+          }, { 
+            onConflict: 'user_id' 
+          });
+        
+        if (objectivesError) {
+          console.error('Error updating objectives:', objectivesError);
+          toast({
+            title: "Error",
+            description: "Failed to update your objectives. Please try again.",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
       }
       
-      // Delete schedules marked for deletion
       if (deletedWeekdayScheduleIds.length > 0) {
         for (const scheduleId of deletedWeekdayScheduleIds) {
           if (scheduleId.startsWith('weekday-')) continue;
@@ -494,7 +476,6 @@ const ScheduleCall = () => {
         }
       }
       
-      // Process weekday schedules
       const savedWeekdaySchedules: WeekdaySchedule[] = [];
       
       for (let i = 0; i < weekdaySchedules.length; i++) {
@@ -513,7 +494,7 @@ const ScheduleCall = () => {
               weekday: weekdayNum,
               time: formSchedule.time,
               template_id: templateId,
-              goal_id: null // Set goal_id to null as we're transitioning to templates
+              goal_id: null
             })
             .eq('id', schedule.id)
             .eq('user_id', session.user.id)
@@ -544,7 +525,7 @@ const ScheduleCall = () => {
               template_id: templateId,
               user_id: session.user.id,
               specific_date: null,
-              goal_id: null // Set goal_id to null as we're transitioning to templates
+              goal_id: null
             })
             .select('id, weekday, time, template_id')
             .single();
@@ -567,7 +548,6 @@ const ScheduleCall = () => {
         }
       }
       
-      // Process specific date schedules
       const savedSpecificDateSchedules: SpecificDateSchedule[] = [];
       
       for (let i = 0; i < specificDateSchedules.length; i++) {
@@ -585,7 +565,7 @@ const ScheduleCall = () => {
               specific_date: formattedDate,
               time: formSchedule.time,
               template_id: templateId,
-              goal_id: null // Set goal_id to null as we're transitioning to templates
+              goal_id: null
             })
             .eq('id', schedule.id)
             .eq('user_id', session.user.id)
@@ -613,7 +593,7 @@ const ScheduleCall = () => {
               template_id: templateId,
               user_id: session.user.id,
               weekday: null,
-              goal_id: null // Set goal_id to null as we're transitioning to templates
+              goal_id: null
             })
             .select('id, specific_date, time, template_id')
             .single();
@@ -677,33 +657,35 @@ const ScheduleCall = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-4">
-          <div>
-            <FormLabel className="text-base">Your Coaching Objectives</FormLabel>
-            <FormDescription className="mb-4">
-              Define what you want to achieve with your coaching sessions. These objectives will guide your coach in providing relevant guidance.
-            </FormDescription>
-            
-            <FormField
-              control={form.control}
-              name="objectives"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      placeholder="e.g., I want to improve my public speaking skills, develop better work-life balance, advance in my career..."
-                      className="min-h-[120px]"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setUserObjectives(e.target.value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          {!hideObjectives && (
+            <div>
+              <FormLabel className="text-base">Your Coaching Objectives</FormLabel>
+              <FormDescription className="mb-4">
+                Define what you want to achieve with your coaching sessions. These objectives will guide your coach in providing relevant guidance.
+              </FormDescription>
+              
+              <FormField
+                control={form.control}
+                name="objectives"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g., I want to improve my public speaking skills, develop better work-life balance, advance in my career..."
+                        className="min-h-[120px]"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setUserObjectives(e.target.value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
           
           <div>
             <FormLabel className="text-base">Weekly Schedule</FormLabel>
