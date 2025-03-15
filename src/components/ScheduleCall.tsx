@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,6 +7,8 @@ import { format } from 'date-fns';
 import { CalendarIcon, Clock, Plus, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { useSessionContext } from '@/context/SessionContext';
+import { supabase } from '@/integrations/supabase/client';
 
 import {
   Form,
@@ -34,24 +37,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-type WeekdaySchedule = {
-  id: string;
-  day: string;
-  time: string;
-  goalId: string | null;
-};
-
-type SpecificDateSchedule = {
-  id: string;
-  date: Date;
-  time: string;
-  goalId: string | null;
-};
-
-type GoalItem = {
+// Types for goals and schedules
+type Goal = {
   id: string;
   name: string;
   description: string;
+  isFromDb?: boolean;
 };
 
 const formSchema = z.object({
@@ -134,15 +125,23 @@ const timeZoneOptions = [
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { session } = useSessionContext();
   
-  const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
-  const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
-  const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', name: 'Morning Session', description: '' }]);
+  // State for UI elements
+  const [weekdaySchedules, setWeekdaySchedules] = useState<any[]>([]);
+  const [specificDateSchedules, setSpecificDateSchedules] = useState<any[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
   const [timeZone, setTimeZone] = useState('GMT');
   const [timeZoneWithTimes, setTimeZoneWithTimes] = useState(timeZoneOptions.map(tz => ({
     ...tz,
     currentTime: getTimeInZone(tz.timeZone)
   })));
+  
+  // State for tracking deletions
+  const [deletedGoalIds, setDeletedGoalIds] = useState<string[]>([]);
+  
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -150,13 +149,231 @@ const ScheduleCall = () => {
       timeZone: 'GMT',
       weekdaySchedules: [],
       specificDateSchedules: [],
-      goals: [{ name: 'Morning Session', description: '' }],
+      goals: [],
     },
   });
 
+  // Fetch goals from the database
+  const fetchGoals = async () => {
+    if (!session?.user?.id) return;
+    
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('goals')
+        .select('id, name, description')
+        .eq('user_id', session.user.id);
+      
+      if (error) {
+        console.error('Error fetching goals:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        // Mark goals as coming from the database
+        const dbGoals = data.map(goal => ({
+          ...goal,
+          isFromDb: true
+        }));
+        
+        setGoals(dbGoals);
+        
+        // Update form values
+        form.setValue('goals', data.map(({ name, description }) => ({ 
+          name, 
+          description 
+        })));
+      } else {
+        // Add a default goal if none exist
+        const defaultGoal = { id: `goal-${Date.now()}`, name: 'Morning Session', description: '', isFromDb: false };
+        setGoals([defaultGoal]);
+        form.setValue('goals', [{ name: 'Morning Session', description: '' }]);
+      }
+    } catch (error) {
+      console.error('Error in fetchGoals:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGoals();
+  }, [session]);
+
+  // Add a new goal
+  const addGoal = () => {
+    const newId = `goal-${Date.now()}`;
+    const newGoal = { 
+      id: newId, 
+      name: '', 
+      description: '',
+      isFromDb: false
+    };
+    
+    setGoals([...goals, newGoal]);
+    
+    const currentGoals = form.getValues('goals') || [];
+    form.setValue('goals', [...currentGoals, { name: '', description: '' }]);
+  };
+
+  // Remove a goal
+  const removeGoal = (index: number) => {
+    if (goals.length <= 1) return;
+    
+    const goalToRemove = goals[index];
+    const updatedGoals = [...goals];
+    
+    // If the goal is from the database, track it for deletion
+    if (goalToRemove.isFromDb) {
+      setDeletedGoalIds([...deletedGoalIds, goalToRemove.id]);
+    }
+    
+    // Remove the goal from the state
+    updatedGoals.splice(index, 1);
+    setGoals(updatedGoals);
+    
+    // Remove the goal from the form values
+    const currentGoals = form.getValues('goals');
+    currentGoals.splice(index, 1);
+    form.setValue('goals', currentGoals);
+  };
+
+  // Handle form submission
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to save your goals",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // First, process goals
+      
+      // 1. Delete any goals that were removed
+      if (deletedGoalIds.length > 0) {
+        for (const goalId of deletedGoalIds) {
+          // Only attempt to delete DB goals (not temporary frontend ones)
+          if (goalId.startsWith('goal-')) continue;
+          
+          const { error } = await supabase
+            .from('goals')
+            .delete()
+            .eq('id', goalId)
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error(`Failed to delete goal ${goalId}:`, error);
+            // If the goal is linked to schedules, notify the user
+            if (error.code === '23503') {
+              toast({
+                title: "Cannot delete goal",
+                description: "This goal is assigned to one or more schedules. Please remove the assignments first.",
+                variant: "destructive"
+              });
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      }
+      
+      // 2. Update existing goals and insert new ones
+      const savedGoals: Goal[] = [];
+      
+      for (let i = 0; i < goals.length; i++) {
+        const goal = goals[i];
+        const formGoal = data.goals[i];
+        
+        if (goal.isFromDb) {
+          // Update existing goal
+          const { data: updatedGoal, error } = await supabase
+            .from('goals')
+            .update({
+              name: formGoal.name,
+              description: formGoal.description
+            })
+            .eq('id', goal.id)
+            .eq('user_id', session.user.id)
+            .select('id, name, description')
+            .single();
+            
+          if (error) {
+            console.error(`Failed to update goal ${goal.id}:`, error);
+            continue;
+          }
+          
+          savedGoals.push({ ...updatedGoal, isFromDb: true });
+        } else {
+          // Insert new goal
+          const { data: newGoal, error } = await supabase
+            .from('goals')
+            .insert({
+              name: formGoal.name,
+              description: formGoal.description,
+              user_id: session.user.id
+            })
+            .select('id, name, description')
+            .single();
+            
+          if (error) {
+            console.error('Failed to insert new goal:', error);
+            continue;
+          }
+          
+          savedGoals.push({ ...newGoal, isFromDb: true });
+        }
+      }
+      
+      // Update state with saved goals
+      setGoals(savedGoals);
+      setDeletedGoalIds([]);
+      
+      toast({
+        title: "Goals Saved",
+        description: "Your coaching goals have been saved successfully!",
+      });
+      
+    } catch (error) {
+      console.error('Error in onSubmit:', error);
+      toast({
+        title: "Save Failed",
+        description: "There was an error saving your goals. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize with a default goal if none exists
+  useEffect(() => {
+    if (weekdaySchedules.length === 0) {
+      addWeekdaySchedule();
+    }
+  }, []);
+
+  // Update time zone displays
+  useEffect(() => {
+    const updateTimes = () => {
+      setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
+        ...tz,
+        currentTime: getTimeInZone(tz.timeZone)
+      })));
+    };
+    
+    const interval = setInterval(updateTimes, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Functions for schedules - not fully implemented yet
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
-    const newSchedule: WeekdaySchedule = {
+    const newSchedule = {
       id: newId,
       day: 'monday',
       time: '09:00',
@@ -171,7 +388,7 @@ const ScheduleCall = () => {
 
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
-    const newSchedule: SpecificDateSchedule = {
+    const newSchedule = {
       id: newId,
       date: new Date(),
       time: '09:00',
@@ -182,14 +399,6 @@ const ScheduleCall = () => {
     
     const currentSchedules = form.getValues('specificDateSchedules') || [];
     form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00', goalId: null }]);
-  };
-
-  const addGoal = () => {
-    const newId = `goal-${Date.now()}`;
-    setGoals([...goals, { id: newId, name: '', description: '' }]);
-    
-    const currentGoals = form.getValues('goals') || [];
-    form.setValue('goals', [...currentGoals, { name: '', description: '' }]);
   };
 
   const removeWeekdaySchedule = (index: number) => {
@@ -212,35 +421,6 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  const removeGoal = (index: number) => {
-    if (goals.length <= 1) return;
-    
-    const updatedGoals = [...goals];
-    const removedGoalId = updatedGoals[index].id;
-    updatedGoals.splice(index, 1);
-    setGoals(updatedGoals);
-    
-    const currentGoals = form.getValues('goals');
-    currentGoals.splice(index, 1);
-    form.setValue('goals', currentGoals);
-    
-    const updatedWeekdaySchedules = weekdaySchedules.map(schedule => {
-      if (schedule.goalId === removedGoalId) {
-        return { ...schedule, goalId: null };
-      }
-      return schedule;
-    });
-    setWeekdaySchedules(updatedWeekdaySchedules);
-    
-    const updatedSpecificDateSchedules = specificDateSchedules.map(schedule => {
-      if (schedule.goalId === removedGoalId) {
-        return { ...schedule, goalId: null };
-      }
-      return schedule;
-    });
-    setSpecificDateSchedules(updatedSpecificDateSchedules);
-  };
-
   const setWeekdayScheduleGoal = (index: number, goalId: string | null) => {
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules[index].goalId = goalId;
@@ -260,37 +440,6 @@ const ScheduleCall = () => {
     currentSchedules[index].goalId = goalId;
     form.setValue('specificDateSchedules', currentSchedules);
   };
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log('Form data:', data);
-    
-    toast({
-      title: "Calls Scheduled",
-      description: "Your coaching calls have been scheduled successfully!",
-    });
-    
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1500);
-  };
-
-  useEffect(() => {
-    if (weekdaySchedules.length === 0) {
-      addWeekdaySchedule();
-    }
-  }, []);
-
-  useEffect(() => {
-    const updateTimes = () => {
-      setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
-        ...tz,
-        currentTime: getTimeInZone(tz.timeZone)
-      })));
-    };
-    
-    const interval = setInterval(updateTimes, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <Form {...form}>
@@ -379,7 +528,7 @@ const ScheduleCall = () => {
                             updated[index].time = value;
                             setWeekdaySchedules(updated);
                           }}
-                          defaultValue={schedule.time}
+                          defaultValue={schedule.time || "09:00"}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -503,7 +652,7 @@ const ScheduleCall = () => {
                             updated[index].time = value;
                             setSpecificDateSchedules(updated);
                           }}
-                          defaultValue={schedule.time}
+                          defaultValue={schedule.time || "09:00"}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -680,7 +829,13 @@ const ScheduleCall = () => {
           </Button>
         </div>
 
-        <Button type="submit" className="w-full">Schedule Calls</Button>
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Saving..." : "Schedule Calls"}
+        </Button>
       </form>
     </Form>
   );

@@ -9,12 +9,37 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      goals: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           full_name: string | null
           id: string
+          timezone: string
           updated_at: string
         }
         Insert: {
@@ -22,6 +47,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          timezone?: string
           updated_at?: string
         }
         Update: {
@@ -29,9 +55,48 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      scheduled_calls: {
+        Row: {
+          created_at: string | null
+          goal_id: string
+          id: string
+          specific_date: string | null
+          time: string
+          user_id: string
+          weekday: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          specific_date?: string | null
+          time: string
+          user_id: string
+          weekday?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          specific_date?: string | null
+          time?: string
+          user_id?: string
+          weekday?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_calls_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
