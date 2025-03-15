@@ -423,6 +423,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     
     try {
       if (!hideObjectives) {
+        console.log('Updating objectives:', data.objectives);
         const { error: objectivesError } = await supabase
           .from('profiles')
           .update({
@@ -444,6 +445,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
       }
       
       if (deletedWeekdayScheduleIds.length > 0) {
+        console.log('Deleting weekday schedules:', deletedWeekdayScheduleIds);
         for (const scheduleId of deletedWeekdayScheduleIds) {
           if (scheduleId.startsWith('weekday-')) continue;
           
@@ -460,6 +462,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
       }
       
       if (deletedSpecificDateScheduleIds.length > 0) {
+        console.log('Deleting specific date schedules:', deletedSpecificDateScheduleIds);
         for (const scheduleId of deletedSpecificDateScheduleIds) {
           if (scheduleId.startsWith('date-')) continue;
           
@@ -486,6 +489,14 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
         
         const templateId = formSchedule.templateId;
         
+        console.log(`Processing weekday schedule ${i}:`, {
+          isFromDb: schedule.isFromDb,
+          day: formSchedule.day,
+          weekdayNum,
+          time: formSchedule.time,
+          templateId
+        });
+        
         if (schedule.isFromDb) {
           const { data: updatedSchedule, error } = await supabase
             .from('scheduled_calls')
@@ -504,6 +515,8 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
             console.error(`Failed to update weekday schedule ${schedule.id}:`, error);
             continue;
           }
+          
+          console.log('Updated weekday schedule:', updatedSchedule);
           
           const updatedDayOption = dayOptions.find(day => day.weekdayNum === updatedSchedule.weekday);
           const dayString = updatedDayOption ? updatedDayOption.value : 'monday';
@@ -534,6 +547,8 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
             continue;
           }
           
+          console.log('Inserted new weekday schedule:', newSchedule);
+          
           const newDayOption = dayOptions.find(day => day.weekdayNum === newSchedule.weekday);
           const dayString = newDayOption ? newDayOption.value : 'monday';
           
@@ -557,6 +572,13 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
         
         const formattedDate = formSchedule.date.toISOString().split('T')[0];
         
+        console.log(`Processing specific date schedule ${i}:`, {
+          isFromDb: schedule.isFromDb,
+          date: formattedDate,
+          time: formSchedule.time,
+          templateId
+        });
+        
         if (schedule.isFromDb) {
           const { data: updatedSchedule, error } = await supabase
             .from('scheduled_calls')
@@ -575,6 +597,8 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
             console.error(`Failed to update specific date schedule ${schedule.id}:`, error);
             continue;
           }
+          
+          console.log('Updated specific date schedule:', updatedSchedule);
           
           savedSpecificDateSchedules.push({ 
             id: updatedSchedule.id, 
@@ -598,9 +622,16 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
             .single();
             
           if (error) {
-            console.error('Failed to insert new specific date schedule:', error);
+            console.error('Failed to insert new specific date schedule:', error, {
+              specific_date: formattedDate,
+              time: formSchedule.time,
+              template_id: templateId,
+              user_id: session.user.id
+            });
             continue;
           }
+          
+          console.log('Inserted new specific date schedule:', newSchedule);
           
           savedSpecificDateSchedules.push({ 
             id: newSchedule.id, 
