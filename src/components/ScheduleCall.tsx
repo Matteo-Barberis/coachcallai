@@ -248,7 +248,7 @@ const ScheduleCall = () => {
         
       if (deleteError) throw deleteError;
       
-      const weekdayInserts = weekdaySchedules.map((schedule, index) => {
+      const weekdayInserts = weekdaySchedules.map((schedule) => {
         const weekdayMap: Record<string, number> = {
           monday: 1, tuesday: 2, wednesday: 3, thursday: 4, 
           friday: 5, saturday: 6, sunday: 7
@@ -265,7 +265,7 @@ const ScheduleCall = () => {
       
       const specificDateInserts = specificDateSchedules.map(schedule => ({
         user_id: session.user.id,
-        specific_date: schedule.date,
+        specific_date: schedule.date.toISOString().split('T')[0],
         time: schedule.time,
         goal_id: schedule.goalId ? schedule.goalId : goalIds[0],
         weekday: null
