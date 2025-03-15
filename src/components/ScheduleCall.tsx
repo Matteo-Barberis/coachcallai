@@ -45,6 +45,22 @@ type Goal = {
   isFromDb?: boolean;
 };
 
+type WeekdaySchedule = {
+  id: string;
+  day: string;
+  time: string;
+  goalId: string | null;
+  isFromDb?: boolean;
+};
+
+type SpecificDateSchedule = {
+  id: string;
+  date: Date;
+  time: string;
+  goalId: string | null;
+  isFromDb?: boolean;
+};
+
 const formSchema = z.object({
   timeZone: z.string().default('GMT'),
   weekdaySchedules: z.array(
@@ -70,13 +86,13 @@ const formSchema = z.object({
 });
 
 const dayOptions = [
-  { value: 'monday', label: 'Monday' },
-  { value: 'tuesday', label: 'Tuesday' },
-  { value: 'wednesday', label: 'Wednesday' },
-  { value: 'thursday', label: 'Thursday' },
-  { value: 'friday', label: 'Friday' },
-  { value: 'saturday', label: 'Saturday' },
-  { value: 'sunday', label: 'Sunday' },
+  { value: 'monday', label: 'Monday', weekdayNum: 1 },
+  { value: 'tuesday', label: 'Tuesday', weekdayNum: 2 },
+  { value: 'wednesday', label: 'Wednesday', weekdayNum: 3 },
+  { value: 'thursday', label: 'Thursday', weekdayNum: 4 },
+  { value: 'friday', label: 'Friday', weekdayNum: 5 },
+  { value: 'saturday', label: 'Saturday', weekdayNum: 6 },
+  { value: 'sunday', label: 'Sunday', weekdayNum: 0 },
 ];
 
 const generateTimeOptions = () => {
@@ -128,8 +144,8 @@ const ScheduleCall = () => {
   const { session } = useSessionContext();
   
   // State for UI elements
-  const [weekdaySchedules, setWeekdaySchedules] = useState<any[]>([]);
-  const [specificDateSchedules, setSpecificDateSchedules] = useState<any[]>([]);
+  const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
+  const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [timeZone, setTimeZone] = useState('GMT');
   const [timeZoneWithTimes, setTimeZoneWithTimes] = useState(timeZoneOptions.map(tz => ({
@@ -139,6 +155,8 @@ const ScheduleCall = () => {
   
   // State for tracking deletions
   const [deletedGoalIds, setDeletedGoalIds] = useState<string[]>([]);
+  const [deletedWeekdayScheduleIds, setDeletedWeekdayScheduleIds] = useState<string[]>([]);
+  const [deletedSpecificDateScheduleIds, setDeletedSpecificDateScheduleIds] = useState<string[]>([]);
   
   // Loading state
   const [isLoading, setIsLoading] = useState(false);
@@ -196,8 +214,87 @@ const ScheduleCall = () => {
     }
   };
 
+  // Fetch schedules from the database
+  const fetchSchedules = async () => {
+    if (!session?.user?.id) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Fetch weekday schedules
+      const { data: weekdayData, error: weekdayError } = await supabase
+        .from('scheduled_calls')
+        .select('id, weekday, time, goal_id')
+        .eq('user_id', session.user.id)
+        .not('weekday', 'is', null);
+      
+      if (weekdayError) {
+        console.error('Error fetching weekday schedules:', weekdayError);
+      } else if (weekdayData && weekdayData.length > 0) {
+        // Convert weekday number to day string
+        const weekdaySchedulesFromDb = weekdayData.map((schedule) => {
+          const weekdayNum = schedule.weekday;
+          const dayOption = dayOptions.find(day => day.weekdayNum === weekdayNum);
+          const dayString = dayOption ? dayOption.value : 'monday';
+          
+          return {
+            id: schedule.id,
+            day: dayString,
+            time: schedule.time,
+            goalId: schedule.goal_id,
+            isFromDb: true
+          };
+        });
+        
+        setWeekdaySchedules(weekdaySchedulesFromDb);
+        
+        // Update form values
+        form.setValue('weekdaySchedules', weekdaySchedulesFromDb.map(({ day, time, goalId }) => ({ 
+          day, 
+          time, 
+          goalId 
+        })));
+      }
+      
+      // Fetch specific date schedules
+      const { data: dateData, error: dateError } = await supabase
+        .from('scheduled_calls')
+        .select('id, specific_date, time, goal_id')
+        .eq('user_id', session.user.id)
+        .not('specific_date', 'is', null);
+      
+      if (dateError) {
+        console.error('Error fetching specific date schedules:', dateError);
+      } else if (dateData && dateData.length > 0) {
+        const specificDateSchedulesFromDb = dateData.map((schedule) => {
+          return {
+            id: schedule.id,
+            date: new Date(schedule.specific_date),
+            time: schedule.time,
+            goalId: schedule.goal_id,
+            isFromDb: true
+          };
+        });
+        
+        setSpecificDateSchedules(specificDateSchedulesFromDb);
+        
+        // Update form values
+        form.setValue('specificDateSchedules', specificDateSchedulesFromDb.map(({ date, time, goalId }) => ({ 
+          date, 
+          time, 
+          goalId 
+        })));
+      }
+    } catch (error) {
+      console.error('Error in fetchSchedules:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchGoals();
+    fetchSchedules();
   }, [session]);
 
   // Add a new goal
@@ -238,12 +335,105 @@ const ScheduleCall = () => {
     form.setValue('goals', currentGoals);
   };
 
+  // Functions for weekday schedules
+  const addWeekdaySchedule = () => {
+    const newId = `weekday-${Date.now()}`;
+    const newSchedule = {
+      id: newId,
+      day: 'monday',
+      time: '09:00',
+      goalId: null,
+      isFromDb: false
+    };
+    
+    setWeekdaySchedules([...weekdaySchedules, newSchedule]);
+    
+    const currentSchedules = form.getValues('weekdaySchedules') || [];
+    form.setValue('weekdaySchedules', [...currentSchedules, { day: 'monday', time: '09:00', goalId: null }]);
+  };
+
+  const removeWeekdaySchedule = (index: number) => {
+    const scheduleToRemove = weekdaySchedules[index];
+    const updatedSchedules = [...weekdaySchedules];
+    
+    // If the schedule is from the database, track it for deletion
+    if (scheduleToRemove.isFromDb) {
+      setDeletedWeekdayScheduleIds([...deletedWeekdayScheduleIds, scheduleToRemove.id]);
+    }
+    
+    // Remove the schedule from the state
+    updatedSchedules.splice(index, 1);
+    setWeekdaySchedules(updatedSchedules);
+    
+    // Remove the schedule from the form values
+    const currentSchedules = form.getValues('weekdaySchedules');
+    currentSchedules.splice(index, 1);
+    form.setValue('weekdaySchedules', currentSchedules);
+  };
+
+  // Functions for specific date schedules
+  const addSpecificDateSchedule = () => {
+    const newId = `date-${Date.now()}`;
+    const newSchedule = {
+      id: newId,
+      date: new Date(),
+      time: '09:00',
+      goalId: null,
+      isFromDb: false
+    };
+    
+    setSpecificDateSchedules([...specificDateSchedules, newSchedule]);
+    
+    const currentSchedules = form.getValues('specificDateSchedules') || [];
+    form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00', goalId: null }]);
+  };
+
+  const removeSpecificDateSchedule = (index: number) => {
+    const scheduleToRemove = specificDateSchedules[index];
+    const updatedSchedules = [...specificDateSchedules];
+    
+    // If the schedule is from the database, track it for deletion
+    if (scheduleToRemove.isFromDb) {
+      setDeletedSpecificDateScheduleIds([...deletedSpecificDateScheduleIds, scheduleToRemove.id]);
+    }
+    
+    // Remove the schedule from the state
+    updatedSchedules.splice(index, 1);
+    setSpecificDateSchedules(updatedSchedules);
+    
+    // Remove the schedule from the form values
+    const currentSchedules = form.getValues('specificDateSchedules');
+    currentSchedules.splice(index, 1);
+    form.setValue('specificDateSchedules', currentSchedules);
+  };
+
+  // Handle goal association - kept but not used for now
+  const setWeekdayScheduleGoal = (index: number, goalId: string | null) => {
+    const updatedSchedules = [...weekdaySchedules];
+    updatedSchedules[index].goalId = goalId;
+    setWeekdaySchedules(updatedSchedules);
+    
+    const currentSchedules = form.getValues('weekdaySchedules');
+    currentSchedules[index].goalId = goalId;
+    form.setValue('weekdaySchedules', currentSchedules);
+  };
+
+  const setSpecificDateScheduleGoal = (index: number, goalId: string | null) => {
+    const updatedSchedules = [...specificDateSchedules];
+    updatedSchedules[index].goalId = goalId;
+    setSpecificDateSchedules(updatedSchedules);
+    
+    const currentSchedules = form.getValues('specificDateSchedules');
+    currentSchedules[index].goalId = goalId;
+    form.setValue('specificDateSchedules', currentSchedules);
+  };
+
   // Handle form submission
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     if (!session?.user?.id) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to save your goals",
+        description: "Please sign in to save your schedules and goals",
         variant: "destructive"
       });
       return;
@@ -252,9 +442,7 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // First, process goals
-      
-      // 1. Delete any goals that were removed
+      // Process goals first (kept from before)
       if (deletedGoalIds.length > 0) {
         for (const goalId of deletedGoalIds) {
           // Only attempt to delete DB goals (not temporary frontend ones)
@@ -268,7 +456,6 @@ const ScheduleCall = () => {
             
           if (error) {
             console.error(`Failed to delete goal ${goalId}:`, error);
-            // If the goal is linked to schedules, notify the user
             if (error.code === '23503') {
               toast({
                 title: "Cannot delete goal",
@@ -282,7 +469,7 @@ const ScheduleCall = () => {
         }
       }
       
-      // 2. Update existing goals and insert new ones
+      // Update existing goals and insert new ones (kept from before)
       const savedGoals: Goal[] = [];
       
       for (let i = 0; i < goals.length; i++) {
@@ -333,16 +520,203 @@ const ScheduleCall = () => {
       setGoals(savedGoals);
       setDeletedGoalIds([]);
       
+      // Now process schedules
+      
+      // 1. Delete schedules that were removed
+      if (deletedWeekdayScheduleIds.length > 0) {
+        for (const scheduleId of deletedWeekdayScheduleIds) {
+          // Only attempt to delete DB schedules (not temporary frontend ones)
+          if (scheduleId.startsWith('weekday-')) continue;
+          
+          const { error } = await supabase
+            .from('scheduled_calls')
+            .delete()
+            .eq('id', scheduleId)
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error(`Failed to delete weekday schedule ${scheduleId}:`, error);
+          }
+        }
+      }
+      
+      if (deletedSpecificDateScheduleIds.length > 0) {
+        for (const scheduleId of deletedSpecificDateScheduleIds) {
+          // Only attempt to delete DB schedules (not temporary frontend ones)
+          if (scheduleId.startsWith('date-')) continue;
+          
+          const { error } = await supabase
+            .from('scheduled_calls')
+            .delete()
+            .eq('id', scheduleId)
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error(`Failed to delete specific date schedule ${scheduleId}:`, error);
+          }
+        }
+      }
+      
+      // 2. Update existing schedules and insert new ones
+      const savedWeekdaySchedules: WeekdaySchedule[] = [];
+      
+      for (let i = 0; i < weekdaySchedules.length; i++) {
+        const schedule = weekdaySchedules[i];
+        const formSchedule = data.weekdaySchedules[i];
+        
+        // Find weekday number
+        const dayOption = dayOptions.find(day => day.value === formSchedule.day);
+        const weekdayNum = dayOption ? dayOption.weekdayNum : 1;
+        
+        // Use the first goal as a default (since we're ignoring goals for now)
+        const firstGoalId = savedGoals.length > 0 ? savedGoals[0].id : null;
+        
+        if (schedule.isFromDb) {
+          // Update existing schedule
+          const { data: updatedSchedule, error } = await supabase
+            .from('scheduled_calls')
+            .update({
+              weekday: weekdayNum,
+              time: formSchedule.time,
+              goal_id: firstGoalId // Use first goal instead of the selected one
+            })
+            .eq('id', schedule.id)
+            .eq('user_id', session.user.id)
+            .select('id, weekday, time, goal_id')
+            .single();
+            
+          if (error) {
+            console.error(`Failed to update weekday schedule ${schedule.id}:`, error);
+            continue;
+          }
+          
+          // Convert weekday number to day string for our UI
+          const updatedDayOption = dayOptions.find(day => day.weekdayNum === updatedSchedule.weekday);
+          const dayString = updatedDayOption ? updatedDayOption.value : 'monday';
+          
+          savedWeekdaySchedules.push({ 
+            id: updatedSchedule.id, 
+            day: dayString, 
+            time: updatedSchedule.time, 
+            goalId: updatedSchedule.goal_id,
+            isFromDb: true 
+          });
+        } else {
+          // Insert new schedule
+          const { data: newSchedule, error } = await supabase
+            .from('scheduled_calls')
+            .insert({
+              weekday: weekdayNum,
+              time: formSchedule.time,
+              goal_id: firstGoalId, // Use first goal instead of the selected one
+              user_id: session.user.id,
+              specific_date: null
+            })
+            .select('id, weekday, time, goal_id')
+            .single();
+            
+          if (error) {
+            console.error('Failed to insert new weekday schedule:', error);
+            continue;
+          }
+          
+          // Convert weekday number to day string for our UI
+          const newDayOption = dayOptions.find(day => day.weekdayNum === newSchedule.weekday);
+          const dayString = newDayOption ? newDayOption.value : 'monday';
+          
+          savedWeekdaySchedules.push({ 
+            id: newSchedule.id, 
+            day: dayString, 
+            time: newSchedule.time, 
+            goalId: newSchedule.goal_id,
+            isFromDb: true 
+          });
+        }
+      }
+      
+      const savedSpecificDateSchedules: SpecificDateSchedule[] = [];
+      
+      for (let i = 0; i < specificDateSchedules.length; i++) {
+        const schedule = specificDateSchedules[i];
+        const formSchedule = data.specificDateSchedules[i];
+        
+        // Use the first goal as a default (since we're ignoring goals for now)
+        const firstGoalId = savedGoals.length > 0 ? savedGoals[0].id : null;
+        
+        // Format date as ISO string for database
+        const formattedDate = formSchedule.date.toISOString().split('T')[0];
+        
+        if (schedule.isFromDb) {
+          // Update existing schedule
+          const { data: updatedSchedule, error } = await supabase
+            .from('scheduled_calls')
+            .update({
+              specific_date: formattedDate,
+              time: formSchedule.time,
+              goal_id: firstGoalId // Use first goal instead of the selected one
+            })
+            .eq('id', schedule.id)
+            .eq('user_id', session.user.id)
+            .select('id, specific_date, time, goal_id')
+            .single();
+            
+          if (error) {
+            console.error(`Failed to update specific date schedule ${schedule.id}:`, error);
+            continue;
+          }
+          
+          savedSpecificDateSchedules.push({ 
+            id: updatedSchedule.id, 
+            date: new Date(updatedSchedule.specific_date), 
+            time: updatedSchedule.time, 
+            goalId: updatedSchedule.goal_id,
+            isFromDb: true 
+          });
+        } else {
+          // Insert new schedule
+          const { data: newSchedule, error } = await supabase
+            .from('scheduled_calls')
+            .insert({
+              specific_date: formattedDate,
+              time: formSchedule.time,
+              goal_id: firstGoalId, // Use first goal instead of the selected one
+              user_id: session.user.id,
+              weekday: null
+            })
+            .select('id, specific_date, time, goal_id')
+            .single();
+            
+          if (error) {
+            console.error('Failed to insert new specific date schedule:', error);
+            continue;
+          }
+          
+          savedSpecificDateSchedules.push({ 
+            id: newSchedule.id, 
+            date: new Date(newSchedule.specific_date), 
+            time: newSchedule.time, 
+            goalId: newSchedule.goal_id,
+            isFromDb: true 
+          });
+        }
+      }
+      
+      // Update state with saved schedules
+      setWeekdaySchedules(savedWeekdaySchedules);
+      setSpecificDateSchedules(savedSpecificDateSchedules);
+      setDeletedWeekdayScheduleIds([]);
+      setDeletedSpecificDateScheduleIds([]);
+      
       toast({
-        title: "Goals Saved",
-        description: "Your coaching goals have been saved successfully!",
+        title: "Schedules Saved",
+        description: "Your coaching schedules have been saved successfully!",
       });
       
     } catch (error) {
       console.error('Error in onSubmit:', error);
       toast({
         title: "Save Failed",
-        description: "There was an error saving your goals. Please try again.",
+        description: "There was an error saving your schedules. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -369,77 +743,6 @@ const ScheduleCall = () => {
     const interval = setInterval(updateTimes, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  // Functions for schedules - not fully implemented yet
-  const addWeekdaySchedule = () => {
-    const newId = `weekday-${Date.now()}`;
-    const newSchedule = {
-      id: newId,
-      day: 'monday',
-      time: '09:00',
-      goalId: null
-    };
-    
-    setWeekdaySchedules([...weekdaySchedules, newSchedule]);
-    
-    const currentSchedules = form.getValues('weekdaySchedules') || [];
-    form.setValue('weekdaySchedules', [...currentSchedules, { day: 'monday', time: '09:00', goalId: null }]);
-  };
-
-  const addSpecificDateSchedule = () => {
-    const newId = `date-${Date.now()}`;
-    const newSchedule = {
-      id: newId,
-      date: new Date(),
-      time: '09:00',
-      goalId: null
-    };
-    
-    setSpecificDateSchedules([...specificDateSchedules, newSchedule]);
-    
-    const currentSchedules = form.getValues('specificDateSchedules') || [];
-    form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00', goalId: null }]);
-  };
-
-  const removeWeekdaySchedule = (index: number) => {
-    const updatedSchedules = [...weekdaySchedules];
-    updatedSchedules.splice(index, 1);
-    setWeekdaySchedules(updatedSchedules);
-    
-    const currentSchedules = form.getValues('weekdaySchedules');
-    currentSchedules.splice(index, 1);
-    form.setValue('weekdaySchedules', currentSchedules);
-  };
-
-  const removeSpecificDateSchedule = (index: number) => {
-    const updatedSchedules = [...specificDateSchedules];
-    updatedSchedules.splice(index, 1);
-    setSpecificDateSchedules(updatedSchedules);
-    
-    const currentSchedules = form.getValues('specificDateSchedules');
-    currentSchedules.splice(index, 1);
-    form.setValue('specificDateSchedules', currentSchedules);
-  };
-
-  const setWeekdayScheduleGoal = (index: number, goalId: string | null) => {
-    const updatedSchedules = [...weekdaySchedules];
-    updatedSchedules[index].goalId = goalId;
-    setWeekdaySchedules(updatedSchedules);
-    
-    const currentSchedules = form.getValues('weekdaySchedules');
-    currentSchedules[index].goalId = goalId;
-    form.setValue('weekdaySchedules', currentSchedules);
-  };
-
-  const setSpecificDateScheduleGoal = (index: number, goalId: string | null) => {
-    const updatedSchedules = [...specificDateSchedules];
-    updatedSchedules[index].goalId = goalId;
-    setSpecificDateSchedules(updatedSchedules);
-    
-    const currentSchedules = form.getValues('specificDateSchedules');
-    currentSchedules[index].goalId = goalId;
-    form.setValue('specificDateSchedules', currentSchedules);
-  };
 
   return (
     <Form {...form}>
@@ -497,7 +800,8 @@ const ScheduleCall = () => {
                             updated[index].day = value;
                             setWeekdaySchedules(updated);
                           }}
-                          defaultValue={schedule.day}
+                          defaultValue={schedule.day || "monday"}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -529,6 +833,7 @@ const ScheduleCall = () => {
                             setWeekdaySchedules(updated);
                           }}
                           defaultValue={schedule.time || "09:00"}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -558,6 +863,7 @@ const ScheduleCall = () => {
                             setWeekdayScheduleGoal(index, value === "none" ? null : value);
                           }}
                           defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -653,6 +959,7 @@ const ScheduleCall = () => {
                             setSpecificDateSchedules(updated);
                           }}
                           defaultValue={schedule.time || "09:00"}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -682,6 +989,7 @@ const ScheduleCall = () => {
                             setSpecificDateScheduleGoal(index, value === "none" ? null : value);
                           }}
                           defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger>
