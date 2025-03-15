@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -307,7 +308,6 @@ const ScheduleCall = () => {
               name="timeZone"
               render={({ field }) => (
                 <FormItem className="mb-4 max-w-md">
-                  <FormLabel>Time Zone</FormLabel>
                   <Select 
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -593,22 +593,12 @@ const ScheduleCall = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div>
             <FormLabel className="text-base">Define Your Coaching Goals</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addGoal}
-              className="flex items-center gap-1"
-            >
-              <Plus className="h-4 w-4" />
-              Add Goal
-            </Button>
+            <FormDescription>
+              Define goals for your coaching sessions. You'll be able to assign these goals to specific time slots.
+            </FormDescription>
           </div>
-          <FormDescription>
-            Define goals for your coaching sessions. You'll be able to assign these goals to specific time slots.
-          </FormDescription>
           
           <div className="space-y-4">
             {goals.map((goal, index) => (
@@ -678,6 +668,17 @@ const ScheduleCall = () => {
               </div>
             ))}
           </div>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addGoal}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add Goal
+          </Button>
         </div>
 
         <Button type="submit" className="w-full">Schedule Calls</Button>
