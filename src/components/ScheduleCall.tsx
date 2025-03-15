@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
-import { UserObjective } from '@/types/supabase';
 
 import {
   Form,
@@ -78,8 +78,7 @@ const formSchema = z.object({
         message: "Please select a template for this schedule"
       })
     })
-  ),
-  objectives: z.string().min(3, 'Please provide at least 3 characters for your objectives')
+  )
 });
 
 const dayOptions = [
@@ -147,7 +146,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
-  const [userObjectives, setUserObjectives] = useState('');
   const [timeZone, setTimeZone] = useState('GMT');
   const [timeZoneWithTimes, setTimeZoneWithTimes] = useState(timeZoneOptions.map(tz => ({
     ...tz,
@@ -164,8 +162,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     defaultValues: {
       timeZone: 'GMT',
       weekdaySchedules: [],
-      specificDateSchedules: [],
-      objectives: ''
+      specificDateSchedules: []
     },
   });
 
@@ -186,33 +183,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
       }
     } catch (error) {
       console.error('Error in fetchTemplates:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchUserObjectives = async () => {
-    if (!session?.user?.id || hideObjectives) return;
-    
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('objectives')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user objectives:', error);
-        return;
-      }
-      
-      if (data) {
-        setUserObjectives(data.objectives || '');
-        form.setValue('objectives', data.objectives || '');
-      }
-    } catch (error) {
-      console.error('Error in fetchUserObjectives:', error);
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +278,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
 
   useEffect(() => {
     fetchTemplates().then(() => {
-      fetchUserObjectives();
       fetchSchedules();
     });
   }, [session]);
@@ -413,7 +382,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     if (!session?.user?.id) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to save your schedules and objectives",
+        description: "Please sign in to save your schedules",
         variant: "destructive"
       });
       return;
@@ -422,28 +391,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     setIsLoading(true);
     
     try {
-      if (!hideObjectives) {
-        console.log('Updating objectives:', data.objectives);
-        const { error: objectivesError } = await supabase
-          .from('profiles')
-          .update({
-            objectives: data.objectives,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', session.user.id);
-        
-        if (objectivesError) {
-          console.error('Error updating objectives:', objectivesError);
-          toast({
-            title: "Error",
-            description: "Failed to update your objectives. Please try again.",
-            variant: "destructive"
-          });
-          setIsLoading(false);
-          return;
-        }
-      }
-      
       if (deletedWeekdayScheduleIds.length > 0) {
         console.log('Deleting weekday schedules:', deletedWeekdayScheduleIds);
         for (const scheduleId of deletedWeekdayScheduleIds) {
@@ -687,36 +634,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-4">
-          {!hideObjectives && (
-            <div>
-              <FormLabel className="text-base">Your Coaching Objectives</FormLabel>
-              <FormDescription className="mb-4">
-                Define what you want to achieve with your coaching sessions. These objectives will guide your coach in providing relevant guidance.
-              </FormDescription>
-              
-              <FormField
-                control={form.control}
-                name="objectives"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., I want to improve my public speaking skills, develop better work-life balance, advance in my career..."
-                        className="min-h-[120px]"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          setUserObjectives(e.target.value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-          
           <div>
             <FormLabel className="text-base">Weekly Schedule</FormLabel>
             <FormDescription className="mb-4">
