@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Plus, Trash2, X } from 'lucide-react';
+import { CalendarIcon, Clock, Globe, Plus, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -57,6 +57,7 @@ type GoalItem = {
 
 // Form schema
 const formSchema = z.object({
+  timeZone: z.string().default('UTC'),
   weekdaySchedules: z.array(
     z.object({
       day: z.string(),
@@ -103,6 +104,19 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
+// Time zones - a selection of common time zones
+const timeZoneOptions = [
+  { value: 'UTC', label: 'UTC' },
+  { value: 'America/New_York', label: 'Eastern Time (ET)' },
+  { value: 'America/Chicago', label: 'Central Time (CT)' },
+  { value: 'America/Denver', label: 'Mountain Time (MT)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+  { value: 'Europe/London', label: 'GMT/BST (UK)' },
+  { value: 'Europe/Paris', label: 'Central European Time (CET)' },
+  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
+  { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' },
+];
+
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -111,10 +125,12 @@ const ScheduleCall = () => {
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', name: 'Morning Session', description: '' }]);
+  const [timeZone, setTimeZone] = useState('UTC');
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      timeZone: 'UTC',
       weekdaySchedules: [],
       specificDateSchedules: [],
       goals: [{ name: 'Morning Session', description: '' }],
@@ -265,6 +281,40 @@ const ScheduleCall = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel className="text-base">Weekly Schedule</FormLabel>
+            
+            {/* Time Zone Dropdown */}
+            <FormField
+              control={form.control}
+              name="timeZone"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Globe className="h-4 w-4" />
+                    <span>Time Zone:</span>
+                  </div>
+                  <Select 
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setTimeZone(value);
+                    }}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select time zone" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeZoneOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
           </div>
           <FormDescription>
             Select which days of the week you want to have coaching calls and assign goals to each session.
