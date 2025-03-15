@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -133,11 +134,12 @@ const timeZoneOptions = [
   { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)', timeZone: 'Pacific/Auckland' },
 ];
 
-interface ScheduleCallProps {
-  hideObjectives?: boolean;
-}
+// Function to find a timezone option by value
+const findTimeZoneOption = (value: string) => {
+  return timeZoneOptions.find(tz => tz.value === value);
+};
 
-const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
+const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
@@ -292,8 +294,17 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
         }
         
         if (data && data.timezone) {
-          setTimeZone(data.timezone);
-          form.setValue('timeZone', data.timezone);
+          // Check if the timezone from DB matches any option in our list
+          if (findTimeZoneOption(data.timezone)) {
+            setTimeZone(data.timezone);
+            form.setValue('timeZone', data.timezone);
+            console.log(`Found and set timezone from DB: ${data.timezone}`);
+          } else {
+            console.error(`Timezone from DB not found in options: ${data.timezone}`);
+            // Default to GMT if we can't match
+            setTimeZone('GMT');
+            form.setValue('timeZone', 'GMT');
+          }
         }
       } catch (error) {
         console.error('Error in fetchUserTimezone:', error);
@@ -301,7 +312,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     };
     
     fetchUserTimezone();
-  }, [session]);
+  }, [session, form]);
 
   useEffect(() => {
     fetchTemplates().then(() => {
@@ -430,6 +441,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     setIsLoading(true);
     
     try {
+      // Save the timezone value to the database
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ timezone: data.timeZone })
@@ -689,6 +701,7 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
                       setTimeZone(value);
                     }}
                     defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
