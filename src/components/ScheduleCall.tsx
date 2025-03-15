@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -277,10 +276,50 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
   };
 
   useEffect(() => {
+    const fetchUserTimezone = async () => {
+      if (!session?.user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('timezone')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching user timezone:', error);
+          return;
+        }
+        
+        if (data && data.timezone) {
+          setTimeZone(data.timezone);
+          form.setValue('timeZone', data.timezone);
+        }
+      } catch (error) {
+        console.error('Error in fetchUserTimezone:', error);
+      }
+    };
+    
+    fetchUserTimezone();
+  }, [session]);
+
+  useEffect(() => {
     fetchTemplates().then(() => {
       fetchSchedules();
     });
   }, [session]);
+
+  useEffect(() => {
+    const updateTimes = () => {
+      setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
+        ...tz,
+        currentTime: getTimeInZone(tz.timeZone)
+      })));
+    };
+    
+    const interval = setInterval(updateTimes, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
@@ -391,6 +430,17 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     setIsLoading(true);
     
     try {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ timezone: data.timeZone })
+        .eq('id', session.user.id);
+        
+      if (profileError) {
+        console.error('Failed to update user timezone:', profileError);
+      } else {
+        console.log('User timezone updated successfully:', data.timeZone);
+      }
+      
       if (deletedWeekdayScheduleIds.length > 0) {
         console.log('Deleting weekday schedules:', deletedWeekdayScheduleIds);
         for (const scheduleId of deletedWeekdayScheduleIds) {
@@ -617,18 +667,6 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
       addWeekdaySchedule();
     }
   }, [templates]);
-
-  useEffect(() => {
-    const updateTimes = () => {
-      setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
-        ...tz,
-        currentTime: getTimeInZone(tz.timeZone)
-      })));
-    };
-    
-    const interval = setInterval(updateTimes, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <Form {...form}>
