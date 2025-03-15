@@ -237,10 +237,20 @@ const ScheduleCall = () => {
           const dayOption = dayOptions.find(day => day.weekdayNum === weekdayNum);
           const dayString = dayOption ? dayOption.value : 'monday';
           
+          // Format time properly - this is the fix for the time display issue
+          let timeValue = schedule.time;
+          if (typeof timeValue === 'string' && timeValue.includes(':')) {
+            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
+            const timeParts = timeValue.split(':');
+            if (timeParts.length >= 2) {
+              timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
+            }
+          }
+          
           return {
             id: schedule.id,
             day: dayString,
-            time: schedule.time,
+            time: timeValue,
             goalId: schedule.goal_id,
             isFromDb: true
           };
@@ -267,10 +277,20 @@ const ScheduleCall = () => {
         console.error('Error fetching specific date schedules:', dateError);
       } else if (dateData && dateData.length > 0) {
         const specificDateSchedulesFromDb = dateData.map((schedule) => {
+          // Format time properly - this is the fix for the time display issue
+          let timeValue = schedule.time;
+          if (typeof timeValue === 'string' && timeValue.includes(':')) {
+            // Format the time to ensure it's in the format "HH:MM" (trim seconds if present)
+            const timeParts = timeValue.split(':');
+            if (timeParts.length >= 2) {
+              timeValue = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
+            }
+          }
+          
           return {
             id: schedule.id,
             date: new Date(schedule.specific_date),
-            time: schedule.time,
+            time: timeValue,
             goalId: schedule.goal_id,
             isFromDb: true
           };
