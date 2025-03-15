@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -296,14 +297,18 @@ const ScheduleCall = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div>
             <FormLabel className="text-base">Weekly Schedule</FormLabel>
+            <FormDescription className="mb-4">
+              Select which days of the week you want to have coaching calls and assign goals to each session.
+            </FormDescription>
             
             <FormField
               control={form.control}
               name="timeZone"
               render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
+                <FormItem className="mb-4">
+                  <FormLabel>Time Zone</FormLabel>
                   <Select 
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -312,7 +317,7 @@ const ScheduleCall = () => {
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-[240px]">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select time zone" />
                       </SelectTrigger>
                     </FormControl>
@@ -328,9 +333,6 @@ const ScheduleCall = () => {
               )}
             />
           </div>
-          <FormDescription>
-            Select which days of the week you want to have coaching calls and assign goals to each session.
-          </FormDescription>
           
           <div className="space-y-3">
             {weekdaySchedules.map((schedule, index) => (
