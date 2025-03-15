@@ -66,7 +66,7 @@ const formSchema = z.object({
     z.object({
       day: z.string(),
       time: z.string(),
-      goalId: z.string().min(1, {
+      goalId: z.string().refine(val => val !== "none" && val !== null, {
         message: "Please select a goal for this schedule"
       })
     })
@@ -75,7 +75,7 @@ const formSchema = z.object({
     z.object({
       date: z.date(),
       time: z.string(),
-      goalId: z.string().min(1, {
+      goalId: z.string().refine(val => val !== "none" && val !== null, {
         message: "Please select a goal for this schedule"
       })
     })
@@ -417,13 +417,14 @@ const ScheduleCall = () => {
   // Functions for specific date schedules
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
+    // If there are goals, assign the first one by default
+    const defaultGoalId = goals.length > 0 ? goals[0].id : null;
     
-    // Create new schedule without a default goal - user must select one
     const newSchedule = {
       id: newId,
       date: new Date(),
       time: '09:00',
-      goalId: null, // Initialize with null so user must select a goal
+      goalId: defaultGoalId,
       isFromDb: false
     };
     
@@ -433,7 +434,7 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', [...currentSchedules, { 
       date: new Date(), 
       time: '09:00', 
-      goalId: "" // Empty string to trigger validation error
+      goalId: defaultGoalId || "" 
     }]);
   };
 
@@ -921,25 +922,28 @@ const ScheduleCall = () => {
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
-                            setWeekdayScheduleGoal(index, value);
+                            setWeekdayScheduleGoal(index, value === "none" ? null : value);
                           }}
-                          defaultValue={schedule.goalId || ""}
-                          value={field.value || ""}
+                          defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select a goal (required)" />
+                              <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {goals.length === 0 ? (
-                              <SelectItem disabled value="">Please create a goal first</SelectItem>
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
                             ) : (
-                              goals.map(goal => (
-                                <SelectItem key={goal.id} value={goal.id}>
-                                  {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                                </SelectItem>
-                              ))
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
                             )}
                           </SelectContent>
                         </Select>
@@ -1051,25 +1055,28 @@ const ScheduleCall = () => {
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
-                            setSpecificDateScheduleGoal(index, value);
+                            setSpecificDateScheduleGoal(index, value === "none" ? null : value);
                           }}
-                          defaultValue={schedule.goalId || ""}
-                          value={field.value || ""}
+                          defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select a goal (required)" />
+                              <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {goals.length === 0 ? (
-                              <SelectItem disabled value="">Please create a goal first</SelectItem>
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
                             ) : (
-                              goals.map(goal => (
-                                <SelectItem key={goal.id} value={goal.id}>
-                                  {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                                </SelectItem>
-                              ))
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
                             )}
                           </SelectContent>
                         </Select>
