@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,6 +41,8 @@ type WeekdaySchedule = {
   day: string;
   time: string;
   goalId: string | null;
+  // Track if this is from the database for deletion tracking
+  isFromDb?: boolean;
 };
 
 type SpecificDateSchedule = {
@@ -49,12 +50,16 @@ type SpecificDateSchedule = {
   date: Date;
   time: string;
   goalId: string | null;
+  // Track if this is from the database for deletion tracking
+  isFromDb?: boolean;
 };
 
 type GoalItem = {
   id: string;
   name: string;
   description: string;
+  // Track if this is from the database for deletion tracking
+  isFromDb?: boolean;
 };
 
 const formSchema = z.object({
@@ -148,6 +153,11 @@ const ScheduleCall = () => {
     currentTime: getTimeInZone(tz.timeZone)
   })));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
+  // Track deleted items for cleanup on save
+  const [deletedGoalIds, setDeletedGoalIds] = useState<string[]>([]);
+  const [deletedWeekdayScheduleIds, setDeletedWeekdayScheduleIds] = useState<string[]>([]);
+  const [deletedSpecificDateScheduleIds, setDeletedSpecificDateScheduleIds] = useState<string[]>([]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -159,6 +169,127 @@ const ScheduleCall = () => {
     },
   });
 
+  // Load user's timezone preference
+  const loadUserTimezone = async () => {
+    if (!session?.user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('timezone')
+        .eq('id', session.user.id)
+        .single();
+        
+      if (error) throw error;
+      
+      if (data && data.timezone) {
+        setTimeZone(data.timezone);
+        form.setValue('timeZone', data.timezone);
+        console.log('Loaded timezone from profile:', data.timezone);
+      }
+    } catch (error) {
+      console.error('Error loading user timezone:', error);
+    }
+  };
+
+  // Load existing goals
+  const loadGoals = async () => {
+    if (!session?.user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('goals')
+        .select('id, name, description')
+        .eq('user_id', session.user.id);
+        
+      if (error) throw error;
+      
+      console.log('Loaded goals from database:', data);
+      
+      if (data && data.length > 0) {
+        const goalsWithDbFlag = data.map(g => ({ 
+          id: g.id, 
+          name: g.name, 
+          description: g.description || '',
+          isFromDb: true
+        }));
+        
+        setGoals(goalsWithDbFlag);
+        form.setValue('goals', goalsWithDbFlag.map(g => ({ 
+          name: g.name, 
+          description: g.description 
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading goals:', error);
+    }
+  };
+
+  // Load existing scheduled calls
+  const loadScheduledCalls = async () => {
+    if (!session?.user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('scheduled_calls')
+        .select('id, weekday, specific_date, time, goal_id')
+        .eq('user_id', session.user.id);
+        
+      if (error) throw error;
+      
+      console.log('Loaded scheduled calls from database:', data);
+      
+      if (data && data.length > 0) {
+        const weekdayMap: Record<number, string> = {
+          1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 
+          5: 'friday', 6: 'saturday', 7: 'sunday'
+        };
+        
+        // Process weekday schedules
+        const weekdayData = data.filter(item => item.weekday !== null).map(item => ({
+          id: item.id,
+          day: weekdayMap[item.weekday as number] || 'monday',
+          time: item.time,
+          goalId: item.goal_id,
+          isFromDb: true
+        }));
+        
+        // Process specific date schedules
+        const dateData = data.filter(item => item.specific_date !== null).map(item => ({
+          id: item.id,
+          date: new Date(item.specific_date as string),
+          time: item.time,
+          goalId: item.goal_id,
+          isFromDb: true
+        }));
+        
+        if (weekdayData.length > 0) {
+          setWeekdaySchedules(weekdayData);
+          form.setValue('weekdaySchedules', weekdayData.map(item => ({
+            day: item.day,
+            time: item.time,
+            goalId: item.goalId
+          })));
+        }
+        
+        if (dateData.length > 0) {
+          setSpecificDateSchedules(dateData);
+          form.setValue('specificDateSchedules', dateData.map(item => ({
+            date: item.date,
+            time: item.time,
+            goalId: item.goalId
+          })));
+        }
+      } else if (weekdaySchedules.length === 0) {
+        // Add default weekday schedule if none exists
+        addWeekdaySchedule();
+      }
+    } catch (error) {
+      console.error('Error loading scheduled calls:', error);
+    }
+  };
+
+  // Save profile timezone
   const saveProfile = async (timeZone: string) => {
     if (!session?.user) return;
     
@@ -180,43 +311,37 @@ const ScheduleCall = () => {
     }
   };
 
+  // Save goals (create, update, delete)
   const saveGoals = async (goalsData: z.infer<typeof formSchema>['goals']) => {
     if (!session?.user) return [];
     
     try {
-      // Fetch existing goals to determine if we need to update or insert
-      const { data: existingGoals, error: fetchError } = await supabase
-        .from('goals')
-        .select('id, name')
-        .eq('user_id', session.user.id);
-        
-      if (fetchError) throw fetchError;
-      
-      console.log('Existing goals:', existingGoals);
-      
       const savedGoalIds: string[] = [];
       
+      // Handle deleting goals first
+      if (deletedGoalIds.length > 0) {
+        console.log('Deleting goals with IDs:', deletedGoalIds);
+        const { error: deleteError } = await supabase
+          .from('goals')
+          .delete()
+          .in('id', deletedGoalIds);
+          
+        if (deleteError) {
+          console.error('Error deleting goals:', deleteError);
+          toast({
+            variant: 'destructive',
+            title: 'Error deleting goals',
+            description: 'Some goals could not be deleted.'
+          });
+        }
+      }
+      
+      // Process each goal (create new or update existing)
       for (const [index, goal] of goalsData.entries()) {
         const goalId = goals[index]?.id;
+        const isNewGoal = !goalId || goalId.startsWith('new-');
         
-        // Skip saving goals with temporary IDs that start with "new-"
-        const isExistingGoal = goalId && !goalId.startsWith('new-') && existingGoals?.find(g => g.id === goalId);
-        
-        if (isExistingGoal) {
-          // Update existing goal
-          console.log(`Updating goal ${goalId}:`, goal);
-          const { error } = await supabase
-            .from('goals')
-            .update({
-              name: goal.name,
-              description: goal.description
-            })
-            .eq('id', goalId);
-            
-          if (error) throw error;
-          savedGoalIds.push(goalId);
-          console.log(`Goal updated: ${goalId}`);
-        } else {
+        if (isNewGoal) {
           // Insert new goal
           console.log(`Inserting new goal:`, goal);
           const { data, error } = await supabase
@@ -232,6 +357,20 @@ const ScheduleCall = () => {
           if (error) throw error;
           savedGoalIds.push(data.id);
           console.log(`New goal inserted: ${data.id}`);
+        } else {
+          // Update existing goal
+          console.log(`Updating goal ${goalId}:`, goal);
+          const { error } = await supabase
+            .from('goals')
+            .update({
+              name: goal.name,
+              description: goal.description
+            })
+            .eq('id', goalId);
+            
+          if (error) throw error;
+          savedGoalIds.push(goalId);
+          console.log(`Goal updated: ${goalId}`);
         }
       }
       
@@ -248,6 +387,7 @@ const ScheduleCall = () => {
     }
   };
 
+  // Save scheduled calls (create, update, delete)
   const saveSchedules = async (
     weekdaySchedules: z.infer<typeof formSchema>['weekdaySchedules'],
     specificDateSchedules: z.infer<typeof formSchema>['specificDateSchedules'],
@@ -256,28 +396,55 @@ const ScheduleCall = () => {
     if (!session?.user) return;
     
     try {
-      // First delete all existing scheduled calls for this user
-      console.log('Deleting existing scheduled calls');
+      // Delete schedules that were removed on the frontend
+      const idsToDelete = [
+        ...deletedWeekdayScheduleIds,
+        ...deletedSpecificDateScheduleIds
+      ].filter(id => !!id && !id.startsWith('weekday-') && !id.startsWith('date-'));
+      
+      if (idsToDelete.length > 0) {
+        console.log('Deleting scheduled calls with IDs:', idsToDelete);
+        const { error: deleteSpecificError } = await supabase
+          .from('scheduled_calls')
+          .delete()
+          .in('id', idsToDelete);
+          
+        if (deleteSpecificError) {
+          console.error('Error deleting specific scheduled calls:', deleteSpecificError);
+        }
+      }
+      
+      // Delete all temporary scheduled calls (to be recreated)
+      console.log('Deleting existing scheduled calls with temporary IDs');
       const { error: deleteError } = await supabase
         .from('scheduled_calls')
         .delete()
-        .eq('user_id', session.user.id);
+        .eq('user_id', session.user.id)
+        .is('id', null);
         
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.error('Error cleaning up temporary scheduled calls:', deleteError);
+      }
       
       // Prepare data for weekday schedules
-      const weekdayInserts = weekdaySchedules.map((schedule) => {
+      const weekdayInserts = weekdaySchedules.map((schedule, index) => {
         const weekdayMap: Record<string, number> = {
           monday: 1, tuesday: 2, wednesday: 3, thursday: 4, 
           friday: 5, saturday: 6, sunday: 7
         };
         
-        // If goalId starts with "new-", use the first saved goal ID
-        const goalIdToUse = schedule.goalId && !schedule.goalId.startsWith('new-') 
-          ? schedule.goalId 
-          : goalIds[0];
+        const originalSchedule = weekdaySchedules[index];
+        const isFromDb = originalSchedule?.isFromDb;
+        
+        // Use existing goal ID or first available goal if null/temporary
+        let goalIdToUse = schedule.goalId;
+        if (!goalIdToUse || goalIdToUse.startsWith('new-')) {
+          goalIdToUse = goalIds[0];
+        }
         
         return {
+          // Only include ID if it's from the database
+          ...(isFromDb ? { id: originalSchedule.id } : {}),
           user_id: session.user.id,
           weekday: weekdayMap[schedule.day],
           time: schedule.time,
@@ -287,13 +454,19 @@ const ScheduleCall = () => {
       });
       
       // Prepare data for specific date schedules
-      const specificDateInserts = specificDateSchedules.map(schedule => {
-        // If goalId starts with "new-", use the first saved goal ID
-        const goalIdToUse = schedule.goalId && !schedule.goalId.startsWith('new-') 
-          ? schedule.goalId 
-          : goalIds[0];
-          
+      const specificDateInserts = specificDateSchedules.map((schedule, index) => {
+        const originalSchedule = specificDateSchedules[index];
+        const isFromDb = originalSchedule?.isFromDb;
+        
+        // Use existing goal ID or first available goal if null/temporary
+        let goalIdToUse = schedule.goalId;
+        if (!goalIdToUse || goalIdToUse.startsWith('new-')) {
+          goalIdToUse = goalIds[0];
+        }
+        
         return {
+          // Only include ID if it's from the database
+          ...(isFromDb ? { id: originalSchedule.id } : {}),
           user_id: session.user.id,
           specific_date: schedule.date.toISOString().split('T')[0],
           time: schedule.time,
@@ -303,18 +476,19 @@ const ScheduleCall = () => {
       });
       
       const allSchedules = [...weekdayInserts, ...specificDateInserts];
-      console.log('Schedules to insert:', allSchedules);
+      console.log('Schedules to insert/update:', allSchedules);
       
       if (allSchedules.length > 0) {
-        const { error: insertError } = await supabase
+        // Use upsert to handle both inserts and updates
+        const { error: upsertError } = await supabase
           .from('scheduled_calls')
-          .insert(allSchedules);
+          .upsert(allSchedules);
           
-        if (insertError) {
-          console.error('Error inserting schedules:', insertError);
-          throw insertError;
+        if (upsertError) {
+          console.error('Error upserting schedules:', upsertError);
+          throw upsertError;
         }
-        console.log('Inserted schedules successfully');
+        console.log('Inserted/updated schedules successfully');
       }
     } catch (error) {
       console.error('Error saving schedules:', error);
@@ -365,9 +539,15 @@ const ScheduleCall = () => {
   };
 
   const removeWeekdaySchedule = (index: number) => {
+    const scheduleToRemove = weekdaySchedules[index];
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules.splice(index, 1);
     setWeekdaySchedules(updatedSchedules);
+    
+    // If this was from the database, track its ID for deletion
+    if (scheduleToRemove.isFromDb && !scheduleToRemove.id.startsWith('weekday-')) {
+      setDeletedWeekdayScheduleIds(prev => [...prev, scheduleToRemove.id]);
+    }
     
     const currentSchedules = form.getValues('weekdaySchedules');
     currentSchedules.splice(index, 1);
@@ -375,9 +555,15 @@ const ScheduleCall = () => {
   };
 
   const removeSpecificDateSchedule = (index: number) => {
+    const scheduleToRemove = specificDateSchedules[index];
     const updatedSchedules = [...specificDateSchedules];
     updatedSchedules.splice(index, 1);
     setSpecificDateSchedules(updatedSchedules);
+    
+    // If this was from the database, track its ID for deletion
+    if (scheduleToRemove.isFromDb && !scheduleToRemove.id.startsWith('date-')) {
+      setDeletedSpecificDateScheduleIds(prev => [...prev, scheduleToRemove.id]);
+    }
     
     const currentSchedules = form.getValues('specificDateSchedules');
     currentSchedules.splice(index, 1);
@@ -387,8 +573,15 @@ const ScheduleCall = () => {
   const removeGoal = (index: number) => {
     if (goals.length <= 1) return;
     
+    const goalToRemove = goals[index];
+    const removedGoalId = goalToRemove.id;
+    
+    // If this was from the database, track its ID for deletion
+    if (goalToRemove.isFromDb) {
+      setDeletedGoalIds(prev => [...prev, removedGoalId]);
+    }
+    
     const updatedGoals = [...goals];
-    const removedGoalId = updatedGoals[index].id;
     updatedGoals.splice(index, 1);
     setGoals(updatedGoals);
     
@@ -396,6 +589,7 @@ const ScheduleCall = () => {
     currentGoals.splice(index, 1);
     form.setValue('goals', currentGoals);
     
+    // Update any references to this goal in schedules
     const updatedWeekdaySchedules = weekdaySchedules.map(schedule => {
       if (schedule.goalId === removedGoalId) {
         return { ...schedule, goalId: null };
@@ -448,20 +642,32 @@ const ScheduleCall = () => {
       setIsSubmitting(true);
       console.log('Form data:', data);
       
+      // Step 1: Save the timezone
       await saveProfile(data.timeZone);
       
+      // Step 2: Save all goals (creates, updates, and deletes)
       const goalIds = await saveGoals(data.goals);
       
       if (goalIds.length === 0) {
         throw new Error('Failed to save goals');
       }
       
+      // Step 3: Save all schedules (creates, updates, and deletes)
       await saveSchedules(data.weekdaySchedules, data.specificDateSchedules, goalIds);
+      
+      // Clear the deletion tracking arrays after successful save
+      setDeletedGoalIds([]);
+      setDeletedWeekdayScheduleIds([]);
+      setDeletedSpecificDateScheduleIds([]);
       
       toast({
         title: "Calls Scheduled",
         description: "Your coaching calls have been scheduled successfully!",
       });
+      
+      // Reload data to get the latest state
+      await loadGoals();
+      await loadScheduledCalls();
       
       setTimeout(() => {
         navigate('/dashboard');
@@ -478,40 +684,24 @@ const ScheduleCall = () => {
     }
   };
 
+  // Load initial data
   useEffect(() => {
-    if (weekdaySchedules.length === 0) {
+    if (session?.user && !initialDataLoaded) {
+      const loadData = async () => {
+        await loadUserTimezone();
+        await loadGoals();
+        await loadScheduledCalls();
+        setInitialDataLoaded(true);
+      };
+      
+      loadData();
+    } else if (!session && !loading && weekdaySchedules.length === 0) {
+      // Add default weekday if not logged in
       addWeekdaySchedule();
     }
-    
-    // Load any existing goals from the database
-    const loadGoals = async () => {
-      if (!session?.user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('goals')
-          .select('id, name, description')
-          .eq('user_id', session.user.id);
-          
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setGoals(data);
-          form.setValue('goals', data.map(g => ({ 
-            name: g.name, 
-            description: g.description || '' 
-          })));
-        }
-      } catch (error) {
-        console.error('Error loading goals:', error);
-      }
-    };
-    
-    if (session?.user) {
-      loadGoals();
-    }
-  }, [session]);
+  }, [session, loading, initialDataLoaded]);
 
+  // Keep time display updated
   useEffect(() => {
     const updateTimes = () => {
       setTimeZoneWithTimes(timeZoneOptions.map(tz => ({
