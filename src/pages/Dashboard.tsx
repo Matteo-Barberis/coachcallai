@@ -32,7 +32,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-500 mb-4">
                   Define what you want to achieve with your coaching sessions to get personalized guidance.
                 </p>
-                <Button asChild>
+                <Button variant="outline" asChild>
                   <Link to="/objectives" className="flex items-center gap-2">
                     <Target className="h-4 w-4" /> 
                     Set Objectives
@@ -58,7 +58,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-500 mb-4">
                   Link your WhatsApp account to receive coaching session reminders and quick updates.
                 </p>
-                <Button variant="outline" asChild>
+                <Button className="bg-[#25D366] hover:bg-[#128C7E]" asChild>
                   <Link to="/connect-whatsapp" className="flex items-center gap-2">
                     <MessageCircle className="h-4 w-4" />
                     Connect WhatsApp
