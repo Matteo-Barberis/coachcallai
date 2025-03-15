@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Globe, Plus, Trash2, X } from 'lucide-react';
+import { CalendarIcon, Clock, Globe, Plus, Search, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -34,7 +34,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-// Define types for schedule entries
 type WeekdaySchedule = {
   id: string;
   day: string;
@@ -55,9 +54,8 @@ type GoalItem = {
   description: string;
 };
 
-// Form schema
 const formSchema = z.object({
-  timeZone: z.string().default('UTC'),
+  timeZone: z.string().default('GMT'),
   weekdaySchedules: z.array(
     z.object({
       day: z.string(),
@@ -80,7 +78,6 @@ const formSchema = z.object({
   ).min(1, 'Add at least one goal')
 });
 
-// Days of the week
 const dayOptions = [
   { value: 'monday', label: 'Monday' },
   { value: 'tuesday', label: 'Tuesday' },
@@ -91,7 +88,6 @@ const dayOptions = [
   { value: 'sunday', label: 'Sunday' },
 ];
 
-// Generate time options in 30-minute intervals
 const generateTimeOptions = () => {
   const options = [];
   for (let hour = 0; hour < 24; hour++) {
@@ -104,40 +100,75 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-// Time zones - a selection of common time zones
 const timeZoneOptions = [
-  { value: 'UTC', label: 'UTC' },
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'Europe/London', label: 'GMT/BST (UK)' },
-  { value: 'Europe/Paris', label: 'Central European Time (CET)' },
-  { value: 'Asia/Tokyo', label: 'Japan Standard Time (JST)' },
-  { value: 'Australia/Sydney', label: 'Australian Eastern Time (AET)' },
+  { value: 'GMT', label: 'Greenwich Mean Time', offset: '+00:00', cities: 'London, Birmingham, Liverpool, Glasgow' },
+  { value: 'UTC', label: 'Coordinated Universal Time', offset: '+00:00', cities: 'Reykjavik, Accra, Dakar, Abidjan' },
+  { value: 'America/New_York', label: 'Eastern Time', offset: '-05:00', cities: 'New York, Washington, Atlanta, Miami' },
+  { value: 'America/Chicago', label: 'Central Time', offset: '-06:00', cities: 'Chicago, Dallas, Houston, Mexico City' },
+  { value: 'America/Denver', label: 'Mountain Time', offset: '-07:00', cities: 'Denver, Phoenix, Salt Lake City' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time', offset: '-08:00', cities: 'Los Angeles, San Francisco, Seattle' },
+  { value: 'Europe/London', label: 'British Time', offset: '+00:00', cities: 'London, Edinburgh, Dublin' },
+  { value: 'Europe/Paris', label: 'Central European Time', offset: '+01:00', cities: 'Paris, Berlin, Rome, Madrid' },
+  { value: 'Europe/Athens', label: 'Eastern European Time', offset: '+02:00', cities: 'Athens, Helsinki, Cairo, Jerusalem' },
+  { value: 'Asia/Dubai', label: 'Gulf Standard Time', offset: '+04:00', cities: 'Dubai, Abu Dhabi, Muscat' },
+  { value: 'Asia/Kolkata', label: 'India Standard Time', offset: '+05:30', cities: 'Mumbai, Delhi, Bangalore, Chennai' },
+  { value: 'Asia/Shanghai', label: 'China Standard Time', offset: '+08:00', cities: 'Beijing, Shanghai, Hong Kong' },
+  { value: 'Asia/Tokyo', label: 'Japan Standard Time', offset: '+09:00', cities: 'Tokyo, Osaka, Kyoto' },
+  { value: 'Australia/Sydney', label: 'Australian Eastern Time', offset: '+10:00', cities: 'Sydney, Melbourne, Brisbane' },
+  { value: 'Pacific/Auckland', label: 'New Zealand Standard Time', offset: '+12:00', cities: 'Auckland, Wellington' },
 ];
 
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Local state for managing entries
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
   const [goals, setGoals] = useState<GoalItem[]>([{ id: '1', name: 'Morning Session', description: '' }]);
-  const [timeZone, setTimeZone] = useState('UTC');
+  const [timeZone, setTimeZone] = useState('GMT');
+  const [currentTime, setCurrentTime] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTimeZones, setFilteredTimeZones] = useState(timeZoneOptions);
+  
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      setCurrentTime(`${hours}:${minutes}`);
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredTimeZones(timeZoneOptions);
+      return;
+    }
+    
+    const lowercaseSearch = searchTerm.toLowerCase();
+    const filtered = timeZoneOptions.filter(zone => 
+      zone.label.toLowerCase().includes(lowercaseSearch) || 
+      zone.cities.toLowerCase().includes(lowercaseSearch) ||
+      zone.offset.includes(lowercaseSearch)
+    );
+    
+    setFilteredTimeZones(filtered);
+  }, [searchTerm]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      timeZone: 'UTC',
+      timeZone: 'GMT',
       weekdaySchedules: [],
       specificDateSchedules: [],
       goals: [{ name: 'Morning Session', description: '' }],
     },
   });
 
-  // Add a new weekday schedule
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
     const newSchedule: WeekdaySchedule = {
@@ -153,7 +184,6 @@ const ScheduleCall = () => {
     form.setValue('weekdaySchedules', [...currentSchedules, { day: 'monday', time: '09:00', goalId: null }]);
   };
 
-  // Add a specific date schedule
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
     const newSchedule: SpecificDateSchedule = {
@@ -169,7 +199,6 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00', goalId: null }]);
   };
 
-  // Add a new goal
   const addGoal = () => {
     const newId = `goal-${Date.now()}`;
     setGoals([...goals, { id: newId, name: '', description: '' }]);
@@ -178,7 +207,6 @@ const ScheduleCall = () => {
     form.setValue('goals', [...currentGoals, { name: '', description: '' }]);
   };
 
-  // Remove a weekday schedule
   const removeWeekdaySchedule = (index: number) => {
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules.splice(index, 1);
@@ -189,7 +217,6 @@ const ScheduleCall = () => {
     form.setValue('weekdaySchedules', currentSchedules);
   };
 
-  // Remove a specific date schedule
   const removeSpecificDateSchedule = (index: number) => {
     const updatedSchedules = [...specificDateSchedules];
     updatedSchedules.splice(index, 1);
@@ -200,9 +227,8 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  // Remove a goal
   const removeGoal = (index: number) => {
-    if (goals.length <= 1) return; // Keep at least one goal
+    if (goals.length <= 1) return;
     
     const updatedGoals = [...goals];
     const removedGoalId = updatedGoals[index].id;
@@ -213,7 +239,6 @@ const ScheduleCall = () => {
     currentGoals.splice(index, 1);
     form.setValue('goals', currentGoals);
     
-    // Remove references to the deleted goal from schedules
     const updatedWeekdaySchedules = weekdaySchedules.map(schedule => {
       if (schedule.goalId === removedGoalId) {
         return { ...schedule, goalId: null };
@@ -231,7 +256,6 @@ const ScheduleCall = () => {
     setSpecificDateSchedules(updatedSpecificDateSchedules);
   };
 
-  // Set goal for a weekday schedule
   const setWeekdayScheduleGoal = (index: number, goalId: string | null) => {
     const updatedSchedules = [...weekdaySchedules];
     updatedSchedules[index].goalId = goalId;
@@ -242,7 +266,6 @@ const ScheduleCall = () => {
     form.setValue('weekdaySchedules', currentSchedules);
   };
 
-  // Set goal for a specific date schedule
   const setSpecificDateScheduleGoal = (index: number, goalId: string | null) => {
     const updatedSchedules = [...specificDateSchedules];
     updatedSchedules[index].goalId = goalId;
@@ -253,7 +276,6 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  // Handle form submission
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log('Form data:', data);
     
@@ -267,51 +289,90 @@ const ScheduleCall = () => {
     }, 1500);
   };
 
-  // Initialize with one weekday schedule if empty
   React.useEffect(() => {
     if (weekdaySchedules.length === 0) {
       addWeekdaySchedule();
     }
   }, []);
 
+  const selectedTimeZone = timeZoneOptions.find(tz => tz.value === timeZone);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Weekday Schedules */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel className="text-base">Weekly Schedule</FormLabel>
             
-            {/* Time Zone Dropdown */}
             <FormField
               control={form.control}
               name="timeZone"
               render={({ field }) => (
                 <FormItem className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Globe className="h-4 w-4" />
-                    <span>Time Zone:</span>
-                  </div>
-                  <Select 
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      setTimeZone(value);
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select time zone" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {timeZoneOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center justify-between w-[260px] font-normal bg-background"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-4 w-4 text-muted-foreground" />
+                          <span>{selectedTimeZone?.label} ({currentTime})</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">▼</div>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[350px] p-0">
+                      <div className="p-2 border-b">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search by city or time zone..."
+                            className="pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-[300px] overflow-y-auto py-2">
+                        {filteredTimeZones.map((option) => (
+                          <div 
+                            key={option.value}
+                            className={cn(
+                              "flex items-center justify-between px-4 py-2 hover:bg-muted cursor-pointer",
+                              option.value === field.value && "bg-muted"
+                            )}
+                            onClick={() => {
+                              field.onChange(option.value);
+                              setTimeZone(option.value);
+                            }}
+                          >
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <div className="bg-slate-100 text-slate-800 text-xs font-medium rounded px-1.5 py-0.5">
+                                  {option.offset}
+                                </div>
+                                <span>{option.label}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {option.cities}
+                              </div>
+                            </div>
+                            <div className="text-muted-foreground">
+                              {currentTime}
+                            </div>
+                            {option.value === field.value && (
+                              <div className="absolute right-3">
+                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M11.4669 3.72684C11.7558 3.91574 11.8369 4.30308 11.648 4.59198L7.39799 11.092C7.29783 11.2452 7.13556 11.3467 6.95402 11.3699C6.77247 11.3931 6.58989 11.3355 6.45446 11.2124L3.70446 8.71241C3.44905 8.48022 3.43023 8.08494 3.66242 7.82953C3.89461 7.57412 4.28989 7.55529 4.5453 7.78749L6.75292 9.79441L10.6018 3.90792C10.7907 3.61902 11.178 3.53795 11.4669 3.72684Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </FormItem>
               )}
             />
@@ -324,7 +385,6 @@ const ScheduleCall = () => {
             {weekdaySchedules.map((schedule, index) => (
               <div key={schedule.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1">
-                  {/* Day Selection */}
                   <FormField
                     control={form.control}
                     name={`weekdaySchedules.${index}.day`}
@@ -356,7 +416,6 @@ const ScheduleCall = () => {
                     )}
                   />
 
-                  {/* Time Selection */}
                   <FormField
                     control={form.control}
                     name={`weekdaySchedules.${index}.time`}
@@ -388,7 +447,6 @@ const ScheduleCall = () => {
                     )}
                   />
                   
-                  {/* Goal Selection */}
                   <FormField
                     control={form.control}
                     name={`weekdaySchedules.${index}.goalId`}
@@ -420,7 +478,6 @@ const ScheduleCall = () => {
                   />
                 </div>
 
-                {/* Delete button */}
                 <Button 
                   type="button" 
                   variant="ghost" 
@@ -438,7 +495,6 @@ const ScheduleCall = () => {
             {specificDateSchedules.map((schedule, index) => (
               <div key={schedule.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1">
-                  {/* Date Selection */}
                   <FormField
                     control={form.control}
                     name={`specificDateSchedules.${index}.date`}
@@ -484,7 +540,6 @@ const ScheduleCall = () => {
                     )}
                   />
 
-                  {/* Time Selection */}
                   <FormField
                     control={form.control}
                     name={`specificDateSchedules.${index}.time`}
@@ -516,7 +571,6 @@ const ScheduleCall = () => {
                     )}
                   />
                   
-                  {/* Goal Selection */}
                   <FormField
                     control={form.control}
                     name={`specificDateSchedules.${index}.goalId`}
@@ -548,7 +602,6 @@ const ScheduleCall = () => {
                   />
                 </div>
 
-                {/* Delete button */}
                 <Button 
                   type="button" 
                   variant="ghost" 
@@ -587,7 +640,6 @@ const ScheduleCall = () => {
           </div>
         </div>
 
-        {/* Goals Definition */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel className="text-base">Define Your Coaching Goals</FormLabel>
@@ -624,7 +676,6 @@ const ScheduleCall = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {/* Goal Name */}
                   <FormField
                     control={form.control}
                     name={`goals.${index}.name`}
@@ -648,7 +699,6 @@ const ScheduleCall = () => {
                     )}
                   />
                   
-                  {/* Goal Description */}
                   <FormField
                     control={form.control}
                     name={`goals.${index}.description`}
