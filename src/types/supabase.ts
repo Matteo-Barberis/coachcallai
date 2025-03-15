@@ -5,6 +5,7 @@ export type Profile = {
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+  objectives: string | null;
 };
 
 export type UserObjective = {

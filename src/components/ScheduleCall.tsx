@@ -197,18 +197,19 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('user_objectives')
-        .select('*')
-        .eq('user_id', session.user.id);
+        .from('profiles')
+        .select('objectives')
+        .eq('id', session.user.id)
+        .single();
       
       if (error) {
         console.error('Error fetching user objectives:', error);
         return;
       }
       
-      if (data && data.length > 0) {
-        setUserObjectives(data[0].objectives || '');
-        form.setValue('objectives', data[0].objectives || '');
+      if (data) {
+        setUserObjectives(data.objectives || '');
+        form.setValue('objectives', data.objectives || '');
       }
     } catch (error) {
       console.error('Error in fetchUserObjectives:', error);
@@ -423,14 +424,12 @@ const ScheduleCall = ({ hideObjectives = false }: ScheduleCallProps) => {
     try {
       if (!hideObjectives) {
         const { error: objectivesError } = await supabase
-          .from('user_objectives')
-          .upsert({
-            user_id: session.user.id,
+          .from('profiles')
+          .update({
             objectives: data.objectives,
             updated_at: new Date().toISOString()
-          }, { 
-            onConflict: 'user_id' 
-          });
+          })
+          .eq('id', session.user.id);
         
         if (objectivesError) {
           console.error('Error updating objectives:', objectivesError);

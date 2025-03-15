@@ -39,6 +39,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          objectives: string | null
           timezone: string
           updated_at: string
         }
@@ -47,6 +48,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          objectives?: string | null
           timezone?: string
           updated_at?: string
         }
@@ -55,6 +57,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          objectives?: string | null
           timezone?: string
           updated_at?: string
         }
