@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -385,27 +384,6 @@ const ScheduleCall = () => {
             ))}
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addWeekdaySchedule}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Add weekday
-          </Button>
-        </div>
-
-        {/* Specific Date Schedules */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <FormLabel className="text-base">Specific Date Schedule</FormLabel>
-          </div>
-          <FormDescription>
-            Add calls for specific dates if you have important events coming up and assign them to specific goals.
-          </FormDescription>
-          
           <div className="space-y-3">
             {specificDateSchedules.map((schedule, index) => (
               <div key={schedule.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -534,19 +512,32 @@ const ScheduleCall = () => {
             ))}
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addSpecificDateSchedule}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Add specific date
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addWeekdaySchedule}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add weekday
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addSpecificDateSchedule}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add specific date
+            </Button>
+          </div>
         </div>
 
-        {/* Goals Definition - MOVED HERE */}
+        {/* Goals Definition */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <FormLabel className="text-base">Define Your Coaching Goals</FormLabel>
