@@ -66,14 +66,18 @@ const formSchema = z.object({
     z.object({
       day: z.string(),
       time: z.string(),
-      goalId: z.string().nullable()
+      goalId: z.string().refine(val => val !== "none" && val !== null, {
+        message: "Please select a goal for this schedule"
+      })
     })
   ),
   specificDateSchedules: z.array(
     z.object({
       date: z.date(),
       time: z.string(),
-      goalId: z.string().nullable()
+      goalId: z.string().refine(val => val !== "none" && val !== null, {
+        message: "Please select a goal for this schedule"
+      })
     })
   ),
   goals: z.array(
@@ -339,6 +343,19 @@ const ScheduleCall = () => {
     const goalToRemove = goals[index];
     const updatedGoals = [...goals];
     
+    // Check if the goal is assigned to any schedules
+    const isAssignedToWeekdaySchedule = weekdaySchedules.some(schedule => schedule.goalId === goalToRemove.id);
+    const isAssignedToSpecificDateSchedule = specificDateSchedules.some(schedule => schedule.goalId === goalToRemove.id);
+    
+    if (isAssignedToWeekdaySchedule || isAssignedToSpecificDateSchedule) {
+      toast({
+        title: "Cannot remove goal",
+        description: "This goal is assigned to one or more schedules. Please remove the assignments first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // If the goal is from the database, track it for deletion
     if (goalToRemove.isFromDb) {
       setDeletedGoalIds([...deletedGoalIds, goalToRemove.id]);
@@ -357,18 +374,25 @@ const ScheduleCall = () => {
   // Functions for weekday schedules
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
+    // If there are goals, assign the first one by default
+    const defaultGoalId = goals.length > 0 ? goals[0].id : null;
+    
     const newSchedule = {
       id: newId,
       day: 'monday',
       time: '09:00',
-      goalId: null,
+      goalId: defaultGoalId,
       isFromDb: false
     };
     
     setWeekdaySchedules([...weekdaySchedules, newSchedule]);
     
     const currentSchedules = form.getValues('weekdaySchedules') || [];
-    form.setValue('weekdaySchedules', [...currentSchedules, { day: 'monday', time: '09:00', goalId: null }]);
+    form.setValue('weekdaySchedules', [...currentSchedules, { 
+      day: 'monday', 
+      time: '09:00', 
+      goalId: defaultGoalId || "" 
+    }]);
   };
 
   const removeWeekdaySchedule = (index: number) => {
@@ -393,18 +417,25 @@ const ScheduleCall = () => {
   // Functions for specific date schedules
   const addSpecificDateSchedule = () => {
     const newId = `date-${Date.now()}`;
+    // If there are goals, assign the first one by default
+    const defaultGoalId = goals.length > 0 ? goals[0].id : null;
+    
     const newSchedule = {
       id: newId,
       date: new Date(),
       time: '09:00',
-      goalId: null,
+      goalId: defaultGoalId,
       isFromDb: false
     };
     
     setSpecificDateSchedules([...specificDateSchedules, newSchedule]);
     
     const currentSchedules = form.getValues('specificDateSchedules') || [];
-    form.setValue('specificDateSchedules', [...currentSchedules, { date: new Date(), time: '09:00', goalId: null }]);
+    form.setValue('specificDateSchedules', [...currentSchedules, { 
+      date: new Date(), 
+      time: '09:00', 
+      goalId: defaultGoalId || "" 
+    }]);
   };
 
   const removeSpecificDateSchedule = (index: number) => {
@@ -433,7 +464,7 @@ const ScheduleCall = () => {
     setWeekdaySchedules(updatedSchedules);
     
     const currentSchedules = form.getValues('weekdaySchedules');
-    currentSchedules[index].goalId = goalId;
+    currentSchedules[index].goalId = goalId || "";
     form.setValue('weekdaySchedules', currentSchedules);
   };
 
@@ -443,7 +474,7 @@ const ScheduleCall = () => {
     setSpecificDateSchedules(updatedSchedules);
     
     const currentSchedules = form.getValues('specificDateSchedules');
-    currentSchedules[index].goalId = goalId;
+    currentSchedules[index].goalId = goalId || "";
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
@@ -461,32 +492,47 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // Process goals first
-      if (deletedGoalIds.length > 0) {
-        for (const goalId of deletedGoalIds) {
-          if (goalId.startsWith('goal-')) continue;
+      // First process the schedules to remove assignments to deleted goals
+      const processWeekdaySchedules = [...weekdaySchedules];
+      const processSpecificDateSchedules = [...specificDateSchedules];
+      
+      // Reverse the order - first save/update schedules, then deal with goals
+      // This prevents foreign key constraint errors
+
+      // 1. Delete schedules marked for deletion
+      if (deletedWeekdayScheduleIds.length > 0) {
+        for (const scheduleId of deletedWeekdayScheduleIds) {
+          if (scheduleId.startsWith('weekday-')) continue;
           
           const { error } = await supabase
-            .from('goals')
+            .from('scheduled_calls')
             .delete()
-            .eq('id', goalId)
+            .eq('id', scheduleId)
             .eq('user_id', session.user.id);
             
           if (error) {
-            console.error(`Failed to delete goal ${goalId}:`, error);
-            if (error.code === '23503') {
-              toast({
-                title: "Cannot delete goal",
-                description: "This goal is assigned to one or more schedules. Please remove the assignments first.",
-                variant: "destructive"
-              });
-              setIsLoading(false);
-              return;
-            }
+            console.error(`Failed to delete weekday schedule ${scheduleId}:`, error);
           }
         }
       }
       
+      if (deletedSpecificDateScheduleIds.length > 0) {
+        for (const scheduleId of deletedSpecificDateScheduleIds) {
+          if (scheduleId.startsWith('date-')) continue;
+          
+          const { error } = await supabase
+            .from('scheduled_calls')
+            .delete()
+            .eq('id', scheduleId)
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error(`Failed to delete specific date schedule ${scheduleId}:`, error);
+          }
+        }
+      }
+      
+      // 2. Process goals first to ensure they exist before referencing
       const savedGoals: Goal[] = [];
       
       for (let i = 0; i < goals.length; i++) {
@@ -527,17 +573,42 @@ const ScheduleCall = () => {
             continue;
           }
           
+          // Update any references to the temporary ID with the new permanent ID
+          for (let j = 0; j < processWeekdaySchedules.length; j++) {
+            if (processWeekdaySchedules[j].goalId === goal.id) {
+              processWeekdaySchedules[j].goalId = newGoal.id;
+              
+              // Update the form data as well
+              const weekdayFormData = data.weekdaySchedules[j];
+              if (weekdayFormData && weekdayFormData.goalId === goal.id) {
+                weekdayFormData.goalId = newGoal.id;
+              }
+            }
+          }
+          
+          for (let j = 0; j < processSpecificDateSchedules.length; j++) {
+            if (processSpecificDateSchedules[j].goalId === goal.id) {
+              processSpecificDateSchedules[j].goalId = newGoal.id;
+              
+              // Update the form data as well
+              const specificDateFormData = data.specificDateSchedules[j];
+              if (specificDateFormData && specificDateFormData.goalId === goal.id) {
+                specificDateFormData.goalId = newGoal.id;
+              }
+            }
+          }
+          
           savedGoals.push({ ...newGoal, isFromDb: true });
         }
       }
       
       setGoals(savedGoals);
-      setDeletedGoalIds([]);
       
+      // 3. Now that we have all goals saved, process the schedules
       const savedWeekdaySchedules: WeekdaySchedule[] = [];
       
-      for (let i = 0; i < weekdaySchedules.length; i++) {
-        const schedule = weekdaySchedules[i];
+      for (let i = 0; i < processWeekdaySchedules.length; i++) {
+        const schedule = processWeekdaySchedules[i];
         const formSchedule = data.weekdaySchedules[i];
         
         const dayOption = dayOptions.find(day => day.value === formSchedule.day);
@@ -606,8 +677,8 @@ const ScheduleCall = () => {
       
       const savedSpecificDateSchedules: SpecificDateSchedule[] = [];
       
-      for (let i = 0; i < specificDateSchedules.length; i++) {
-        const schedule = specificDateSchedules[i];
+      for (let i = 0; i < processSpecificDateSchedules.length; i++) {
+        const schedule = processSpecificDateSchedules[i];
         const formSchedule = data.specificDateSchedules[i];
         
         const goalId = formSchedule.goalId;
@@ -671,6 +742,34 @@ const ScheduleCall = () => {
       setSpecificDateSchedules(savedSpecificDateSchedules);
       setDeletedWeekdayScheduleIds([]);
       setDeletedSpecificDateScheduleIds([]);
+      
+      // 4. Finally, process goal deletions after all schedules are updated
+      if (deletedGoalIds.length > 0) {
+        for (const goalId of deletedGoalIds) {
+          if (goalId.startsWith('goal-')) continue;
+          
+          const { error } = await supabase
+            .from('goals')
+            .delete()
+            .eq('id', goalId)
+            .eq('user_id', session.user.id);
+            
+          if (error) {
+            console.error(`Failed to delete goal ${goalId}:`, error);
+            if (error.code === '23503') {
+              toast({
+                title: "Cannot delete goal",
+                description: "This goal is assigned to one or more schedules. Please remove the assignments first.",
+                variant: "destructive"
+              });
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      }
+      
+      setDeletedGoalIds([]);
       
       toast({
         title: "Schedules Saved",
@@ -829,19 +928,26 @@ const ScheduleCall = () => {
                           value={field.value || "none"}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
                               <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="none">No specific goal</SelectItem>
-                            {goals.map(goal => (
-                              <SelectItem key={goal.id} value={goal.id}>
-                                {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                              </SelectItem>
-                            ))}
+                            {goals.length === 0 ? (
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
+                            ) : (
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -955,19 +1061,26 @@ const ScheduleCall = () => {
                           value={field.value || "none"}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
                               <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="none">No specific goal</SelectItem>
-                            {goals.map(goal => (
-                              <SelectItem key={goal.id} value={goal.id}>
-                                {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                              </SelectItem>
-                            ))}
+                            {goals.length === 0 ? (
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
+                            ) : (
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
