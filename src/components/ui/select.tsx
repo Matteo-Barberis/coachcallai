@@ -80,6 +80,20 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      onCloseAutoFocus={(event) => {
+        event.preventDefault();
+      }}
+      onPointerDownOutside={(event) => {
+        // This prevents scrolling issues when clicking outside the select
+        const target = event.target as HTMLElement;
+        const isScrollbarClick = 
+          target.tagName === 'HTML' && 
+          event.clientX > document.documentElement.clientWidth;
+          
+        if (isScrollbarClick) {
+          event.preventDefault();
+        }
+      }}
       {...props}
     >
       <SelectScrollUpButton />
