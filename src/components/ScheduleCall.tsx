@@ -924,23 +924,26 @@ const ScheduleCall = () => {
                             field.onChange(value);
                             setWeekdayScheduleGoal(index, value === "none" ? null : value);
                           }}
-                          defaultValue={field.value}
-                          value={field.value}
+                          defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select a goal" />
+                              <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {goals.length === 0 ? (
-                              <SelectItem disabled value="">Please create a goal first</SelectItem>
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
                             ) : (
-                              goals.map(goal => (
-                                <SelectItem key={goal.id} value={goal.id}>
-                                  {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                                </SelectItem>
-                              ))
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
                             )}
                           </SelectContent>
                         </Select>
@@ -1054,23 +1057,26 @@ const ScheduleCall = () => {
                             field.onChange(value);
                             setSpecificDateScheduleGoal(index, value === "none" ? null : value);
                           }}
-                          defaultValue={field.value}
-                          value={field.value}
+                          defaultValue={schedule.goalId || "none"}
+                          value={field.value || "none"}
                         >
                           <FormControl>
                             <SelectTrigger className={goals.length === 0 ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select a goal" />
+                              <SelectValue placeholder="Assign a goal" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {goals.length === 0 ? (
-                              <SelectItem disabled value="">Please create a goal first</SelectItem>
+                              <SelectItem disabled value="none">Please create a goal first</SelectItem>
                             ) : (
-                              goals.map(goal => (
-                                <SelectItem key={goal.id} value={goal.id}>
-                                  {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
-                                </SelectItem>
-                              ))
+                              <>
+                                <SelectItem value="none">No specific goal</SelectItem>
+                                {goals.map(goal => (
+                                  <SelectItem key={goal.id} value={goal.id}>
+                                    {goal.name || `Goal ${goals.indexOf(goal) + 1}`}
+                                  </SelectItem>
+                                ))}
+                              </>
                             )}
                           </SelectContent>
                         </Select>
