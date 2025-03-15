@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { CalendarIcon, Clock, Plus, X, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { useSessionContext } from '@/context/SessionContext';
+import { supabase } from '@/integrations/supabase/client';
 
 import {
   Form,
@@ -134,6 +136,7 @@ const timeZoneOptions = [
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { session, loading } = useSessionContext();
   
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
@@ -153,6 +156,139 @@ const ScheduleCall = () => {
       goals: [{ name: 'Morning Session', description: '' }],
     },
   });
+
+  const saveProfile = async (timeZone: string) => {
+    if (!session?.user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ timezone: timeZone })
+        .eq('id', session.user.id);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating profile timezone:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error updating timezone',
+        description: 'There was a problem updating your timezone preference.'
+      });
+    }
+  };
+
+  const saveGoals = async (goalsData: z.infer<typeof formSchema>['goals']) => {
+    if (!session?.user) return [];
+    
+    try {
+      const { data: existingGoals, error: fetchError } = await supabase
+        .from('goals')
+        .select('id, name')
+        .eq('user_id', session.user.id);
+        
+      if (fetchError) throw fetchError;
+      
+      const savedGoalIds: string[] = [];
+      
+      for (const [index, goal] of goalsData.entries()) {
+        const goalId = goals[index]?.id;
+        const existingGoal = goalId && existingGoals?.find(g => g.id === goalId);
+        
+        if (existingGoal) {
+          const { error } = await supabase
+            .from('goals')
+            .update({
+              name: goal.name,
+              description: goal.description
+            })
+            .eq('id', goalId);
+            
+          if (error) throw error;
+          savedGoalIds.push(goalId);
+        } else {
+          const { data, error } = await supabase
+            .from('goals')
+            .insert({
+              user_id: session.user.id,
+              name: goal.name,
+              description: goal.description
+            })
+            .select('id')
+            .single();
+            
+          if (error) throw error;
+          savedGoalIds.push(data.id);
+        }
+      }
+      
+      return savedGoalIds;
+    } catch (error) {
+      console.error('Error saving goals:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error saving goals',
+        description: 'There was a problem saving your goals.'
+      });
+      return [];
+    }
+  };
+
+  const saveSchedules = async (
+    weekdaySchedules: z.infer<typeof formSchema>['weekdaySchedules'],
+    specificDateSchedules: z.infer<typeof formSchema>['specificDateSchedules'],
+    goalIds: string[]
+  ) => {
+    if (!session?.user) return;
+    
+    try {
+      const { error: deleteError } = await supabase
+        .from('scheduled_calls')
+        .delete()
+        .eq('user_id', session.user.id);
+        
+      if (deleteError) throw deleteError;
+      
+      const weekdayInserts = weekdaySchedules.map((schedule, index) => {
+        const weekdayMap: Record<string, number> = {
+          monday: 1, tuesday: 2, wednesday: 3, thursday: 4, 
+          friday: 5, saturday: 6, sunday: 7
+        };
+        
+        return {
+          user_id: session.user.id,
+          weekday: weekdayMap[schedule.day],
+          time: schedule.time,
+          goal_id: schedule.goalId ? schedule.goalId : goalIds[0],
+          specific_date: null
+        };
+      });
+      
+      const specificDateInserts = specificDateSchedules.map(schedule => ({
+        user_id: session.user.id,
+        specific_date: schedule.date,
+        time: schedule.time,
+        goal_id: schedule.goalId ? schedule.goalId : goalIds[0],
+        weekday: null
+      }));
+      
+      const allSchedules = [...weekdayInserts, ...specificDateInserts];
+      
+      if (allSchedules.length > 0) {
+        const { error: insertError } = await supabase
+          .from('scheduled_calls')
+          .insert(allSchedules);
+          
+        if (insertError) throw insertError;
+      }
+    } catch (error) {
+      console.error('Error saving schedules:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error saving schedules',
+        description: 'There was a problem saving your scheduled calls.'
+      });
+    }
+  };
 
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
@@ -261,17 +397,46 @@ const ScheduleCall = () => {
     form.setValue('specificDateSchedules', currentSchedules);
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log('Form data:', data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (!session?.user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication error',
+        description: 'Please sign in to schedule calls.',
+      });
+      navigate('/auth/sign-in');
+      return;
+    }
     
-    toast({
-      title: "Calls Scheduled",
-      description: "Your coaching calls have been scheduled successfully!",
-    });
-    
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1500);
+    try {
+      console.log('Form data:', data);
+      
+      await saveProfile(data.timeZone);
+      
+      const goalIds = await saveGoals(data.goals);
+      
+      if (goalIds.length === 0) {
+        throw new Error('Failed to save goals');
+      }
+      
+      await saveSchedules(data.weekdaySchedules, data.specificDateSchedules, goalIds);
+      
+      toast({
+        title: "Calls Scheduled",
+        description: "Your coaching calls have been scheduled successfully!",
+      });
+      
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error scheduling calls',
+        description: 'There was a problem saving your scheduled calls.',
+      });
+    }
   };
 
   useEffect(() => {
