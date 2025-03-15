@@ -63,32 +63,42 @@ export type Database = {
       scheduled_calls: {
         Row: {
           created_at: string | null
-          goal_id: string
+          goal_id: string | null
           id: string
           specific_date: string | null
+          template_id: string | null
           time: string
           user_id: string
           weekday: number | null
         }
         Insert: {
           created_at?: string | null
-          goal_id: string
+          goal_id?: string | null
           id?: string
           specific_date?: string | null
+          template_id?: string | null
           time: string
           user_id: string
           weekday?: number | null
         }
         Update: {
           created_at?: string | null
-          goal_id?: string
+          goal_id?: string | null
           id?: string
           specific_date?: string | null
+          template_id?: string | null
           time?: string
           user_id?: string
           weekday?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_template"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "scheduled_calls_goal_id_fkey"
             columns: ["goal_id"]
@@ -96,7 +106,35 @@ export type Database = {
             referencedRelation: "goals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "scheduled_calls_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      templates: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
     }
     Views: {
