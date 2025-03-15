@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -307,7 +306,7 @@ const ScheduleCall = () => {
               control={form.control}
               name="timeZone"
               render={({ field }) => (
-                <FormItem className="mb-4 max-w-md">
+                <FormItem className="mb-4 max-w-[250px]">
                   <Select 
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -320,7 +319,7 @@ const ScheduleCall = () => {
                         <SelectValue placeholder="Select time zone" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="w-[350px]">
                       {timeZoneWithTimes.map((tz) => (
                         <SelectItem key={tz.value} value={tz.value}>
                           {tz.label} ({tz.currentTime})
