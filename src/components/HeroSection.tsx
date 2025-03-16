@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,7 +7,7 @@ const HeroSection = () => {
   const { toast } = useToast();
   const [rotatingWord, setRotatingWord] = useState("Accountable");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Accountable", "Motivated", "Consistent", "Focused", "Disciplined"];
+  const rotatingWords = ["Accountable", "Mindful", "Motivated", "Happy", "Productive", "Focused", "Consistent"];
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -169,4 +168,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-
