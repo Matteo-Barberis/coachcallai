@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -5,9 +6,9 @@ import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 
 const HeroSection = () => {
   const { toast } = useToast();
-  const [rotatingWord, setRotatingWord] = useState("Accountable");
+  const [rotatingWord, setRotatingWord] = useState("Mindful");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Accountable", "Mindful", "Motivated", "Happy", "Productive", "Focused", "Consistent"];
+  const rotatingWords = ["Mindful", "Motivated", "Focused", "Accountable", "Consistent", "Productive", "Happy"];
   
   useEffect(() => {
     const interval = setInterval(() => {
