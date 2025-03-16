@@ -40,7 +40,7 @@ const HeroSection = () => {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               <div className="gradient-text">
                 <span>Stay </span>
-                <span className="relative inline-block h-[1.2em] overflow-hidden">
+                <span className="relative inline-block w-[200px] h-[1.2em] overflow-hidden">
                   {titles.map((title, index) => (
                     <motion.span
                       key={index}
