@@ -1,33 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 
 const HeroSection = () => {
   const { toast } = useToast();
-  const rotatingWords = ["Accountable", "Mindful", "Happy", "Productive", "Peaceful"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [prevWordIndex, setPrevWordIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPrevWordIndex(currentWordIndex);
-      setIsAnimating(true);
-      
-      setTimeout(() => {
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % rotatingWords.length);
-      }, 300); // Change word mid-animation
-      
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 600); // Complete animation
-      
-    }, 3000); // Change word every 3 seconds
-
-    return () => clearInterval(interval);
-  }, [currentWordIndex]);
 
   const handleEarlyAccess = () => {
     toast({
@@ -43,24 +21,7 @@ const HeroSection = () => {
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
-              Stay 
-              <span className="relative inline-block mx-2 min-w-[200px]">
-                <span
-                  className={`absolute left-0 transition-all duration-300 ${
-                    isAnimating ? 'transform -translate-y-8 opacity-0' : 'transform translate-y-0 opacity-100'
-                  }`}
-                >
-                  {rotatingWords[currentWordIndex]}
-                </span>
-                <span
-                  className={`absolute left-0 transition-all duration-300 ${
-                    isAnimating ? 'transform translate-y-0 opacity-100' : 'transform translate-y-8 opacity-0'
-                  }`}
-                >
-                  {rotatingWords[prevWordIndex]}
-                </span>
-              </span>
-              with Your Personal AI Coach
+              Stay Accountable with Your Personal AI Coach
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8">
               Coach Call AI connects with WhatsApp to send regular check-ins and makes actual phone calls to keep you accountable and on track with your goals.
