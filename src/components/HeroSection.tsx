@@ -1,11 +1,25 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 
 const HeroSection = () => {
   const { toast } = useToast();
+  const [rotatingWord, setRotatingWord] = useState("Accountable");
+  const rotatingWords = ["Accountable", "Motivated", "Consistent", "Focused", "Disciplined"];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRotatingWord(prevWord => {
+        const currentIndex = rotatingWords.indexOf(prevWord);
+        const nextIndex = (currentIndex + 1) % rotatingWords.length;
+        return rotatingWords[nextIndex];
+      });
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleEarlyAccess = () => {
     toast({
@@ -21,7 +35,8 @@ const HeroSection = () => {
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
-              Stay Accountable with Your Personal AI Coach
+              Stay <span className="inline-block">{rotatingWord}</span> <br />
+              with Your Personal AI Coach
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8">
               Coach Call AI connects with WhatsApp to send regular check-ins and makes actual phone calls to keep you accountable and on track with your goals.
