@@ -43,17 +43,18 @@ const HeroSection = () => {
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
-              Stay <span 
-                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1`}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              <span className="gradient-text">Stay</span>{" "}
+              <span 
+                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1 text-brand-dark`}
                 style={{
                   transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                   opacity: fadeState === 'fade-in' ? 1 : 0,
                   transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
-                  color: 'inherit' // Ensure the text inherits the parent color
                 }}
-              >{rotatingWord}</span> <br />
-              with Your Personal AI Coach
+              >{rotatingWord}</span>{" "}
+              <br />
+              <span className="gradient-text">with Your Personal AI Coach</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8">
               Coach Call AI connects with WhatsApp to send regular check-ins and makes actual phone calls to keep you accountable and on track with your goals.
