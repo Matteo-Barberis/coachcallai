@@ -1,50 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
-import { testVapiConnection } from '@/services/vapiService';
-import { useToast } from "@/components/ui/use-toast";
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
-  const { toast } = useToast();
-  const [testingVapi, setTestingVapi] = useState(false);
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
   }
-
-  const handleTestVapi = async () => {
-    setTestingVapi(true);
-    try {
-      const { data, error } = await testVapiConnection();
-      
-      if (error) {
-        toast({
-          title: "Vapi API Test Failed",
-          description: "Could not connect to Vapi API. Please check your API key.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Vapi API Test Successful",
-          description: "Successfully connected to Vapi API!",
-        });
-      }
-    } catch (err) {
-      toast({
-        title: "Vapi API Test Error",
-        description: err.message || "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setTestingVapi(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -111,21 +79,6 @@ const Dashboard = () => {
                 </Button>
               </div>
             </div>
-          </div>
-
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 className="font-medium mb-2">Developer Options</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Test the Vapi API connection (for development purposes only).
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={handleTestVapi} 
-              disabled={testingVapi}
-              className="text-gray-600"
-            >
-              {testingVapi ? "Testing..." : "Test Vapi API Connection"}
-            </Button>
           </div>
         </div>
       </main>
