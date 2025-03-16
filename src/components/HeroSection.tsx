@@ -1,28 +1,11 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
 
 const HeroSection = () => {
   const { toast } = useToast();
-  const [titleIndex, setTitleIndex] = useState(0);
-  const titles = useMemo(
-    () => ["Accountable", "Mindful", "Happy", "Productive", "Peaceful"],
-    []
-  );
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (titleIndex === titles.length - 1) {
-        setTitleIndex(0);
-      } else {
-        setTitleIndex(titleIndex + 1);
-      }
-    }, 3000);
-    return () => clearTimeout(timeoutId);
-  }, [titleIndex, titles]);
 
   const handleEarlyAccess = () => {
     toast({
@@ -37,34 +20,8 @@ const HeroSection = () => {
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              <div className="gradient-text">
-                <span>Stay </span>
-                <span className="relative inline-block w-[200px] h-[1.2em] overflow-hidden">
-                  {titles.map((title, index) => (
-                    <motion.span
-                      key={index}
-                      className="absolute left-0 font-bold"
-                      initial={{ opacity: 0, y: "100%" }}
-                      transition={{ type: "spring", stiffness: 50 }}
-                      animate={
-                        titleIndex === index
-                          ? {
-                              y: 0,
-                              opacity: 1,
-                            }
-                          : {
-                              y: titleIndex > index ? "-100%" : "100%",
-                              opacity: 0,
-                            }
-                      }
-                    >
-                      {title}
-                    </motion.span>
-                  ))}
-                </span>
-              </div>
-              <div className="gradient-text mt-1">with Your Personal AI Coach</div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
+              Stay Accountable with Your Personal AI Coach
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8">
               Coach Call AI connects with WhatsApp to send regular check-ins and makes actual phone calls to keep you accountable and on track with your goals.
