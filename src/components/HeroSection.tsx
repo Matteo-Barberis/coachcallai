@@ -49,7 +49,8 @@ const HeroSection = () => {
                 style={{
                   transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                   opacity: fadeState === 'fade-in' ? 1 : 0,
-                  transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)'
+                  transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
+                  color: 'inherit' // Ensure the text inherits the parent color
                 }}
               >{rotatingWord}</span> <br />
               with Your Personal AI Coach
