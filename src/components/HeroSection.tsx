@@ -44,13 +44,15 @@ const HeroSection = () => {
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
-              Stay <span 
-                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1`}
+              Stay {' '}
+              <span 
+                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1 text-brand-dark`}
                 style={{
                   transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                   opacity: fadeState === 'fade-in' ? 1 : 0,
                   transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
-                  color: 'inherit' // Ensure the text inherits the parent color
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
                 }}
               >{rotatingWord}</span> <br />
               with Your Personal AI Coach
