@@ -7,16 +7,25 @@ import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 const HeroSection = () => {
   const { toast } = useToast();
   const [rotatingWord, setRotatingWord] = useState("Accountable");
+  const [fadeState, setFadeState] = useState("fade-in");
   const rotatingWords = ["Accountable", "Motivated", "Consistent", "Focused", "Disciplined"];
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotatingWord(prevWord => {
-        const currentIndex = rotatingWords.indexOf(prevWord);
-        const nextIndex = (currentIndex + 1) % rotatingWords.length;
-        return rotatingWords[nextIndex];
-      });
-    }, 2000);
+      // First fade out
+      setFadeState("fade-out");
+      
+      // Then change word and fade in
+      setTimeout(() => {
+        setRotatingWord(prevWord => {
+          const currentIndex = rotatingWords.indexOf(prevWord);
+          const nextIndex = (currentIndex + 1) % rotatingWords.length;
+          return rotatingWords[nextIndex];
+        });
+        setFadeState("fade-in");
+      }, 300); // This should match the transition duration
+      
+    }, 3000); // Slightly longer display time for better readability
     
     return () => clearInterval(interval);
   }, []);
@@ -35,7 +44,14 @@ const HeroSection = () => {
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
-              Stay <span className="inline-block">{rotatingWord}</span> <br />
+              Stay <span 
+                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1`}
+                style={{
+                  transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+                  opacity: fadeState === 'fade-in' ? 1 : 0,
+                  transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)'
+                }}
+              >{rotatingWord}</span> <br />
               with Your Personal AI Coach
             </h1>
             <p className="text-lg md:text-xl text-gray-600 mb-8">
