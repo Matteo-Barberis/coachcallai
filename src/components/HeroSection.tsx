@@ -6,9 +6,9 @@ import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 
 const HeroSection = () => {
   const { toast } = useToast();
-  const [rotatingWord, setRotatingWord] = useState("Mindful");
+  const [rotatingWord, setRotatingWord] = useState("Accountable");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Mindful", "Motivated", "Focused", "Accountable", "Consistent", "Productive", "Happy"];
+  const rotatingWords = ["Accountable", "Mindful", "Motivated", "Focused", "Consistent", "Productive", "Happy"];
   
   useEffect(() => {
     const interval = setInterval(() => {
