@@ -20,6 +20,7 @@ const Account = () => {
   const [initialFullName, setInitialFullName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
@@ -37,7 +38,16 @@ const Account = () => {
     const phoneChanged = phone !== initialPhone;
     const nameChanged = fullName !== initialFullName;
     setHasChanges(phoneChanged || nameChanged);
-  }, [phone, initialPhone, fullName, initialFullName]);
+    
+    // Clear errors when fields are modified
+    if (phoneChanged && phoneError) {
+      setPhoneError('');
+    }
+    
+    if (nameChanged && nameError) {
+      setNameError('');
+    }
+  }, [phone, initialPhone, fullName, initialFullName, phoneError, nameError]);
 
   const fetchUserProfile = async () => {
     try {
@@ -69,12 +79,27 @@ const Account = () => {
     // E.164 format validation: + followed by digits
     const e164Regex = /^\+[1-9]\d{1,14}$/;
     
-    if (!phone || !e164Regex.test(phone.replace(/\s+/g, ''))) {
+    if (!phone || phone.trim() === '') {
+      setPhoneError('Phone number is required');
+      return false;
+    }
+    
+    if (!e164Regex.test(phone.replace(/\s+/g, ''))) {
       setPhoneError('Please enter a valid phone number with country code');
       return false;
     }
     
     setPhoneError('');
+    return true;
+  };
+  
+  const validateName = (name: string): boolean => {
+    if (!name || name.trim() === '') {
+      setNameError('Name is required');
+      return false;
+    }
+    
+    setNameError('');
     return true;
   };
 
@@ -88,12 +113,12 @@ const Account = () => {
       return;
     }
 
-    // Validate phone format if it has changed
-    if (phone !== initialPhone) {
-      const cleanedPhone = phone.replace(/\s+/g, '');
-      if (!validatePhoneNumber(cleanedPhone)) {
-        return;
-      }
+    // Validate inputs
+    const isPhoneValid = phone !== initialPhone ? validatePhoneNumber(phone) : true;
+    const isNameValid = fullName !== initialFullName ? validateName(fullName) : true;
+    
+    if (!isPhoneValid || !isNameValid) {
+      return; // Exit if validation fails
     }
 
     setIsSaving(true);
@@ -187,8 +212,13 @@ const Account = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your full name"
+                    className={nameError ? "border-red-300" : ""}
                   />
-                  <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
+                  {nameError ? (
+                    <p className="text-sm text-red-500">{nameError}</p>
+                  ) : (
+                    <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
+                  )}
                 </div>
 
                 <div className="pt-2">
@@ -197,7 +227,9 @@ const Account = () => {
                     onChange={handlePhoneChange} 
                     error={phoneError} 
                   />
-                  <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
+                  {!phoneError && (
+                    <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
+                  )}
                 </div>
 
                 <div className="pt-4">
