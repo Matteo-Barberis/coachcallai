@@ -85,7 +85,9 @@ const Account = () => {
       return false;
     }
     
-    if (!e164Regex.test(phone.replace(/\s+/g, ''))) {
+    // Check if it matches E.164 format (removing spaces first)
+    const cleanedPhone = phone.replace(/\s+/g, '');
+    if (!e164Regex.test(cleanedPhone)) {
       setPhoneError('Please enter a valid phone number with country code');
       return false;
     }
@@ -177,10 +179,22 @@ const Account = () => {
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
+    // Clear error if value is not empty and not just country code
+    if (value && value.trim() !== '') {
+      const countryCodeMatch = value.match(/^\+\d+/);
+      const countryCode = countryCodeMatch ? countryCodeMatch[0] : '';
+      
+      if (value !== countryCode) {
+        setPhoneError('');
+      }
+    }
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value);
+    if (e.target.value && e.target.value.trim() !== '') {
+      setNameError('');
+    }
   };
 
   return (
