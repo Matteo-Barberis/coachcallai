@@ -19,8 +19,7 @@ const Account = () => {
   const [fullName, setFullName] = useState('');
   const [initialFullName, setInitialFullName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [nameError, setNameError] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
@@ -32,13 +31,6 @@ const Account = () => {
       fetchUserProfile();
     }
   }, [session?.user?.id]);
-
-  // Check if any profile data has changed
-  useEffect(() => {
-    const phoneChanged = phone !== initialPhone;
-    const nameChanged = fullName !== initialFullName;
-    setHasChanges(phoneChanged || nameChanged);
-  }, [phone, initialPhone, fullName, initialFullName]);
 
   const fetchUserProfile = async () => {
     try {
@@ -70,24 +62,7 @@ const Account = () => {
     // E.164 format validation: + followed by digits
     const e164Regex = /^\+[1-9]\d{1,14}$/;
     
-    if (!phone || phone.trim() === '') {
-      setPhoneError('Phone number is required');
-      return false;
-    }
-    
-    // Extract just the country code
-    const countryCodeMatch = phone.match(/^\+\d+/);
-    const countryCode = countryCodeMatch ? countryCodeMatch[0] : '';
-    
-    // Check if the phone is just a country code without actual number
-    if (phone === countryCode) {
-      setPhoneError('Please enter a phone number, not just country code');
-      return false;
-    }
-    
-    // Check if it matches E.164 format (removing spaces first)
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    if (!e164Regex.test(cleanedPhone)) {
+    if (!phone || !e164Regex.test(phone.replace(/\s+/g, ''))) {
       setPhoneError('Please enter a valid phone number with country code');
       return false;
     }
@@ -95,81 +70,50 @@ const Account = () => {
     setPhoneError('');
     return true;
   };
-  
-  const validateName = (name: string): boolean => {
-    if (!name || name.trim() === '') {
-      setNameError('Name is required');
-      return false;
-    }
-    
-    setNameError('');
-    return true;
-  };
 
-  const handleSaveProfile = async () => {
+  const handleSavePhone = async () => {
     // Skip if no changes
-    if (!hasChanges) {
+    if (phone === initialPhone) {
       toast({
         title: "No changes",
-        description: "No changes were made to your profile.",
+        description: "The phone number hasn't changed.",
       });
       return;
     }
 
-    // Always validate both fields before saving
-    const isPhoneValid = validatePhoneNumber(phone);
-    const isNameValid = validateName(fullName);
-    
-    if (!isPhoneValid || !isNameValid) {
-      return; // Exit if validation fails
+    // Validate phone format
+    const cleanedPhone = phone.replace(/\s+/g, '');
+    if (!validatePhoneNumber(cleanedPhone)) {
+      return;
     }
 
     setIsSaving(true);
     
     try {
-      const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
-                      phone_verification_expires_at?: null, full_name?: string } = {};
-      
-      // Only update phone if it changed
-      if (phone !== initialPhone) {
-        const cleanedPhone = phone.replace(/\s+/g, '');
-        updates.phone = cleanedPhone;
-        // Reset verification when phone changes
-        updates.phone_verified = false;
-        updates.phone_verification_code = null;
-        updates.phone_verification_expires_at = null;
-      }
-      
-      // Only update name if it changed
-      if (fullName !== initialFullName) {
-        updates.full_name = fullName;
-      }
-      
       const { error } = await supabase
         .from('profiles')
-        .update(updates)
+        .update({ 
+          phone: cleanedPhone,
+          // Reset verification when phone changes
+          phone_verified: false,
+          phone_verification_code: null,
+          phone_verification_expires_at: null
+        })
         .eq('id', session!.user.id);
       
       if (error) throw error;
       
-      // Update initial values to match current values
-      if (phone !== initialPhone) {
-        setInitialPhone(phone.replace(/\s+/g, ''));
-      }
-      
-      if (fullName !== initialFullName) {
-        setInitialFullName(fullName);
-      }
+      setInitialPhone(cleanedPhone);
       
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: "Phone number updated",
+        description: "Your phone number has been successfully saved.",
       });
     } catch (error: any) {
-      console.error('Error updating profile:', error);
+      console.error('Error updating phone:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update phone number. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -177,23 +121,49 @@ const Account = () => {
     }
   };
 
-  const handlePhoneChange = (value: string) => {
-    setPhone(value);
-    // Clear error if value is not empty and not just country code
-    if (value && value.trim() !== '') {
-      const countryCodeMatch = value.match(/^\+\d+/);
-      const countryCode = countryCodeMatch ? countryCodeMatch[0] : '';
+  const handleSaveName = async () => {
+    // Skip if no changes
+    if (fullName === initialFullName) {
+      toast({
+        title: "No changes",
+        description: "The name hasn't changed.",
+      });
+      return;
+    }
+
+    setIsSavingName(true);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: fullName })
+        .eq('id', session!.user.id);
       
-      if (value !== countryCode) {
-        setPhoneError('');
-      }
+      if (error) throw error;
+      
+      setInitialFullName(fullName);
+      
+      toast({
+        title: "Name updated",
+        description: "Your name has been successfully saved.",
+      });
+    } catch (error: any) {
+      console.error('Error updating name:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update name. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingName(false);
     }
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value);
-    if (e.target.value && e.target.value.trim() !== '') {
-      setNameError('');
+  const handlePhoneChange = (value: string) => {
+    setPhone(value);
+    // Clear error when user types
+    if (phoneError) {
+      setPhoneError('');
     }
   };
 
@@ -225,37 +195,32 @@ const Account = () => {
                   <Input
                     id="fullName"
                     value={fullName}
-                    onChange={handleNameChange}
+                    onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your full name"
-                    className={nameError ? "border-red-300" : ""}
-                    onBlur={() => validateName(fullName)}
                   />
-                  {nameError ? (
-                    <p className="text-sm text-red-500">{nameError}</p>
-                  ) : (
-                    <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
-                  )}
+                  <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
+                  <Button 
+                    onClick={handleSaveName} 
+                    disabled={isSavingName || (fullName === initialFullName)}
+                    className="mt-2"
+                  >
+                    {isSavingName ? "Saving..." : "Save Name"}
+                  </Button>
                 </div>
 
-                <div className="pt-2">
+                <div className="border-t pt-4">
                   <PhoneInput 
                     value={phone} 
                     onChange={handlePhoneChange} 
-                    error={phoneError}
-                    onBlur={() => validatePhoneNumber(phone)}
+                    error={phoneError} 
                   />
-                  {!phoneError && (
-                    <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
-                  )}
-                </div>
-
-                <div className="pt-4">
+                  <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
                   <Button 
-                    onClick={handleSaveProfile} 
-                    disabled={isSaving || !hasChanges || !!nameError || !!phoneError}
-                    className="w-full md:w-auto"
+                    onClick={handleSavePhone} 
+                    disabled={isSaving || (phone === initialPhone)}
+                    className="mt-2"
                   >
-                    {isSaving ? "Saving..." : "Save Profile"}
+                    {isSaving ? "Saving..." : "Save Phone Number"}
                   </Button>
                 </div>
               </div>
