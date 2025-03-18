@@ -75,6 +75,16 @@ const Account = () => {
       return false;
     }
     
+    // Extract just the country code
+    const countryCodeMatch = phone.match(/^\+\d+/);
+    const countryCode = countryCodeMatch ? countryCodeMatch[0] : '';
+    
+    // Check if the phone is just a country code without actual number
+    if (phone === countryCode) {
+      setPhoneError('Please enter a phone number, not just country code');
+      return false;
+    }
+    
     if (!e164Regex.test(phone.replace(/\s+/g, ''))) {
       setPhoneError('Please enter a valid phone number with country code');
       return false;
@@ -217,7 +227,8 @@ const Account = () => {
                   <PhoneInput 
                     value={phone} 
                     onChange={handlePhoneChange} 
-                    error={phoneError} 
+                    error={phoneError}
+                    onBlur={() => validatePhoneNumber(phone)}
                   />
                   {!phoneError && (
                     <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
@@ -227,7 +238,7 @@ const Account = () => {
                 <div className="pt-4">
                   <Button 
                     onClick={handleSaveProfile} 
-                    disabled={isSaving || !hasChanges}
+                    disabled={isSaving || !hasChanges || !!nameError || !!phoneError}
                     className="w-full md:w-auto"
                   >
                     {isSaving ? "Saving..." : "Save Profile"}

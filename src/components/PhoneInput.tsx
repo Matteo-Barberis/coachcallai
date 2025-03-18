@@ -16,6 +16,7 @@ interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  onBlur?: () => void;
 }
 
 // A selection of common country codes
@@ -39,7 +40,7 @@ const countryCodes = [
   // Add more as needed
 ];
 
-const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
+const PhoneInput = ({ value, onChange, error, onBlur }: PhoneInputProps) => {
   // Find country code from the full value
   const extractCodeAndNumber = (fullNumber: string) => {
     if (!fullNumber) return { code: '+1', nationalNumber: '' };
@@ -122,6 +123,7 @@ const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
             value={nationalNumber}
             onChange={handleNumberChange}
             className={error ? "border-red-300" : ""}
+            onBlur={onBlur}
           />
         </div>
       </div>
