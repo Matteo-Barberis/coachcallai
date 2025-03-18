@@ -18,6 +18,7 @@ const Account = () => {
   const [phoneError, setPhoneError] = useState('');
   const [fullName, setFullName] = useState('');
   const [initialFullName, setInitialFullName] = useState('');
+  const [nameError, setNameError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -65,17 +66,47 @@ const Account = () => {
     }
   };
 
-  const validatePhoneNumber = (phone: string): boolean => {
+  const validateName = (): boolean => {
+    if (!fullName || fullName.trim() === '') {
+      setNameError('Name is required');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
+  const validatePhoneNumber = (): boolean => {
+    // Extract just the national number part (without country code)
+    const extractNationalNumber = (value: string) => {
+      const matchedCode = countryCodes.find(c => value.startsWith(c.code));
+      return matchedCode ? value.substring(matchedCode.code.length).trim() : value;
+    };
+    
+    const nationalNumber = extractNationalNumber(phone.replace(/\s+/g, ''));
+    
+    if (!nationalNumber || nationalNumber.length === 0) {
+      setPhoneError('Phone number is required');
+      return false;
+    }
+    
     // E.164 format validation: + followed by digits
     const e164Regex = /^\+[1-9]\d{1,14}$/;
+    const cleanedPhone = phone.replace(/\s+/g, '');
     
-    if (!phone || !e164Regex.test(phone.replace(/\s+/g, ''))) {
+    if (!cleanedPhone || !e164Regex.test(cleanedPhone)) {
       setPhoneError('Please enter a valid phone number with country code');
       return false;
     }
     
     setPhoneError('');
     return true;
+  };
+
+  const validateForm = (): boolean => {
+    const nameValid = validateName();
+    const phoneValid = validatePhoneNumber();
+    
+    return nameValid && phoneValid;
   };
 
   const handleSaveProfile = async () => {
@@ -88,12 +119,9 @@ const Account = () => {
       return;
     }
 
-    // Validate phone format if it has changed
-    if (phone !== initialPhone) {
-      const cleanedPhone = phone.replace(/\s+/g, '');
-      if (!validatePhoneNumber(cleanedPhone)) {
-        return;
-      }
+    // Validate all fields before saving
+    if (!validateForm()) {
+      return;
     }
 
     setIsSaving(true);
@@ -157,6 +185,42 @@ const Account = () => {
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value);
+    // Clear error when user types
+    if (nameError) {
+      setNameError('');
+    }
+  };
+
+  const handleNameBlur = () => {
+    validateName();
+  };
+  
+  const handlePhoneBlur = () => {
+    validatePhoneNumber();
+  };
+
+  // We need this for the phone component validation
+  const countryCodes = [
+    { code: '+1', country: 'US/Canada' },
+    { code: '+44', country: 'UK' },
+    { code: '+61', country: 'Australia' },
+    { code: '+33', country: 'France' },
+    { code: '+49', country: 'Germany' },
+    { code: '+81', country: 'Japan' },
+    { code: '+86', country: 'China' },
+    { code: '+91', country: 'India' },
+    { code: '+52', country: 'Mexico' },
+    { code: '+55', country: 'Brazil' },
+    { code: '+34', country: 'Spain' },
+    { code: '+39', country: 'Italy' },
+    { code: '+7', country: 'Russia' },
+    { code: '+27', country: 'South Africa' },
+    { code: '+31', country: 'Netherlands' },
+    { code: '+65', country: 'Singapore' },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -185,9 +249,17 @@ const Account = () => {
                   <Input
                     id="fullName"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={handleNameChange}
+                    onBlur={handleNameBlur}
                     placeholder="Your full name"
+                    className={nameError ? "border-red-300" : ""}
                   />
+                  {nameError && (
+                    <Alert variant="destructive" className="py-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{nameError}</AlertDescription>
+                    </Alert>
+                  )}
                   <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
                 </div>
 
@@ -195,7 +267,8 @@ const Account = () => {
                   <PhoneInput 
                     value={phone} 
                     onChange={handlePhoneChange} 
-                    error={phoneError} 
+                    error={phoneError}
+                    onBlur={handlePhoneBlur}
                   />
                   <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
                 </div>
@@ -203,7 +276,7 @@ const Account = () => {
                 <div className="pt-4">
                   <Button 
                     onClick={handleSaveProfile} 
-                    disabled={isSaving || !hasChanges}
+                    disabled={isSaving || !hasChanges || phoneError !== '' || nameError !== ''}
                     className="w-full md:w-auto"
                   >
                     {isSaving ? "Saving..." : "Save Profile"}

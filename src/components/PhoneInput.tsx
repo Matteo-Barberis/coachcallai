@@ -16,6 +16,7 @@ interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  onBlur?: () => void;
 }
 
 // A selection of common country codes
@@ -39,7 +40,7 @@ const countryCodes = [
   // Add more as needed
 ];
 
-const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
+const PhoneInput = ({ value, onChange, error, onBlur }: PhoneInputProps) => {
   // Find country code from the full value
   const extractCodeAndNumber = (fullNumber: string) => {
     if (!fullNumber) return { code: '+1', nationalNumber: '' };
@@ -96,6 +97,13 @@ const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
     }
   }, [selectedCode]);
 
+  // Handle input blur - let parent know for validation
+  const handleBlur = () => {
+    if (onBlur) {
+      onBlur();
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Label htmlFor="phone">Phone Number</Label>
@@ -121,6 +129,7 @@ const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
             placeholder={getPlaceholder}
             value={nationalNumber}
             onChange={handleNumberChange}
+            onBlur={handleBlur}
             className={error ? "border-red-300" : ""}
           />
         </div>
