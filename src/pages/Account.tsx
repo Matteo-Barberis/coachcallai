@@ -244,7 +244,6 @@ const Account = () => {
                   />
                   {nameError && (
                     <Alert variant="destructive" className="py-2">
-                      <AlertCircle className="h-4 w-4" />
                       <AlertDescription>{nameError}</AlertDescription>
                     </Alert>
                   )}

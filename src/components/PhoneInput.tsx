@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -136,7 +135,6 @@ const PhoneInput = ({ value, onChange, error, onBlur }: PhoneInputProps) => {
       </div>
       {error && (
         <Alert variant="destructive" className="py-2">
-          <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
