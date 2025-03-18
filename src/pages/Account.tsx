@@ -38,16 +38,7 @@ const Account = () => {
     const phoneChanged = phone !== initialPhone;
     const nameChanged = fullName !== initialFullName;
     setHasChanges(phoneChanged || nameChanged);
-    
-    // Clear errors when fields are modified
-    if (phoneChanged && phoneError) {
-      setPhoneError('');
-    }
-    
-    if (nameChanged && nameError) {
-      setNameError('');
-    }
-  }, [phone, initialPhone, fullName, initialFullName, phoneError, nameError]);
+  }, [phone, initialPhone, fullName, initialFullName]);
 
   const fetchUserProfile = async () => {
     try {
@@ -113,9 +104,9 @@ const Account = () => {
       return;
     }
 
-    // Validate inputs
-    const isPhoneValid = phone !== initialPhone ? validatePhoneNumber(phone) : true;
-    const isNameValid = fullName !== initialFullName ? validateName(fullName) : true;
+    // Always validate both fields before saving
+    const isPhoneValid = validatePhoneNumber(phone);
+    const isNameValid = validateName(fullName);
     
     if (!isPhoneValid || !isNameValid) {
       return; // Exit if validation fails
@@ -176,10 +167,10 @@ const Account = () => {
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
-    // Clear error when user types
-    if (phoneError) {
-      setPhoneError('');
-    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value);
   };
 
   return (
@@ -210,9 +201,10 @@ const Account = () => {
                   <Input
                     id="fullName"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={handleNameChange}
                     placeholder="Your full name"
                     className={nameError ? "border-red-300" : ""}
+                    onBlur={() => validateName(fullName)}
                   />
                   {nameError ? (
                     <p className="text-sm text-red-500">{nameError}</p>
