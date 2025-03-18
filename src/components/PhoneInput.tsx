@@ -116,9 +116,6 @@ const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <p className="text-sm text-gray-500">
-        Enter your phone number in your country's format. The number will be stored in E.164 format.
-      </p>
     </div>
   );
 };
