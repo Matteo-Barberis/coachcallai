@@ -16,6 +16,10 @@ export type Database = {
           full_name: string | null
           id: string
           objectives: string | null
+          phone: string | null
+          phone_verification_code: string | null
+          phone_verification_expires_at: string | null
+          phone_verified: boolean | null
           timezone: string
           updated_at: string
         }
@@ -25,6 +29,10 @@ export type Database = {
           full_name?: string | null
           id: string
           objectives?: string | null
+          phone?: string | null
+          phone_verification_code?: string | null
+          phone_verification_expires_at?: string | null
+          phone_verified?: boolean | null
           timezone?: string
           updated_at?: string
         }
@@ -34,6 +42,10 @@ export type Database = {
           full_name?: string | null
           id?: string
           objectives?: string | null
+          phone?: string | null
+          phone_verification_code?: string | null
+          phone_verification_expires_at?: string | null
+          phone_verified?: boolean | null
           timezone?: string
           updated_at?: string
         }
