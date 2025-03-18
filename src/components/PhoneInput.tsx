@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -40,17 +40,32 @@ const countryCodes = [
 ];
 
 const PhoneInput = ({ value, onChange, error }: PhoneInputProps) => {
-  // Extract country code and number parts from the full value
-  const [selectedCode, setSelectedCode] = useState(() => {
-    const matchedCode = countryCodes.find(c => value?.startsWith(c.code));
-    return matchedCode?.code || '+1';
-  });
+  // Find country code from the full value
+  const extractCodeAndNumber = (fullNumber: string) => {
+    if (!fullNumber) return { code: '+1', nationalNumber: '' };
+    
+    const matchedCode = countryCodes.find(c => fullNumber.startsWith(c.code));
+    if (matchedCode) {
+      return {
+        code: matchedCode.code,
+        nationalNumber: fullNumber.substring(matchedCode.code.length).trim()
+      };
+    }
+    
+    return { code: '+1', nationalNumber: fullNumber };
+  };
   
-  const [nationalNumber, setNationalNumber] = useState(() => {
-    if (!value) return '';
-    const matchedCode = countryCodes.find(c => value.startsWith(c.code));
-    return matchedCode ? value.substring(matchedCode.code.length).trim() : value;
-  });
+  const { code: initialCode, nationalNumber: initialNumber } = extractCodeAndNumber(value);
+  
+  const [selectedCode, setSelectedCode] = useState(initialCode);
+  const [nationalNumber, setNationalNumber] = useState(initialNumber);
+  
+  // Update local state when the prop value changes (e.g., on initial load or reset)
+  useEffect(() => {
+    const { code, nationalNumber } = extractCodeAndNumber(value);
+    setSelectedCode(code);
+    setNationalNumber(nationalNumber);
+  }, [value]);
 
   // When country code changes, update the full value
   const handleCodeChange = (code: string) => {

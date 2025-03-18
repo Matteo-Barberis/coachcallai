@@ -19,7 +19,7 @@ const Account = () => {
   const [fullName, setFullName] = useState('');
   const [initialFullName, setInitialFullName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [isSavingName, setIsSavingName] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
@@ -31,6 +31,13 @@ const Account = () => {
       fetchUserProfile();
     }
   }, [session?.user?.id]);
+
+  // Check if any profile data has changed
+  useEffect(() => {
+    const phoneChanged = phone !== initialPhone;
+    const nameChanged = fullName !== initialFullName;
+    setHasChanges(phoneChanged || nameChanged);
+  }, [phone, initialPhone, fullName, initialFullName]);
 
   const fetchUserProfile = async () => {
     try {
@@ -71,91 +78,74 @@ const Account = () => {
     return true;
   };
 
-  const handleSavePhone = async () => {
+  const handleSaveProfile = async () => {
     // Skip if no changes
-    if (phone === initialPhone) {
+    if (!hasChanges) {
       toast({
         title: "No changes",
-        description: "The phone number hasn't changed.",
+        description: "No changes were made to your profile.",
       });
       return;
     }
 
-    // Validate phone format
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    if (!validatePhoneNumber(cleanedPhone)) {
-      return;
+    // Validate phone format if it has changed
+    if (phone !== initialPhone) {
+      const cleanedPhone = phone.replace(/\s+/g, '');
+      if (!validatePhoneNumber(cleanedPhone)) {
+        return;
+      }
     }
 
     setIsSaving(true);
     
     try {
+      const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
+                      phone_verification_expires_at?: null, full_name?: string } = {};
+      
+      // Only update phone if it changed
+      if (phone !== initialPhone) {
+        const cleanedPhone = phone.replace(/\s+/g, '');
+        updates.phone = cleanedPhone;
+        // Reset verification when phone changes
+        updates.phone_verified = false;
+        updates.phone_verification_code = null;
+        updates.phone_verification_expires_at = null;
+      }
+      
+      // Only update name if it changed
+      if (fullName !== initialFullName) {
+        updates.full_name = fullName;
+      }
+      
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          phone: cleanedPhone,
-          // Reset verification when phone changes
-          phone_verified: false,
-          phone_verification_code: null,
-          phone_verification_expires_at: null
-        })
+        .update(updates)
         .eq('id', session!.user.id);
       
       if (error) throw error;
       
-      setInitialPhone(cleanedPhone);
+      // Update initial values to match current values
+      if (phone !== initialPhone) {
+        setInitialPhone(phone.replace(/\s+/g, ''));
+      }
+      
+      if (fullName !== initialFullName) {
+        setInitialFullName(fullName);
+      }
       
       toast({
-        title: "Phone number updated",
-        description: "Your phone number has been successfully saved.",
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
       });
     } catch (error: any) {
-      console.error('Error updating phone:', error);
+      console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update phone number. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleSaveName = async () => {
-    // Skip if no changes
-    if (fullName === initialFullName) {
-      toast({
-        title: "No changes",
-        description: "The name hasn't changed.",
-      });
-      return;
-    }
-
-    setIsSavingName(true);
-    
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ full_name: fullName })
-        .eq('id', session!.user.id);
-      
-      if (error) throw error;
-      
-      setInitialFullName(fullName);
-      
-      toast({
-        title: "Name updated",
-        description: "Your name has been successfully saved.",
-      });
-    } catch (error: any) {
-      console.error('Error updating name:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update name. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSavingName(false);
     }
   };
 
@@ -199,28 +189,24 @@ const Account = () => {
                     placeholder="Your full name"
                   />
                   <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
-                  <Button 
-                    onClick={handleSaveName} 
-                    disabled={isSavingName || (fullName === initialFullName)}
-                    className="mt-2"
-                  >
-                    {isSavingName ? "Saving..." : "Save Name"}
-                  </Button>
                 </div>
 
-                <div className="border-t pt-4">
+                <div className="pt-2">
                   <PhoneInput 
                     value={phone} 
                     onChange={handlePhoneChange} 
                     error={phoneError} 
                   />
                   <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
+                </div>
+
+                <div className="pt-4">
                   <Button 
-                    onClick={handleSavePhone} 
-                    disabled={isSaving || (phone === initialPhone)}
-                    className="mt-2"
+                    onClick={handleSaveProfile} 
+                    disabled={isSaving || !hasChanges}
+                    className="w-full md:w-auto"
                   >
-                    {isSaving ? "Saving..." : "Save Phone Number"}
+                    {isSaving ? "Saving..." : "Save Profile"}
                   </Button>
                 </div>
               </div>
