@@ -47,14 +47,11 @@ const Account = () => {
   };
 
   const validatePhoneNumber = (phone: string): boolean => {
-    // Remove spaces for validation
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    
-    // E.164 format validation: + followed by 1-15 digits
+    // E.164 format validation: + followed by digits
     const e164Regex = /^\+[1-9]\d{1,14}$/;
     
-    if (!e164Regex.test(cleanedPhone)) {
-      setPhoneError('Please enter a valid phone number in E.164 format (e.g., +447123456789)');
+    if (!phone || !e164Regex.test(phone.replace(/\s+/g, ''))) {
+      setPhoneError('Please enter a valid phone number with country code');
       return false;
     }
     
