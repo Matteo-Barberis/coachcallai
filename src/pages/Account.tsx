@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -9,6 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
 import PhoneInput from '@/components/PhoneInput';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const Account = () => {
   const { session, loading } = useSessionContext();
@@ -22,7 +23,6 @@ const Account = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Redirect to login if not authenticated
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
   }
@@ -33,7 +33,6 @@ const Account = () => {
     }
   }, [session?.user?.id]);
 
-  // Check if any profile data has changed
   useEffect(() => {
     const phoneChanged = phone !== initialPhone;
     const nameChanged = fullName !== initialFullName;
@@ -76,7 +75,6 @@ const Account = () => {
   };
 
   const validatePhoneNumber = (): boolean => {
-    // Extract just the national number part (without country code)
     const extractNationalNumber = (value: string) => {
       const matchedCode = countryCodes.find(c => value.startsWith(c.code));
       return matchedCode ? value.substring(matchedCode.code.length).trim() : value;
@@ -89,7 +87,6 @@ const Account = () => {
       return false;
     }
     
-    // E.164 format validation: + followed by digits
     const e164Regex = /^\+[1-9]\d{1,14}$/;
     const cleanedPhone = phone.replace(/\s+/g, '');
     
@@ -110,7 +107,6 @@ const Account = () => {
   };
 
   const handleSaveProfile = async () => {
-    // Skip if no changes
     if (!hasChanges) {
       toast({
         title: "No changes",
@@ -119,7 +115,6 @@ const Account = () => {
       return;
     }
 
-    // Validate all fields before saving
     if (!validateForm()) {
       return;
     }
@@ -130,17 +125,14 @@ const Account = () => {
       const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
-      // Only update phone if it changed
       if (phone !== initialPhone) {
         const cleanedPhone = phone.replace(/\s+/g, '');
         updates.phone = cleanedPhone;
-        // Reset verification when phone changes
         updates.phone_verified = false;
         updates.phone_verification_code = null;
         updates.phone_verification_expires_at = null;
       }
       
-      // Only update name if it changed
       if (fullName !== initialFullName) {
         updates.full_name = fullName;
       }
@@ -152,7 +144,6 @@ const Account = () => {
       
       if (error) throw error;
       
-      // Update initial values to match current values
       if (phone !== initialPhone) {
         setInitialPhone(phone.replace(/\s+/g, ''));
       }
@@ -179,7 +170,6 @@ const Account = () => {
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
-    // Clear error when user types
     if (phoneError) {
       setPhoneError('');
     }
@@ -187,7 +177,6 @@ const Account = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value);
-    // Clear error when user types
     if (nameError) {
       setNameError('');
     }
@@ -201,7 +190,6 @@ const Account = () => {
     validatePhoneNumber();
   };
 
-  // We need this for the phone component validation
   const countryCodes = [
     { code: '+1', country: 'US/Canada' },
     { code: '+44', country: 'UK' },
