@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import PhoneInput from '@/components/PhoneInput';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const Account = () => {
   const { session, loading } = useSessionContext();
@@ -14,7 +16,10 @@ const Account = () => {
   const [phone, setPhone] = useState('');
   const [initialPhone, setInitialPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [initialFullName, setInitialFullName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
@@ -31,15 +36,22 @@ const Account = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('phone')
+        .select('phone, full_name')
         .eq('id', session!.user.id)
         .single();
       
       if (error) throw error;
       
-      if (data && data.phone) {
-        setPhone(data.phone);
-        setInitialPhone(data.phone);
+      if (data) {
+        if (data.phone) {
+          setPhone(data.phone);
+          setInitialPhone(data.phone);
+        }
+        
+        if (data.full_name) {
+          setFullName(data.full_name);
+          setInitialFullName(data.full_name);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -109,6 +121,44 @@ const Account = () => {
     }
   };
 
+  const handleSaveName = async () => {
+    // Skip if no changes
+    if (fullName === initialFullName) {
+      toast({
+        title: "No changes",
+        description: "The name hasn't changed.",
+      });
+      return;
+    }
+
+    setIsSavingName(true);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: fullName })
+        .eq('id', session!.user.id);
+      
+      if (error) throw error;
+      
+      setInitialFullName(fullName);
+      
+      toast({
+        title: "Name updated",
+        description: "Your name has been successfully saved.",
+      });
+    } catch (error: any) {
+      console.error('Error updating name:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update name. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
   const handlePhoneChange = (value: string) => {
     setPhone(value);
     // Clear error when user types
@@ -140,17 +190,39 @@ const Account = () => {
             <div className="border-t pt-6">
               <h2 className="text-lg font-semibold mb-4">Preferences</h2>
               <div className="space-y-4 max-w-md">
-                <PhoneInput 
-                  value={phone} 
-                  onChange={handlePhoneChange} 
-                  error={phoneError} 
-                />
-                <Button 
-                  onClick={handleSavePhone} 
-                  disabled={isSaving || (phone === initialPhone)}
-                >
-                  {isSaving ? "Saving..." : "Save Phone Number"}
-                </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Name</Label>
+                  <Input
+                    id="fullName"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Your full name"
+                  />
+                  <p className="text-sm text-gray-500">This is the name your coach will address you with.</p>
+                  <Button 
+                    onClick={handleSaveName} 
+                    disabled={isSavingName || (fullName === initialFullName)}
+                    className="mt-2"
+                  >
+                    {isSavingName ? "Saving..." : "Save Name"}
+                  </Button>
+                </div>
+
+                <div className="border-t pt-4">
+                  <PhoneInput 
+                    value={phone} 
+                    onChange={handlePhoneChange} 
+                    error={phoneError} 
+                  />
+                  <p className="text-sm text-gray-500 mt-1">This is the phone number your coach will call you on.</p>
+                  <Button 
+                    onClick={handleSavePhone} 
+                    disabled={isSaving || (phone === initialPhone)}
+                    className="mt-2"
+                  >
+                    {isSaving ? "Saving..." : "Save Phone Number"}
+                  </Button>
+                </div>
               </div>
             </div>
             
