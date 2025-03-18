@@ -3,7 +3,15 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
 import { useToast } from "@/components/ui/use-toast";
-import { UserRound } from 'lucide-react';
+import { UserRound, LayoutDashboard, User } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Link } from 'react-router-dom';
 
 const UserMenu = () => {
   const { session, signOut } = useSessionContext();
@@ -35,14 +43,36 @@ const UserMenu = () => {
       <Button variant="outline" onClick={handleSignOut}>
         Sign Out
       </Button>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="rounded-full" 
-        onClick={() => window.location.href = "/dashboard"}
-      >
-        <UserRound className="h-5 w-5 text-gray-600" />
-      </Button>
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full" 
+          >
+            <UserRound className="h-5 w-5 text-gray-600" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48 z-50 bg-white">
+          <DropdownMenuItem asChild>
+            <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/account" className="flex items-center gap-2 cursor-pointer">
+              <User className="h-4 w-4" />
+              <span>Account</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+            Sign out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
