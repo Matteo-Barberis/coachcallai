@@ -14,6 +14,7 @@ import Objectives from "./pages/Objectives";
 import ConnectWhatsapp from "./pages/ConnectWhatsapp";
 import Progress from "./pages/Progress";
 import Account from "./pages/Account";
+import Debug from "./pages/Debug";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/connect-whatsapp" element={<ConnectWhatsapp />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/debug" element={<Debug />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
