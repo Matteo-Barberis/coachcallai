@@ -54,7 +54,6 @@ export type Database = {
       scheduled_calls: {
         Row: {
           created_at: string | null
-          execution_timestamp: string | null
           goal_id: string | null
           id: string
           specific_date: string | null
@@ -65,7 +64,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
           specific_date?: string | null
@@ -76,7 +74,6 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
           specific_date?: string | null
@@ -128,22 +125,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_scheduled_calls_to_execute: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          id: string
-          user_id: string
-          call_time: string
-          weekday: number
-          specific_date: string
-          template_id: string
-          timezone: string
-          execution_timestamp: string
-          full_name: string
-          objectives: string
-          phone: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
