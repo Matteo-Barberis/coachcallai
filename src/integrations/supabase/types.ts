@@ -54,6 +54,7 @@ export type Database = {
       scheduled_calls: {
         Row: {
           created_at: string | null
+          execution_timestamp: string | null
           goal_id: string | null
           id: string
           specific_date: string | null
@@ -64,6 +65,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
           specific_date?: string | null
@@ -74,6 +76,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
           specific_date?: string | null
