@@ -56,16 +56,18 @@ serve(async (req) => {
       // Store all promises for the API calls
       const apiCallPromises = data.map(async (call) => {
         try {
-          // Extract template description if template_id exists
+          // Extract template name and description if template_id exists
+          let templateName = "Check-in call";
           let templateDescription = "Check-in call";
           if (call.template_id) {
             const { data: templateData } = await supabaseClient
               .from('templates')
-              .select('description')
+              .select('name, description')
               .eq('id', call.template_id)
               .single();
               
             if (templateData) {
+              templateName = templateData.name;
               templateDescription = templateData.description;
             }
           }
@@ -80,7 +82,8 @@ serve(async (req) => {
             "assistantOverrides": {
               "variableValues": {
                 "name": call.full_name || "there",
-                "call_type": templateDescription,
+                "call_type": templateName,
+                "call_description": templateDescription,
                 "user_goals": call.objectives || "personal goals"
               },
               "maxDurationSeconds": 120,
