@@ -43,6 +43,91 @@ serve(async (req) => {
 
     console.log(`Retrieved ${data?.length || 0} scheduled calls`);
     
+    // Get Vapi API Key from environment
+    const vapiApiKey = Deno.env.get('VAPI_API_KEY');
+    if (!vapiApiKey) {
+      console.error('VAPI_API_KEY not found in environment variables');
+    }
+    
+    // For each call, make a request to the Vapi API
+    if (data && data.length > 0 && vapiApiKey) {
+      console.log('Making Vapi API calls for scheduled calls...');
+      
+      // Store all promises for the API calls
+      const apiCallPromises = data.map(async (call) => {
+        try {
+          // Extract template description if template_id exists
+          let templateDescription = "Check-in call";
+          if (call.template_id) {
+            const { data: templateData } = await supabaseClient
+              .from('templates')
+              .select('description')
+              .eq('id', call.template_id)
+              .single();
+              
+            if (templateData) {
+              templateDescription = templateData.description;
+            }
+          }
+          
+          // Prepare Vapi API call payload
+          const vapiPayload = {
+            "assistantId": "3990f3ad-880c-4d8c-95bf-42d72a90ac14",
+            "customer": {
+              "number": call.phone
+            },
+            "phoneNumberId": "879b5957-ead7-443a-9cb1-bd94e4160327",
+            "assistantOverrides": {
+              "variableValues": {
+                "name": call.full_name || "there",
+                "call_type": templateDescription,
+                "user_goals": call.objectives || "personal goals"
+              },
+              "maxDurationSeconds": 120,
+              "firstMessage": `good morning ${call.full_name || "there"}, how are you today? `
+            }
+          };
+          
+          console.log(`Making Vapi API call for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiPayload));
+          
+          // Make request to Vapi API
+          const vapiResponse = await fetch('https://api.vapi.ai/call', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${vapiApiKey}`
+            },
+            body: JSON.stringify(vapiPayload)
+          });
+          
+          const vapiResult = await vapiResponse.json();
+          console.log(`Vapi API response for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiResult));
+          
+          return {
+            userId: call.user_id,
+            vapiResponse: vapiResult
+          };
+        } catch (callError) {
+          console.error(`Error making Vapi API call for user ${call.full_name || call.user_id}:`, callError);
+          return {
+            userId: call.user_id,
+            error: callError.message
+          };
+        }
+      });
+      
+      // Wait for all API calls to complete
+      const apiResults = await Promise.all(apiCallPromises);
+      console.log('All Vapi API calls completed:', JSON.stringify(apiResults));
+      
+      // Add the API results to the response data
+      data.forEach(call => {
+        const apiResult = apiResults.find(result => result.userId === call.user_id);
+        call.vapiCallResult = apiResult ? apiResult.vapiResponse : null;
+        call.vapiCallError = apiResult && apiResult.error ? apiResult.error : null;
+      });
+    }
+    
     // Return the data
     return new Response(
       JSON.stringify({ data }),
