@@ -5,7 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import {
   Table,
@@ -15,6 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Card } from '@/components/ui/card';
 
 type ScheduledCall = {
   id: string;
@@ -31,6 +33,8 @@ type ScheduledCall = {
   full_name: string | null;
   objectives: string | null;
   phone: string | null;
+  vapiCallResult: any | null;
+  vapiCallError: string | null;
 };
 
 const Debug = () => {
@@ -38,6 +42,7 @@ const Debug = () => {
   const [calls, setCalls] = useState<ScheduledCall[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCall, setExpandedCall] = useState<string | null>(null);
 
   const fetchScheduledCalls = async () => {
     setIsLoading(true);
@@ -94,6 +99,10 @@ const Debug = () => {
 
   const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+  const toggleCallExpansion = (id: string) => {
+    setExpandedCall(expandedCall === id ? null : id);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -130,39 +139,83 @@ const Debug = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10"></TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Day</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Timezone</TableHead>
                   <TableHead>Execution Time</TableHead>
+                  <TableHead>API Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {calls.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                       {isLoading ? 'Loading scheduled calls...' : 'No scheduled calls found in the time window.'}
                     </TableCell>
                   </TableRow>
                 ) : (
                   calls.map((call) => (
-                    <TableRow key={call.id}>
-                      <TableCell>{call.full_name || 'Unknown'}</TableCell>
-                      <TableCell>{call.time}</TableCell>
-                      <TableCell>
-                        {call.weekday !== null 
-                          ? weekdayNames[call.weekday] 
-                          : 'One-time'}
-                      </TableCell>
-                      <TableCell>
-                        {call.specific_date 
-                          ? new Date(call.specific_date).toLocaleDateString() 
-                          : 'Recurring'}
-                      </TableCell>
-                      <TableCell>{call.timezone}</TableCell>
-                      <TableCell>{formatDate(call.execution_timestamp)}</TableCell>
-                    </TableRow>
+                    <React.Fragment key={call.id}>
+                      <TableRow className="cursor-pointer hover:bg-gray-50" onClick={() => toggleCallExpansion(call.id)}>
+                        <TableCell>
+                          {expandedCall === call.id ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </TableCell>
+                        <TableCell>{call.full_name || 'Unknown'}</TableCell>
+                        <TableCell>{call.time}</TableCell>
+                        <TableCell>
+                          {call.weekday !== null 
+                            ? weekdayNames[call.weekday] 
+                            : 'One-time'}
+                        </TableCell>
+                        <TableCell>
+                          {call.specific_date 
+                            ? new Date(call.specific_date).toLocaleDateString() 
+                            : 'Recurring'}
+                        </TableCell>
+                        <TableCell>{call.timezone}</TableCell>
+                        <TableCell>{formatDate(call.execution_timestamp)}</TableCell>
+                        <TableCell>
+                          {call.vapiCallResult ? (
+                            <span className="text-green-600 font-medium">Completed</span>
+                          ) : call.vapiCallError ? (
+                            <span className="text-red-600 font-medium">Error</span>
+                          ) : (
+                            <span className="text-gray-500">Not Called</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      {expandedCall === call.id && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="p-0 border-t-0">
+                            <div className="p-4 bg-gray-50">
+                              <h3 className="text-lg font-medium mb-2">API Response Details</h3>
+                              {call.vapiCallResult ? (
+                                <div>
+                                  <Card className="p-4 bg-white overflow-x-auto">
+                                    <pre className="text-xs whitespace-pre-wrap">
+                                      {JSON.stringify(call.vapiCallResult, null, 2)}
+                                    </pre>
+                                  </Card>
+                                </div>
+                              ) : call.vapiCallError ? (
+                                <div className="text-red-600">
+                                  <p>Error: {call.vapiCallError}</p>
+                                </div>
+                              ) : (
+                                <p className="text-gray-500">No API call was made for this scheduled call.</p>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
                   ))
                 )}
               </TableBody>
