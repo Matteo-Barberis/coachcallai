@@ -128,7 +128,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_scheduled_calls_to_execute: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          user_id: string
+          call_time: string
+          weekday: number
+          specific_date: string
+          template_id: string
+          timezone: string
+          execution_timestamp: string
+          full_name: string
+          objectives: string
+          phone: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
