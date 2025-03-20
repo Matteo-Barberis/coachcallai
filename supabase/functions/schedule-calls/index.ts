@@ -27,8 +27,12 @@ serve(async (req) => {
   try {
     console.log("Starting scheduled calls check...");
     
-    // Query to get all calls that need to happen in this time frame
-    const { data: calls, error } = await supabase.rpc("get_scheduled_calls_to_execute");
+    // Using exactly the query provided
+    const { data: calls, error } = await supabase.from('scheduled_calls').select(`
+      *,
+      profiles!inner(*)
+    `).filter('execution_timestamp', 'gte', `${new Date(Date.now() - 10 * 60 * 1000).toISOString()}`)
+      .filter('execution_timestamp', 'lte', `${new Date(Date.now() + 10 * 60 * 1000).toISOString()}`);
     
     if (error) {
       console.error("Error fetching scheduled calls:", error);
@@ -65,22 +69,22 @@ serve(async (req) => {
           const callPayload = {
             assistantId: VAPI_ASSISTANT_ID,
             customer: {
-              number: call.phone || "+447871958501" // Fallback to default if no phone number
+              number: call.profiles.phone || "+447871958501" // Fallback to default if no phone number
             },
             phoneNumberId: VAPI_PHONE_NUMBER_ID,
             assistantOverrides: {
               variableValues: {
-                name: call.full_name || "User",
+                name: call.profiles.full_name || "User",
                 call_type: templateDescription,
-                user_goals: call.objectives || "Improve your life"
+                user_goals: call.profiles.objectives || "Improve your life"
               },
               maxDurationSeconds: 120,
-              firstMessage: `good morning ${call.full_name || "User"}, how are you today?`
+              firstMessage: `good morning ${call.profiles.full_name || "User"}, how are you today?`
             }
           };
           
           // Make the API call to Vapi
-          console.log(`Initiating call for user: ${call.full_name || "Unknown"}, template: ${templateDescription}`);
+          console.log(`Initiating call for user: ${call.profiles.full_name || "Unknown"}, template: ${templateDescription}`);
           
           const vapiResponse = await fetch(VAPI_API_ENDPOINT, {
             method: "POST",
@@ -95,7 +99,7 @@ serve(async (req) => {
           
           // Check response
           if (vapiResponse.ok) {
-            console.log(`Call successfully scheduled for ${call.full_name || "User"}, Vapi response:`, vapiData);
+            console.log(`Call successfully scheduled for ${call.profiles.full_name || "User"}, Vapi response:`, vapiData);
             
             // Update execution_timestamp in database
             await supabase
@@ -105,15 +109,15 @@ serve(async (req) => {
               
             results.push({
               success: true,
-              user: call.full_name || "Unknown user",
+              user: call.profiles.full_name || "Unknown user",
               callId: vapiData.id || "N/A", 
               scheduledCallId: call.id
             });
           } else {
-            console.error(`Failed to schedule call for ${call.full_name || "User"}:`, vapiData);
+            console.error(`Failed to schedule call for ${call.profiles.full_name || "User"}:`, vapiData);
             results.push({
               success: false,
-              user: call.full_name || "Unknown user",
+              user: call.profiles.full_name || "Unknown user",
               error: vapiData,
               scheduledCallId: call.id
             });
@@ -122,7 +126,7 @@ serve(async (req) => {
           console.error(`Error processing call for user ${call.user_id}:`, callError);
           results.push({
             success: false,
-            user: call.full_name || "Unknown user",
+            user: call.profiles.full_name || "Unknown user",
             error: callError.message,
             scheduledCallId: call.id
           });
