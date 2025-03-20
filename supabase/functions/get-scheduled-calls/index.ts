@@ -105,6 +105,7 @@ serve(async (req) => {
           
           return {
             userId: call.user_id,
+            vapiPayload, // Include the request payload
             vapiResponse: vapiResult
           };
         } catch (callError) {
@@ -123,6 +124,7 @@ serve(async (req) => {
       // Add the API results to the response data
       data.forEach(call => {
         const apiResult = apiResults.find(result => result.userId === call.user_id);
+        call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null; // Add the request payload
         call.vapiCallResult = apiResult ? apiResult.vapiResponse : null;
         call.vapiCallError = apiResult && apiResult.error ? apiResult.error : null;
       });

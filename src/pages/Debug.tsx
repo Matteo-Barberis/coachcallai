@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ScheduledCall = {
   id: string;
@@ -33,6 +34,7 @@ type ScheduledCall = {
   full_name: string | null;
   objectives: string | null;
   phone: string | null;
+  vapiCallPayload: any | null;
   vapiCallResult: any | null;
   vapiCallError: string | null;
 };
@@ -195,22 +197,44 @@ const Debug = () => {
                         <TableRow>
                           <TableCell colSpan={8} className="p-0 border-t-0">
                             <div className="p-4 bg-gray-50">
-                              <h3 className="text-lg font-medium mb-2">API Response Details</h3>
-                              {call.vapiCallResult ? (
-                                <div>
-                                  <Card className="p-4 bg-white overflow-x-auto">
-                                    <pre className="text-xs whitespace-pre-wrap">
-                                      {JSON.stringify(call.vapiCallResult, null, 2)}
-                                    </pre>
-                                  </Card>
-                                </div>
-                              ) : call.vapiCallError ? (
-                                <div className="text-red-600">
-                                  <p>Error: {call.vapiCallError}</p>
-                                </div>
-                              ) : (
-                                <p className="text-gray-500">No API call was made for this scheduled call.</p>
-                              )}
+                              <Tabs defaultValue="response" className="w-full">
+                                <TabsList>
+                                  <TabsTrigger value="response">API Response</TabsTrigger>
+                                  <TabsTrigger value="request">API Request</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="response">
+                                  <h3 className="text-lg font-medium mb-2">API Response Details</h3>
+                                  {call.vapiCallResult ? (
+                                    <div>
+                                      <Card className="p-4 bg-white overflow-x-auto">
+                                        <pre className="text-xs whitespace-pre-wrap">
+                                          {JSON.stringify(call.vapiCallResult, null, 2)}
+                                        </pre>
+                                      </Card>
+                                    </div>
+                                  ) : call.vapiCallError ? (
+                                    <div className="text-red-600">
+                                      <p>Error: {call.vapiCallError}</p>
+                                    </div>
+                                  ) : (
+                                    <p className="text-gray-500">No API call was made for this scheduled call.</p>
+                                  )}
+                                </TabsContent>
+                                <TabsContent value="request">
+                                  <h3 className="text-lg font-medium mb-2">API Request Payload</h3>
+                                  {call.vapiCallPayload ? (
+                                    <div>
+                                      <Card className="p-4 bg-white overflow-x-auto">
+                                        <pre className="text-xs whitespace-pre-wrap">
+                                          {JSON.stringify(call.vapiCallPayload, null, 2)}
+                                        </pre>
+                                      </Card>
+                                    </div>
+                                  ) : (
+                                    <p className="text-gray-500">No API request payload available.</p>
+                                  )}
+                                </TabsContent>
+                              </Tabs>
                             </div>
                           </TableCell>
                         </TableRow>
