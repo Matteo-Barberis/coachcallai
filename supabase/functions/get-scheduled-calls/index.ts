@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -8,7 +7,7 @@ const corsHeaders = {
 };
 
 // Toggle to skip actual API calls to Vapi
-const SKIP_VAPI_API_CALLS = false;
+const SKIP_VAPI_API_CALLS = true;
 
 serve(async (req) => {
   // Handle CORS preflight requests
