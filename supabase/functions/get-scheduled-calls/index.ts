@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Toggle to skip actual API calls to Vapi
+const SKIP_VAPI_API_CALLS = false;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -51,7 +54,8 @@ serve(async (req) => {
     
     // For each call, make a request to the Vapi API
     if (data && data.length > 0 && vapiApiKey) {
-      console.log('Making Vapi API calls for scheduled calls...');
+      console.log('Processing scheduled calls...');
+      console.log(`SKIP_VAPI_API_CALLS mode is: ${SKIP_VAPI_API_CALLS ? 'ENABLED' : 'DISABLED'}`);
       
       // Store all promises for the API calls
       const apiCallPromises = data.map(async (call) => {
@@ -91,20 +95,30 @@ serve(async (req) => {
             }
           };
           
-          console.log(`Making Vapi API call for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiPayload));
+          console.log(`Processing call for user ${call.full_name || call.user_id}:`);
+          console.log(`Template: ${templateName} - ${templateDescription}`);
+          console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
-          // Make request to Vapi API
-          const vapiResponse = await fetch('https://api.vapi.ai/call', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${vapiApiKey}`
-            },
-            body: JSON.stringify(vapiPayload)
-          });
+          // Make request to Vapi API only if SKIP_VAPI_API_CALLS is false
+          let vapiResult = null;
           
-          const vapiResult = await vapiResponse.json();
-          console.log(`Vapi API response for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiResult));
+          if (!SKIP_VAPI_API_CALLS) {
+            console.log(`Making actual Vapi API call for user ${call.full_name || call.user_id}`);
+            const vapiResponse = await fetch('https://api.vapi.ai/call', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${vapiApiKey}`
+              },
+              body: JSON.stringify(vapiPayload)
+            });
+            
+            vapiResult = await vapiResponse.json();
+            console.log(`Vapi API response for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiResult));
+          } else {
+            console.log(`SKIPPED actual Vapi API call for user ${call.full_name || call.user_id} (test mode)`);
+            vapiResult = { status: "TEST_MODE", message: "API call was skipped due to test mode" };
+          }
           
           return {
             userId: call.user_id,
@@ -112,7 +126,7 @@ serve(async (req) => {
             vapiResponse: vapiResult
           };
         } catch (callError) {
-          console.error(`Error making Vapi API call for user ${call.full_name || call.user_id}:`, callError);
+          console.error(`Error processing call for user ${call.full_name || call.user_id}:`, callError);
           return {
             userId: call.user_id,
             error: callError.message
@@ -122,7 +136,7 @@ serve(async (req) => {
       
       // Wait for all API calls to complete
       const apiResults = await Promise.all(apiCallPromises);
-      console.log('All Vapi API calls completed:', JSON.stringify(apiResults));
+      console.log('All call processing completed:', JSON.stringify(apiResults));
       
       // Add the API results to the response data
       data.forEach(call => {
