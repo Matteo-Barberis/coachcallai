@@ -17,16 +17,38 @@ serve(async (req) => {
   }
 
   try {
-    // Create a Supabase client with the Auth context of the function
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
+    // Check if we have an authorization header (user is authenticated)
+    const hasAuthHeader = req.headers.has('Authorization') && req.headers.get('Authorization')!.startsWith('Bearer ');
+    
+    // Create a Supabase client using either auth context or service role key
+    let supabaseClient;
+    
+    if (hasAuthHeader) {
+      // Use the auth context from the request when a user is authenticated
+      console.log('Using user authentication context');
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        {
+          global: {
+            headers: { Authorization: req.headers.get('Authorization')! },
+          },
+        }
+      );
+    } else {
+      // Use the service role key when no user is authenticated (e.g., cron job)
+      console.log('Using service role key (no user auth)');
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      
+      if (!serviceRoleKey) {
+        throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set in environment variables');
       }
-    );
+      
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        serviceRoleKey
+      );
+    }
 
     console.log('Fetching scheduled calls to execute...');
     
@@ -67,15 +89,20 @@ serve(async (req) => {
           
           if (call.template_id) {
             // Get template data
-            const { data: templateData } = await supabaseClient
+            const { data: templateData, error: templateError } = await supabaseClient
               .from('templates')
               .select('name, description')
               .eq('id', call.template_id)
               .single();
               
-            if (templateData) {
+            if (templateError) {
+              console.error(`Error fetching template data for template ${call.template_id}:`, templateError);
+            } else if (templateData) {
               templateName = templateData.name;
               templateDescription = templateData.description;
+              console.log(`Retrieved template: ${templateName} - ${templateDescription}`);
+            } else {
+              console.log(`No template found for ID ${call.template_id}, using defaults`);
             }
             
             // Fetch a random greeting for this template
