@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Toggle to skip actual API calls to Vapi
+const SKIP_VAPI_API_CALLS = true;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -14,27 +17,6 @@ serve(async (req) => {
   }
 
   try {
-    // Parse request body to check for source parameter
-    let isFromFrontend = false;
-    
-    // Check if there's a request body
-    if (req.body) {
-      try {
-        const body = await req.json();
-        isFromFrontend = body.source === 'frontend';
-      } catch (e) {
-        console.error('Error parsing request body:', e);
-        // If we can't parse the body, assume it's not from frontend
-      }
-    }
-    
-    // Toggle API calls based on the source
-    // Skip API calls from frontend, but make real calls from cron jobs
-    const skipVapiApiCalls = isFromFrontend;
-    
-    console.log(`Request source: ${isFromFrontend ? 'Frontend' : 'Cron/Other'}`);
-    console.log(`SKIP_VAPI_API_CALLS mode is: ${skipVapiApiCalls ? 'ENABLED' : 'DISABLED'}`);
-
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -73,7 +55,7 @@ serve(async (req) => {
     // For each call, make a request to the Vapi API
     if (data && data.length > 0 && vapiApiKey) {
       console.log('Processing scheduled calls...');
-      console.log(`SKIP_VAPI_API_CALLS mode is: ${skipVapiApiCalls ? 'ENABLED' : 'DISABLED'}`);
+      console.log(`SKIP_VAPI_API_CALLS mode is: ${SKIP_VAPI_API_CALLS ? 'ENABLED' : 'DISABLED'}`);
       
       // Store all promises for the API calls
       const apiCallPromises = data.map(async (call) => {
@@ -140,10 +122,10 @@ serve(async (req) => {
           console.log(`Greeting: ${greeting}`);
           console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
-          // Make request to Vapi API only if skipVapiApiCalls is false
+          // Make request to Vapi API only if SKIP_VAPI_API_CALLS is false
           let vapiResult = null;
           
-          if (!skipVapiApiCalls) {
+          if (!SKIP_VAPI_API_CALLS) {
             console.log(`Making actual Vapi API call for user ${call.full_name || call.user_id}`);
             const vapiResponse = await fetch('https://api.vapi.ai/call', {
               method: 'POST',

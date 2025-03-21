@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -50,11 +51,7 @@ const Debug = () => {
     setError(null);
     
     try {
-      // Pass source=frontend parameter to indicate this call is from the frontend
-      // Fix: Use the proper method to pass query parameters to the edge function
-      const { data, error } = await supabase.functions.invoke('get-scheduled-calls', {
-        body: { source: 'frontend' }
-      });
+      const { data, error } = await supabase.functions.invoke('get-scheduled-calls');
       
       if (error) {
         console.error('Error fetching scheduled calls:', error);
@@ -252,7 +249,6 @@ const Debug = () => {
           <div className="mt-4 text-sm text-gray-500">
             <p>This page displays scheduled calls that are due to be executed within the next 10 minutes.</p>
             <p>Current server time: {new Date().toLocaleString()}</p>
-            <p>Note: API calls are skipped in debug mode (test mode enabled)</p>
           </div>
         </div>
       </main>
