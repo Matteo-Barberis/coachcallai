@@ -72,28 +72,6 @@ serve(async (req) => {
             }
           }
           
-          // Fetch a random greeting for the template
-          let firstMessage = `good morning {{name}}, how are you today?`;
-          if (call.template_id) {
-            const { data: greetingsData, error: greetingsError } = await supabaseClient
-              .from('greetings')
-              .select('greeting_text')
-              .eq('template_id', call.template_id)
-              .order('created_at', { ascending: false })
-              .limit(100);
-            
-            if (greetingsError) {
-              console.error('Error fetching greetings:', greetingsError);
-            } else if (greetingsData && greetingsData.length > 0) {
-              // Select a random greeting from the results
-              const randomIndex = Math.floor(Math.random() * greetingsData.length);
-              firstMessage = greetingsData[randomIndex].greeting_text;
-              console.log(`Selected greeting: "${firstMessage}"`);
-            } else {
-              console.log('No greetings found for template ID:', call.template_id);
-            }
-          }
-          
           // Prepare Vapi API call payload
           const vapiPayload = {
             "assistantId": "3990f3ad-880c-4d8c-95bf-42d72a90ac14",
@@ -109,7 +87,7 @@ serve(async (req) => {
                 "user_goals": call.objectives || "personal goals"
               },
               "maxDurationSeconds": 120,
-              "firstMessage": firstMessage.replace("{{name}}", call.full_name || "there")
+              "firstMessage": `good morning ${call.full_name || "there"}, how are you today? `
             }
           };
           
