@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -94,7 +95,7 @@ serve(async (req) => {
             }
           };
           
-          console.log(`Processing call for user ${call.full_name || call.user_id}:`);
+          console.log(`Processing call ${call.id} for user ${call.full_name || call.user_id}:`);
           console.log(`Template: ${templateName} - ${templateDescription}`);
           console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
@@ -113,21 +114,21 @@ serve(async (req) => {
             });
             
             vapiResult = await vapiResponse.json();
-            console.log(`Vapi API response for user ${call.full_name || call.user_id}:`, JSON.stringify(vapiResult));
+            console.log(`Vapi API response for call ${call.id}:`, JSON.stringify(vapiResult));
           } else {
-            console.log(`SKIPPED actual Vapi API call for user ${call.full_name || call.user_id} (test mode)`);
+            console.log(`SKIPPED actual Vapi API call for call ${call.id} (test mode)`);
             vapiResult = { status: "TEST_MODE", message: "API call was skipped due to test mode" };
           }
           
           return {
-            userId: call.user_id,
-            vapiPayload, // Include the request payload
+            callId: call.id, // Use call.id instead of user_id for mapping
+            vapiPayload, 
             vapiResponse: vapiResult
           };
         } catch (callError) {
-          console.error(`Error processing call for user ${call.full_name || call.user_id}:`, callError);
+          console.error(`Error processing call ${call.id} for user ${call.full_name || call.user_id}:`, callError);
           return {
-            userId: call.user_id,
+            callId: call.id, // Use call.id for mapping errors too
             error: callError.message
           };
         }
@@ -137,10 +138,10 @@ serve(async (req) => {
       const apiResults = await Promise.all(apiCallPromises);
       console.log('All call processing completed:', JSON.stringify(apiResults));
       
-      // Add the API results to the response data
+      // Add the API results to the response data, matching by call.id instead of user_id
       data.forEach(call => {
-        const apiResult = apiResults.find(result => result.userId === call.user_id);
-        call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null; // Add the request payload
+        const apiResult = apiResults.find(result => result.callId === call.id);
+        call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null;
         call.vapiCallResult = apiResult ? apiResult.vapiResponse : null;
         call.vapiCallError = apiResult && apiResult.error ? apiResult.error : null;
       });
