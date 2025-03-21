@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Toggle to skip actual API calls to Vapi
-const SKIP_VAPI_API_CALLS = true;
+const SKIP_VAPI_API_CALLS = false;
 
 serve(async (req) => {
   // Handle CORS preflight requests
