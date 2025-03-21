@@ -14,9 +14,19 @@ serve(async (req) => {
   }
 
   try {
-    // Check if the request is coming from the frontend by looking for a specific query parameter
-    const url = new URL(req.url);
-    const isFromFrontend = url.searchParams.get('source') === 'frontend';
+    // Parse request body to check for source parameter
+    let isFromFrontend = false;
+    
+    // Check if there's a request body
+    if (req.body) {
+      try {
+        const body = await req.json();
+        isFromFrontend = body.source === 'frontend';
+      } catch (e) {
+        console.error('Error parsing request body:', e);
+        // If we can't parse the body, assume it's not from frontend
+      }
+    }
     
     // Toggle API calls based on the source
     // Skip API calls from frontend, but make real calls from cron jobs

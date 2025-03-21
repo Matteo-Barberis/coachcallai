@@ -51,8 +51,9 @@ const Debug = () => {
     
     try {
       // Pass source=frontend parameter to indicate this call is from the frontend
+      // Fix: Use the proper method to pass query parameters to the edge function
       const { data, error } = await supabase.functions.invoke('get-scheduled-calls', {
-        queryParams: { source: 'frontend' }
+        body: { source: 'frontend' }
       });
       
       if (error) {
