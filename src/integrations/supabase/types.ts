@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      greetings: {
+        Row: {
+          created_at: string | null
+          greeting_text: string
+          id: string
+          template_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          greeting_text: string
+          id?: string
+          template_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          greeting_text?: string
+          id?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "greetings_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
