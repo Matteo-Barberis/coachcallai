@@ -17,38 +17,20 @@ serve(async (req) => {
   }
 
   try {
-    // Check if we have an authorization header (user is authenticated)
-    const hasAuthHeader = req.headers.has('Authorization') && req.headers.get('Authorization')!.startsWith('Bearer ');
+    console.log('Creating Supabase client with service role key for admin privileges');
     
-    // Create a Supabase client using either auth context or service role key
-    let supabaseClient;
+    // Always use the service role key for admin privileges
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    if (hasAuthHeader) {
-      // Use the auth context from the request when a user is authenticated
-      console.log('Using user authentication context');
-      supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-        {
-          global: {
-            headers: { Authorization: req.headers.get('Authorization')! },
-          },
-        }
-      );
-    } else {
-      // Use the service role key when no user is authenticated (e.g., cron job)
-      console.log('Using service role key (no user auth)');
-      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-      
-      if (!serviceRoleKey) {
-        throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set in environment variables');
-      }
-      
-      supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        serviceRoleKey
-      );
+    if (!serviceRoleKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set in environment variables');
     }
+    
+    // Create Supabase client with service role key
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      serviceRoleKey
+    );
 
     console.log('Fetching scheduled calls to execute...');
     
@@ -88,7 +70,8 @@ serve(async (req) => {
           let greeting = `good morning {{name}}, how are you today? `;
           
           if (call.template_id) {
-            // Get template data
+            // Get template data with full admin access
+            console.log(`Fetching template data for template ${call.template_id} using admin privileges`);
             const { data: templateData, error: templateError } = await supabaseClient
               .from('templates')
               .select('name, description')
@@ -100,12 +83,13 @@ serve(async (req) => {
             } else if (templateData) {
               templateName = templateData.name;
               templateDescription = templateData.description;
-              console.log(`Retrieved template: ${templateName} - ${templateDescription}`);
+              console.log(`SUCCESSFULLY retrieved template: "${templateName}" - "${templateDescription}"`);
             } else {
               console.log(`No template found for ID ${call.template_id}, using defaults`);
             }
             
-            // Fetch a random greeting for this template
+            // Fetch a random greeting for this template with admin access
+            console.log(`Fetching greetings for template ${call.template_id} using admin privileges`);
             const { data: greetingData, error: greetingError } = await supabaseClient
               .from('greetings')
               .select('greeting_text')
@@ -119,7 +103,7 @@ serve(async (req) => {
               // Select a random greeting from the results
               const randomIndex = Math.floor(Math.random() * greetingData.length);
               greeting = greetingData[randomIndex].greeting_text;
-              console.log(`Selected random greeting: "${greeting}" for template ${templateName}`);
+              console.log(`SUCCESSFULLY selected random greeting: "${greeting}" for template ${templateName}`);
             } else {
               console.log(`No greetings found for template ${call.template_id}, using default`);
             }
@@ -171,14 +155,14 @@ serve(async (req) => {
           }
           
           return {
-            callId: call.id, // Use call.id instead of user_id for mapping
+            callId: call.id,
             vapiPayload, 
             vapiResponse: vapiResult
           };
         } catch (callError) {
           console.error(`Error processing call ${call.id} for user ${call.full_name || call.user_id}:`, callError);
           return {
-            callId: call.id, // Use call.id for mapping errors too
+            callId: call.id,
             error: callError.message
           };
         }
@@ -188,7 +172,7 @@ serve(async (req) => {
       const apiResults = await Promise.all(apiCallPromises);
       console.log('All call processing completed:', JSON.stringify(apiResults));
       
-      // Add the API results to the response data, matching by call.id instead of user_id
+      // Add the API results to the response data, matching by call.id
       data.forEach(call => {
         const apiResult = apiResults.find(result => result.callId === call.id);
         call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null;
