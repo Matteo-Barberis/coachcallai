@@ -63,7 +63,10 @@ serve(async (req) => {
           // Extract template name and description if template_id exists
           let templateName = "Check-in call";
           let templateDescription = "Check-in call";
+          let greeting = `good morning {{name}}, how are you today? `;
+          
           if (call.template_id) {
+            // Get template data
             const { data: templateData } = await supabaseClient
               .from('templates')
               .select('name, description')
@@ -73,6 +76,25 @@ serve(async (req) => {
             if (templateData) {
               templateName = templateData.name;
               templateDescription = templateData.description;
+            }
+            
+            // Fetch a random greeting for this template
+            const { data: greetingData, error: greetingError } = await supabaseClient
+              .from('greetings')
+              .select('greeting_text')
+              .eq('template_id', call.template_id)
+              .order('created_at', { ascending: false })
+              .limit(20);  // Limit to most recent 20 greetings
+            
+            if (greetingError) {
+              console.error(`Error fetching greetings for template ${call.template_id}:`, greetingError);
+            } else if (greetingData && greetingData.length > 0) {
+              // Select a random greeting from the results
+              const randomIndex = Math.floor(Math.random() * greetingData.length);
+              greeting = greetingData[randomIndex].greeting_text;
+              console.log(`Selected random greeting: "${greeting}" for template ${templateName}`);
+            } else {
+              console.log(`No greetings found for template ${call.template_id}, using default`);
             }
           }
           
@@ -91,12 +113,13 @@ serve(async (req) => {
                 "user_goals": call.objectives || "personal goals"
               },
               "maxDurationSeconds": 120,
-              "firstMessage": `good morning ${call.full_name || "there"}, how are you today? `
+              "firstMessage": greeting
             }
           };
           
           console.log(`Processing call ${call.id} for user ${call.full_name || call.user_id}:`);
           console.log(`Template: ${templateName} - ${templateDescription}`);
+          console.log(`Greeting: ${greeting}`);
           console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
           // Make request to Vapi API only if SKIP_VAPI_API_CALLS is false
