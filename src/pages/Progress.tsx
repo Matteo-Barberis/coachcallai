@@ -9,8 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import ProgressOverview from '@/components/progress/ProgressOverview';
 import InsightCard from '@/components/progress/InsightCard';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
-import TrendChart from '@/components/progress/TrendChart';
 import KeywordCloud from '@/components/progress/KeywordCloud';
+import CallTimeline from '@/components/progress/CallTimeline';
 import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -67,13 +67,16 @@ const Progress = () => {
       date: "July 15, 2024",
       title: "First coaching call completed",
       description: "Established baseline and set initial goals",
-      type: "milestone" as const
+      type: "milestone" as const,
+      details: "During this call, we discussed your current stress levels and identified key triggers. We agreed to focus on developing three specific coping mechanisms over the next month."
     },
     {
       date: "July 22, 2024",
       title: "Started daily mindfulness practice",
       description: "Committed to 5 minutes of mindfulness each morning",
-      type: "achievement" as const
+      type: "achievement" as const,
+      source: "call" as const,
+      details: "You reported successfully integrating a 5-minute mindfulness practice into your morning routine for 7 consecutive days. This is helping you start the day with more focus and less anxiety."
     },
     {
       date: "July 29, 2024",
@@ -85,36 +88,18 @@ const Progress = () => {
       date: "August 5, 2024",
       title: "Reported reduced anxiety levels",
       description: "First measurable improvement in well-being metrics",
-      type: "achievement" as const
+      type: "achievement" as const,
+      source: "whatsapp" as const,
+      details: "In your WhatsApp check-in, you reported a noticeable reduction in anxiety during work meetings. Your self-reported anxiety score dropped from 7/10 to 5/10."
     },
     {
       date: "August 12, 2024",
       title: "Implemented new stress management technique",
       description: "Started using the 4-7-8 breathing method during work",
-      type: "achievement" as const
+      type: "achievement" as const,
+      source: "call" as const,
+      details: "You've successfully incorporated the 4-7-8 breathing technique during stressful work situations. You reported using it 3-4 times daily with positive results."
     }
-  ];
-
-  const mockTrendData = [
-    { date: "Week 1", value: 30 },
-    { date: "Week 2", value: 35 },
-    { date: "Week 3", value: 32 },
-    { date: "Week 4", value: 40 },
-    { date: "Week 5", value: 45 },
-    { date: "Week 6", value: 50 },
-    { date: "Week 7", value: 48 },
-    { date: "Week 8", value: 60 }
-  ];
-
-  const mockMoodData = [
-    { date: "Week 1", value: 5 },
-    { date: "Week 2", value: 6 },
-    { date: "Week 3", value: 5 },
-    { date: "Week 4", value: 7 },
-    { date: "Week 5", value: 6 },
-    { date: "Week 6", value: 8 },
-    { date: "Week 7", value: 7 },
-    { date: "Week 8", value: 9 }
   ];
 
   const mockKeywords = [
@@ -140,7 +125,7 @@ const Progress = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -179,21 +164,11 @@ const Progress = () => {
               objectivesProgress={mockObjectivesProgress}
             />
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TrendChart 
-                title="Wellbeing Score" 
-                description="Your overall wellbeing metrics over time"
-                data={mockTrendData}
-              />
-              
-              <TrendChart 
-                title="Mood Tracking" 
-                description="Your self-reported mood scores (1-10)"
-                data={mockMoodData}
-                dataKey="value"
-                color="hsl(var(--secondary))"
-              />
-            </div>
+            <CallTimeline 
+              calls={callLogs || []}
+              title="Call Completion Timeline"
+              description="View your coaching call history and completion status"
+            />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <InsightCard 
@@ -211,26 +186,12 @@ const Progress = () => {
 
           <TabsContent value="insights" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Key Achievements</CardTitle>
-                  <CardDescription>
-                    Significant milestones you've reached during your coaching journey
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {mockAchievements.map((achievement, index) => (
-                      <li key={index} className="flex gap-3">
-                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-                          ✓
-                        </div>
-                        <div className="text-sm">{achievement}</div>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <InsightCard 
+                title="Key Achievements" 
+                description="Significant milestones you've reached during your coaching journey"
+                insights={mockAchievements}
+                type="achievement"
+              />
               
               <KeywordCloud 
                 title="Growth Areas" 
@@ -302,9 +263,9 @@ const Progress = () => {
                             <TableCell>{new Date(call.created_at || "").toLocaleDateString()}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                call.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                call.status === 'failed' ? 'bg-red-100 text-red-800' : 
-                                'bg-blue-100 text-blue-800'
+                                call.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 
+                                call.status === 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' : 
+                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                               }`}>
                                 {call.status || 'Pending'}
                               </span>
