@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -18,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import type { CallLog } from '@/types/supabase';
+import AchievementTimeline from '@/components/progress/AchievementTimeline';
 
 const Progress = () => {
   const { session, loading } = useSessionContext();
@@ -199,6 +199,8 @@ const Progress = () => {
               totalMilestones={mockTotalMilestones}
               objectivesProgress={mockObjectivesProgress}
             />
+            
+            <AchievementTimeline />
             
             <Card className="mb-8">
               <CardHeader>
@@ -397,3 +399,4 @@ const Progress = () => {
 };
 
 export default Progress;
+
