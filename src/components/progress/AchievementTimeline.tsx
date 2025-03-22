@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -118,7 +119,7 @@ const AchievementTimeline = () => {
       case 'achievement':
         return 'bg-[#5CE65C] hover:bg-[#4cbc4c]';
       case 'breakthrough':
-        return 'bg-brand-secondary hover:bg-[#9b87f5]';
+        return 'bg-purple-500 hover:bg-purple-600';
       case 'missed':
         return 'bg-[#FF7081] hover:bg-[#e5636f]';
       default:
@@ -157,7 +158,7 @@ const AchievementTimeline = () => {
           <span className="text-xs text-muted-foreground">Achievement</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-brand-secondary"></div>
+          <div className="w-3 h-3 rounded-sm bg-purple-500"></div>
           <span className="text-xs text-muted-foreground">Breakthrough</span>
         </div>
         <div className="flex items-center gap-2">
