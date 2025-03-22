@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth, parse, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -236,7 +235,6 @@ const AchievementTimeline = () => {
     const yearStartDate = startOfYear(today);
     const weekDays = ['Mon', 'Wed', 'Fri'];
     
-    // Calculate total days in the year to determine spacing
     const totalDays = monthsData.reduce((acc, month) => acc + month.days, 0);
     
     const getYearData = () => {
@@ -280,7 +278,6 @@ const AchievementTimeline = () => {
       <div className="pb-4">
         <div className="flex mb-1 pl-10 pr-2">
           {monthsData.map((month, index) => {
-            // Calculate the width percentage based on days in month relative to year
             const widthPercentage = (month.days / totalDays) * 100;
             
             return (
@@ -298,14 +295,11 @@ const AchievementTimeline = () => {
         </div>
         
         <div className="flex">
-          <div className="flex flex-col mr-2 pt-1 w-10" style={{ height: "120px" }}>
+          <div className="flex flex-col mr-2 pt-1 w-10 justify-between" style={{ height: "120px" }}>
             {weekDays.map((day, index) => (
               <div 
                 key={index} 
                 className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
-                style={{ 
-                  marginTop: index === 0 ? '8px' : index === 1 ? '28px' : '28px'
-                }}
               >
                 {day}
               </div>
