@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ type Achievement = {
   type: AchievementType;
 };
 
-// Updated mock data using current dates to ensure visibility
 const mockAchievements: Achievement[] = [
   { 
     date: addDays(new Date(), -6), 
@@ -102,29 +100,25 @@ const AchievementTimeline = () => {
   const [view, setView] = useState<'weekly' | 'monthly'>('weekly');
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
 
-  // Get date range based on view
   const today = new Date();
   const dateRange = view === 'weekly' 
     ? { start: startOfWeek(today), end: endOfWeek(today) }
     : { start: startOfMonth(today), end: endOfMonth(today) };
 
-  // Get all days in the range
   const days = eachDayOfInterval(dateRange);
 
-  // Get achievements for a specific day
   const getDayAchievements = (day: Date) => {
     return mockAchievements.filter(achievement => 
       isSameDay(achievement.date, day)
     );
   };
 
-  // Get appropriate color for achievement type
   const getAchievementColor = (type: AchievementType) => {
     switch (type) {
       case 'achievement':
         return 'bg-[#5CE65C] hover:bg-[#4cbc4c]';
       case 'breakthrough':
-        return 'bg-[#C2B067] hover:bg-[#a89a57]';
+        return 'bg-[#EFBF04] hover:bg-[#d6ac04]';
       case 'missed':
         return 'bg-[#FF7081] hover:bg-[#e5636f]';
       default:
@@ -163,7 +157,7 @@ const AchievementTimeline = () => {
           <span className="text-xs text-muted-foreground">Achievement</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-[#C2B067]"></div>
+          <div className="w-3 h-3 rounded-sm bg-[#EFBF04]"></div>
           <span className="text-xs text-muted-foreground">Breakthrough</span>
         </div>
         <div className="flex items-center gap-2">
@@ -180,7 +174,6 @@ const AchievementTimeline = () => {
             minWidth: view === 'weekly' ? '600px' : '900px'
           }}
         >
-          {/* Date labels */}
           <div className="flex justify-between absolute bottom-0 w-full pb-2">
             {days.map((day, index) => (
               <div key={index} className="text-xs text-muted-foreground transform -rotate-45 origin-top-left">
@@ -189,7 +182,6 @@ const AchievementTimeline = () => {
             ))}
           </div>
 
-          {/* Achievement bars */}
           <div className="flex h-full">
             {days.map((day, dayIndex) => {
               const achievements = getDayAchievements(day);
