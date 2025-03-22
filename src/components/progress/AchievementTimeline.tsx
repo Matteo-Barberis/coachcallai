@@ -282,7 +282,8 @@ const AchievementTimeline = () => {
                 className="text-xs text-muted-foreground"
                 style={{ 
                   minWidth: `${approximateWidth}px`,
-                  marginRight: index < 11 ? '4px' : 0
+                  marginRight: index < 11 ? '4px' : 0,
+                  textAlign: 'center'
                 }}
               >
                 {month.name}
@@ -292,9 +293,12 @@ const AchievementTimeline = () => {
         </div>
         
         <div className="flex">
-          <div className="flex flex-col mr-2 pt-1">
+          <div className="flex flex-col mr-2 pt-1 justify-between h-full">
             {weekDays.map((day, index) => (
-              <div key={index} className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1" style={{ marginBottom: '1px' }}>
+              <div 
+                key={index} 
+                className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
+              >
                 {day}
               </div>
             ))}
