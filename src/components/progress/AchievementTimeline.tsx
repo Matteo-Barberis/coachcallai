@@ -122,13 +122,13 @@ const AchievementTimeline = () => {
   const getAchievementColor = (type: AchievementType) => {
     switch (type) {
       case 'achievement':
-        return 'bg-[#A9D28C] hover:bg-[#98C578] text-green-900';
+        return 'bg-green-500 hover:bg-green-600';
       case 'breakthrough':
-        return 'bg-[#F2D285] hover:bg-[#EAC56B] text-amber-900';
+        return 'bg-amber-500 hover:bg-amber-600';
       case 'missed':
-        return 'bg-[#F2A5A5] hover:bg-[#E58F8F] text-red-900';
+        return 'bg-red-500 hover:bg-red-600';
       default:
-        return 'bg-gray-300 hover:bg-gray-400';
+        return 'bg-gray-500 hover:bg-gray-600';
     }
   };
 
