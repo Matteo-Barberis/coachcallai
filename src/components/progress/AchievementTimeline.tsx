@@ -162,13 +162,6 @@ const AchievementTimeline = () => {
     }
   };
 
-  // Format the date based on the current view
-  const formatDayLabel = (day: Date) => {
-    return view === 'weekly' 
-      ? format(day, 'd') // Just show the day number for weekly view
-      : format(day, 'd'); // Just show the day number for monthly view
-  };
-
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -225,30 +218,11 @@ const AchievementTimeline = () => {
             minWidth: view === 'weekly' ? '600px' : '900px'
           }}
         >
-          {/* Month label at the top */}
-          <div className="flex justify-center w-full mb-2">
-            <span className="text-sm font-medium">
-              {format(days[0], 'MMMM yyyy')}
-            </span>
-          </div>
-          
-          {/* Day numbers at the bottom with tooltips for full dates */}
           <div className="flex justify-between absolute bottom-0 w-full pb-2">
             {days.map((day, index) => (
-              <TooltipProvider key={index}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="text-center w-full">
-                      <div className="text-xs text-muted-foreground">
-                        {formatDayLabel(day)}
-                      </div>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" align="center">
-                    {format(day, 'MMMM d, yyyy')}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div key={index} className="text-xs text-muted-foreground transform -rotate-45 origin-top-left">
+                {format(day, 'MMM d')}
+              </div>
             ))}
           </div>
 
