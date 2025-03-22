@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -212,6 +212,108 @@ const AchievementTimeline = () => {
       </Tooltip>
     );
   };
+
+  // Function to organize yearly view into months with stacked days
+  const getYearlyViewStructure = () => {
+    const year = today.getFullYear();
+    const months = [];
+    
+    for (let month = 0; month < 12; month++) {
+      const firstDayOfMonth = new Date(year, month, 1);
+      const daysInMonth = getDaysInMonth(firstDayOfMonth);
+      const monthDays = [];
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        monthDays.push(new Date(year, month, day));
+      }
+      
+      months.push({
+        monthDate: firstDayOfMonth,
+        days: monthDays
+      });
+    }
+    
+    return months;
+  };
+  
+  // Rendering the yearly view with stacked days
+  const renderYearlyView = () => {
+    const months = getYearlyViewStructure();
+    
+    return (
+      <div className="flex w-full">
+        {months.map((month, monthIndex) => (
+          <div 
+            key={monthIndex} 
+            className="flex-1 flex flex-col"
+            style={{ minWidth: '90px' }}
+          >
+            <div className="mb-2 text-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="text-xs text-muted-foreground">
+                    {format(month.monthDate, 'MMM')}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  {format(month.monthDate, 'MMMM yyyy')}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            
+            <div className="grid grid-cols-7 gap-0.5 h-full">
+              {month.days.map((day, dayIndex) => {
+                const achievements = getDayAchievements(day);
+                return (
+                  <TooltipProvider key={dayIndex}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          className={`h-3 w-3 rounded-sm m-0.5 ${
+                            achievements.length > 0 
+                              ? getAchievementColor(achievements[0].type) 
+                              : 'bg-transparent border border-gray-200'
+                          }`}
+                        >
+                          {achievements.length > 1 && (
+                            <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
+                              {achievements.length}
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      {achievements.length > 0 && (
+                        <TooltipContent side="top" align="center" className="max-w-[200px]">
+                          <div className="text-xs">
+                            <div className="font-medium mb-1">{format(day, 'MMM d, yyyy')}</div>
+                            {achievements.map((achievement, idx) => (
+                              <div key={idx} className="mb-1">
+                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                  achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                  achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                  achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                  achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                  achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                </span>
+                                <p>{achievement.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
   
   return (
     <Card className="p-6">
@@ -251,82 +353,86 @@ const AchievementTimeline = () => {
       </div>
 
       <ScrollArea className="w-full">
-        <div 
-          className="relative"
-          style={{ 
-            height: '200px',
-            minWidth: view === 'weekly' ? '600px' : view === 'monthly' ? '900px' : '1200px'
-          }}
-        >
-          <div className="flex justify-between absolute bottom-0 w-full pb-2">
-            {days.map((day, index) => (
-              <div key={index} className="flex justify-center" style={{ width: `${100 / days.length}%` }}>
-                {renderDateLabel(day, index)}
-              </div>
-            ))}
+        {view === 'yearly' ? (
+          <div className="h-[220px] min-w-[1000px]">
+            {renderYearlyView()}
           </div>
-
-          <div className="flex h-full">
-            {days.map((day, dayIndex) => {
-              const achievements = getDayAchievements(day);
-              const dayWidth = 100 / days.length;
-              
-              // For yearly view, make the achievements more compact
-              const achievementHeight = view === 'yearly' ? '12px' : '20px';
-              const achievementWidth = view === 'yearly' ? 'w-full' : 'w-4/5';
-
-              return (
-                <div
-                  key={dayIndex}
-                  className="flex flex-col-reverse justify-start items-center h-[calc(100%-2rem)]"
-                  style={{ width: `${dayWidth}%` }}
-                  data-testid={`day-column-${dayIndex}`}
-                >
-                  <TooltipProvider>
-                    {achievements.map((achievement, achievementIndex) => (
-                      <Tooltip key={achievementIndex}>
-                        <TooltipTrigger asChild>
-                          <div
-                            className={`${achievementWidth} mx-1 mb-1 rounded ${getAchievementColor(achievement.type)} cursor-pointer`}
-                            style={{
-                              height: achievementHeight,
-                              minHeight: achievementHeight,
-                            }}
-                            aria-label={achievement.description}
-                          >
-                            {achievement.type === 'call-completed' && view !== 'yearly' && (
-                              <div className="flex justify-center items-center h-full">
-                                <PhoneCall className="h-3 w-3 text-white" />
-                              </div>
-                            )}
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" align="center" className="max-w-[200px]">
-                          <div className="text-xs">
-                            <div className="font-medium mb-1">{format(achievement.date, 'MMM d, yyyy')}</div>
-                            <div className="mb-1">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
-                                achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
-                                achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
-                                achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
-                                achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {achievement.type === 'call-completed' ? 'Call Completed' : 
-                                achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                              </span>
-                            </div>
-                            <p>{achievement.description}</p>
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </TooltipProvider>
+        ) : (
+          <div 
+            className="relative"
+            style={{ 
+              height: '200px',
+              minWidth: view === 'weekly' ? '600px' : '900px'
+            }}
+          >
+            <div className="flex justify-between absolute bottom-0 w-full pb-2">
+              {days.map((day, index) => (
+                <div key={index} className="flex justify-center" style={{ width: `${100 / days.length}%` }}>
+                  {renderDateLabel(day, index)}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            <div className="flex h-full">
+              {days.map((day, dayIndex) => {
+                const achievements = getDayAchievements(day);
+                const dayWidth = 100 / days.length;
+                const achievementHeight = '20px';
+                const achievementWidth = 'w-4/5';
+
+                return (
+                  <div
+                    key={dayIndex}
+                    className="flex flex-col-reverse justify-start items-center h-[calc(100%-2rem)]"
+                    style={{ width: `${dayWidth}%` }}
+                    data-testid={`day-column-${dayIndex}`}
+                  >
+                    <TooltipProvider>
+                      {achievements.map((achievement, achievementIndex) => (
+                        <Tooltip key={achievementIndex}>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`${achievementWidth} mx-1 mb-1 rounded ${getAchievementColor(achievement.type)} cursor-pointer`}
+                              style={{
+                                height: achievementHeight,
+                                minHeight: achievementHeight,
+                              }}
+                              aria-label={achievement.description}
+                            >
+                              {achievement.type === 'call-completed' && (
+                                <div className="flex justify-center items-center h-full">
+                                  <PhoneCall className="h-3 w-3 text-white" />
+                                </div>
+                              )}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" align="center" className="max-w-[200px]">
+                            <div className="text-xs">
+                              <div className="font-medium mb-1">{format(achievement.date, 'MMM d, yyyy')}</div>
+                              <div className="mb-1">
+                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                  achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                  achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                  achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                  achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                  achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                </span>
+                              </div>
+                              <p>{achievement.description}</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </TooltipProvider>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </ScrollArea>
     </Card>
   );
