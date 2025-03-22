@@ -8,6 +8,9 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Log all headers immediately when the function is called
+  console.log('Request headers:', JSON.stringify(Object.fromEntries(req.headers.entries())));
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
