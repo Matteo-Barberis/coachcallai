@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -30,9 +29,13 @@ serve(async (req) => {
 
     // Verify webhook secret if configured
     const webhookSecret = Deno.env.get('VAPI_WEBHOOK_SECRET');
+    const signature = req.headers.get('x-vapi-secret') || '';
+    
+    // Log both the webhook secret and the signature for comparison
+    console.log('Webhook Secret:', webhookSecret);
+    console.log('Signature from headers:', signature);
+
     if (webhookSecret) {
-      const signature = req.headers.get('x-vapi-secret') || '';
-      
       if (signature !== webhookSecret) {
         console.error('Invalid webhook secret');
         return new Response(
