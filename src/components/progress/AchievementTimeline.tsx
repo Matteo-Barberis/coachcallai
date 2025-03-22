@@ -280,7 +280,7 @@ const AchievementTimeline = () => {
             return (
               <div 
                 key={index} 
-                className="text-xs text-muted-foreground text-center"
+                className="text-xs text-muted-foreground text-center overflow-visible whitespace-nowrap"
                 style={{ 
                   width: `${approximateWidth}px`,
                   marginRight: index < 11 ? '2px' : 0
@@ -299,7 +299,6 @@ const AchievementTimeline = () => {
                 key={index} 
                 className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
                 style={{ 
-                  // Distribute the labels more evenly across the vertical space
                   marginTop: index === 0 ? '8px' : index === 1 ? '28px' : '28px'
                 }}
               >
@@ -321,15 +320,16 @@ const AchievementTimeline = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div 
-                            className={`h-3.5 mb-0.5 rounded-sm ${
+                            className={`mb-0.5 rounded-sm aspect-square ${
                               achievements.length > 0 
                                 ? getAchievementColor(achievements[0].type) 
                                 : 'bg-transparent border border-gray-200'
                             }`}
                             style={{
+                              height: "3.5px",
+                              minHeight: "3.5px",
                               minWidth: "3.5px",
-                              maxWidth: "8px",
-                              width: "100%"
+                              flexGrow: 1
                             }}
                           >
                             {achievements.length > 1 && (
