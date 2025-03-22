@@ -44,21 +44,21 @@ const ProgressOverview = ({
           <Award className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{milestonesAchieved} / {totalMilestones}</div>
+          <div className="text-2xl font-bold">{milestonesAchieved}</div>
           <Progress value={milestonesPercentage} className="h-2 mt-2" />
           <p className="text-xs text-muted-foreground mt-1">
-            {milestonesPercentage}% of milestones achieved
+            {milestonesPercentage}%
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Objectives Progress</CardTitle>
+          <CardTitle className="text-sm font-medium">Small Achievements</CardTitle>
           <Target className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{objectivesProgress}%</div>
+          <div className="text-2xl font-bold">{objectivesProgress}</div>
           <Progress value={objectivesProgress} className="h-2 mt-2" />
           <p className="text-xs text-muted-foreground mt-1">
             Overall progress towards your objectives
