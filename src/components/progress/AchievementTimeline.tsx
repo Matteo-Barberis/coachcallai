@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -122,13 +121,13 @@ const AchievementTimeline = () => {
   const getAchievementColor = (type: AchievementType) => {
     switch (type) {
       case 'achievement':
-        return 'bg-green-500 hover:bg-green-600';
+        return 'bg-[#F2FCE2] hover:bg-[#E6F5D0] text-green-800';
       case 'breakthrough':
-        return 'bg-amber-500 hover:bg-amber-600';
+        return 'bg-[#FEF7CD] hover:bg-[#FDF3B3] text-amber-800';
       case 'missed':
-        return 'bg-red-500 hover:bg-red-600';
+        return 'bg-[#FFDEE2] hover:bg-[#FFC6CC] text-red-800';
       default:
-        return 'bg-gray-500 hover:bg-gray-600';
+        return 'bg-gray-200 hover:bg-gray-300';
     }
   };
 
