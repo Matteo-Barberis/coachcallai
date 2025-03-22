@@ -217,11 +217,13 @@ const AchievementTimeline = () => {
     
     for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
       const monthStart = new Date(year, monthIndex, 1);
+      const daysInMonth = getDaysInMonth(monthStart);
       const monthName = format(monthStart, 'MMM');
       
       monthsData.push({
         month: monthIndex,
         name: monthName,
+        days: daysInMonth,
         firstDay: monthStart
       });
     }
@@ -233,6 +235,9 @@ const AchievementTimeline = () => {
     const monthsData = getYearlyViewStructure();
     const yearStartDate = startOfYear(today);
     const weekDays = ['Mon', 'Wed', 'Fri'];
+    
+    // Calculate total days in the year to determine spacing
+    const totalDays = monthsData.reduce((acc, month) => acc + month.days, 0);
     
     const getYearData = () => {
       const result = [];
@@ -269,21 +274,21 @@ const AchievementTimeline = () => {
     };
     
     const yearData = getYearData();
+    const totalWeeks = yearData.length;
     
     return (
       <div className="pb-4">
         <div className="flex mb-1 pl-10 pr-2">
           {monthsData.map((month, index) => {
-            const weeksInMonth = Math.ceil(getDaysInMonth(month.firstDay) / 7);
-            const approximateWidth = weeksInMonth * 14;
+            // Calculate the width percentage based on days in month relative to year
+            const widthPercentage = (month.days / totalDays) * 100;
             
             return (
               <div 
                 key={index} 
                 className="text-xs text-muted-foreground text-center overflow-visible whitespace-nowrap"
                 style={{ 
-                  width: `${approximateWidth}px`,
-                  marginRight: index < 11 ? '2px' : 0
+                  width: `${widthPercentage}%`,
                 }}
               >
                 {month.name}
@@ -308,65 +313,75 @@ const AchievementTimeline = () => {
           </div>
           
           <div className="flex flex-1 overflow-x-auto">
-            {yearData.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow">
-                {week.map((day, dayIndex) => {
-                  if (!day) return <div key={dayIndex} className="aspect-square mb-0.5 opacity-0 min-w-[0.5rem]"></div>;
-                  
-                  const { date, achievements } = day;
-                  
-                  return (
-                    <TooltipProvider key={dayIndex}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div 
-                            className={`aspect-square mb-0.5 rounded-sm ${
-                              achievements.length > 0 
-                                ? getAchievementColor(achievements[0].type) 
-                                : 'bg-transparent border border-gray-200'
-                            }`}
-                            style={{
-                              minWidth: '0.5rem',
-                              minHeight: '0.5rem',
-                              width: 'calc(100% - 2px)',
-                              height: 'auto',
-                            }}
-                          >
-                            {achievements.length > 1 && (
-                              <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
-                                {achievements.length}
-                              </div>
-                            )}
-                          </div>
-                        </TooltipTrigger>
-                        {achievements.length > 0 && (
-                          <TooltipContent side="top" align="center" className="max-w-[200px]">
-                            <div className="text-xs">
-                              <div className="font-medium mb-1">{format(date, 'MMM d, yyyy')}</div>
-                              {achievements.map((achievement, idx) => (
-                                <div key={idx} className="mb-1">
-                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
-                                    achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
-                                    achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
-                                    achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
-                                    achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
-                                    'bg-red-100 text-red-800'
-                                  }`}>
-                                    {achievement.type === 'call-completed' ? 'Call Completed' : 
-                                    achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                                  </span>
-                                  <p>{achievement.description}</p>
+            <div className="flex w-full">
+              {yearData.map((week, weekIndex) => (
+                <div 
+                  key={weekIndex} 
+                  className="flex flex-col mr-0.5"
+                  style={{ 
+                    width: `${100 / totalWeeks}%`, 
+                    minWidth: "10px",
+                    flexGrow: 1,
+                  }}
+                >
+                  {week.map((day, dayIndex) => {
+                    if (!day) return <div key={dayIndex} className="aspect-square mb-0.5 opacity-0"></div>;
+                    
+                    const { date, achievements } = day;
+                    
+                    return (
+                      <TooltipProvider key={dayIndex}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div 
+                              className={`aspect-square mb-0.5 rounded-sm ${
+                                achievements.length > 0 
+                                  ? getAchievementColor(achievements[0].type) 
+                                  : 'bg-transparent border border-gray-200'
+                              }`}
+                              style={{
+                                minWidth: '6px',
+                                minHeight: '6px',
+                                width: '100%',
+                                height: 'auto',
+                              }}
+                            >
+                              {achievements.length > 1 && (
+                                <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
+                                  {achievements.length}
                                 </div>
-                              ))}
+                              )}
                             </div>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </TooltipProvider>
-                  );
-                })}
-              </div>
-            ))}
+                          </TooltipTrigger>
+                          {achievements.length > 0 && (
+                            <TooltipContent side="top" align="center" className="max-w-[200px]">
+                              <div className="text-xs">
+                                <div className="font-medium mb-1">{format(date, 'MMM d, yyyy')}</div>
+                                {achievements.map((achievement, idx) => (
+                                  <div key={idx} className="mb-1">
+                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                      achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                      achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                      achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                      achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                      'bg-red-100 text-red-800'
+                                    }`}>
+                                      {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                      achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                    </span>
+                                    <p>{achievement.description}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -412,7 +427,7 @@ const AchievementTimeline = () => {
 
       <ScrollArea className="w-full">
         {view === 'yearly' ? (
-          <div className="py-2" style={{ minWidth: "830px", width: "100%", maxWidth: "100%", maxHeight: "220px" }}>
+          <div className="py-2" style={{ width: "100%", maxWidth: "100%", maxHeight: "220px" }}>
             {renderYearlyView()}
           </div>
         ) : (
