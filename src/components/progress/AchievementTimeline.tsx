@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth, parse, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -309,7 +308,7 @@ const AchievementTimeline = () => {
           
           <div className="flex flex-1">
             {yearData.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow">
+              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow-0">
                 {week.map((day, dayIndex) => {
                   if (!day) return <div key={dayIndex} className="h-3.5 w-3.5 mb-0.5 opacity-0"></div>;
                   
@@ -320,16 +319,18 @@ const AchievementTimeline = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div 
-                            className={`mb-0.5 rounded-sm aspect-square ${
+                            className={`mb-0.5 rounded-sm ${
                               achievements.length > 0 
                                 ? getAchievementColor(achievements[0].type) 
                                 : 'bg-transparent border border-gray-200'
                             }`}
                             style={{
                               height: "3.5px",
+                              width: "3.5px",
                               minHeight: "3.5px",
                               minWidth: "3.5px",
-                              flexGrow: 1
+                              maxHeight: "3.5px",
+                              maxWidth: "3.5px"
                             }}
                           >
                             {achievements.length > 1 && (
