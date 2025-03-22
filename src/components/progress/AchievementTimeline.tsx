@@ -308,9 +308,9 @@ const AchievementTimeline = () => {
           
           <div className="flex flex-1">
             {yearData.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow-0">
+              <div key={weekIndex} className="flex flex-col mr-0.5">
                 {week.map((day, dayIndex) => {
-                  if (!day) return <div key={dayIndex} className="h-3.5 w-3.5 mb-0.5 opacity-0"></div>;
+                  if (!day) return <div key={dayIndex} className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 mb-0.5 opacity-0"></div>;
                   
                   const { date, achievements } = day;
                   
@@ -319,19 +319,16 @@ const AchievementTimeline = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div 
-                            className={`mb-0.5 rounded-sm ${
+                            className={`mb-0.5 rounded-sm aspect-square ${
                               achievements.length > 0 
                                 ? getAchievementColor(achievements[0].type) 
                                 : 'bg-transparent border border-gray-200'
                             }`}
                             style={{
-                              height: "3.5px",
-                              width: "3.5px",
-                              minHeight: "3.5px",
-                              minWidth: "3.5px",
-                              maxHeight: "3.5px",
-                              maxWidth: "3.5px"
+                              height: "0.4rem",
+                              width: "0.4rem",
                             }}
+                            className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4"
                           >
                             {achievements.length > 1 && (
                               <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
