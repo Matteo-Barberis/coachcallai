@@ -76,6 +76,7 @@ serve(async (req) => {
     }
 
     const callSummary = message.summary || '';
+    const callTranscript = message.transcript || '';  // Extract the transcript
     const endedReason = message.endedReason || 'unknown';
     const recordingUrl = message.recordingUrl || null;
     const transcript = message.transcript || '';
@@ -83,6 +84,7 @@ serve(async (req) => {
 
     console.log(`Processing webhook for Vapi call ID: ${vapiCallId}`);
     console.log(`Call summary: ${callSummary.substring(0, 100)}...`);
+    console.log(`Call transcript: ${callTranscript.substring(0, 100)}...`);
 
     // Create Supabase client with admin privileges using service role key
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -127,11 +129,12 @@ serve(async (req) => {
 
     console.log(`Found call log with ID: ${existingCallLog.id}`);
 
-    // Update the call log with the summary information
+    // Update the call log with the summary information and transcript
     const { error: updateError } = await supabaseClient
       .from('call_logs')
       .update({
         call_summary: callSummary,
+        call_transcript: callTranscript,  // Add transcript to the update
         status: 'completed',
         response: {
           ...message,
@@ -154,13 +157,13 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Successfully updated call log ${existingCallLog.id} with summary`);
+    console.log(`Successfully updated call log ${existingCallLog.id} with summary and transcript`);
     
     // Return a success response
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Call summary recorded successfully',
+        message: 'Call summary and transcript recorded successfully',
         callLogId: existingCallLog.id,
         scheduledCallId: existingCallLog.scheduled_call_id
       }),

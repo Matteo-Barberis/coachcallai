@@ -12,6 +12,7 @@ export type Database = {
       call_logs: {
         Row: {
           call_summary: string | null
+          call_transcript: string | null
           created_at: string | null
           id: string
           payload: Json | null
@@ -22,6 +23,7 @@ export type Database = {
         }
         Insert: {
           call_summary?: string | null
+          call_transcript?: string | null
           created_at?: string | null
           id?: string
           payload?: Json | null
@@ -32,6 +34,7 @@ export type Database = {
         }
         Update: {
           call_summary?: string | null
+          call_transcript?: string | null
           created_at?: string | null
           id?: string
           payload?: Json | null
