@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -11,7 +10,7 @@ import InsightCard from '@/components/progress/InsightCard';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
-import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight } from 'lucide-react';
+import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -20,14 +19,11 @@ import type { CallLog } from '@/types/supabase';
 
 const Progress = () => {
   const { session, loading } = useSessionContext();
-  const [openCallId, setOpenCallId] = useState<string | null>(null);
 
-  // Redirect to login if not authenticated
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
   }
 
-  // Fetch call logs for the user
   const { data: callLogs, isLoading: callLogsLoading } = useQuery({
     queryKey: ['callLogs'],
     queryFn: async () => {
@@ -42,7 +38,6 @@ const Progress = () => {
     enabled: !!session,
   });
 
-  // Mock data for demonstration purposes
   const mockCompletedCalls = callLogs?.length || 0;
   const mockTotalCalls = 12;
   const mockMilestonesAchieved = 4;
@@ -50,16 +45,44 @@ const Progress = () => {
   const mockObjectivesProgress = 65;
 
   const mockInsights = [
-    "Your consistency in attending calls has improved by 20% over the last month.",
-    "You've made significant progress in practicing mindfulness techniques daily.",
-    "Your stress levels have decreased noticeably according to your self-reporting.",
-    "Try to incorporate more breathing exercises before stressful meetings."
+    {
+      text: "Your consistency in attending calls has improved by 20% over the last month.",
+      category: "insight" as const,
+      date: "Aug 15, 2024"
+    },
+    {
+      text: "You've made significant progress in practicing mindfulness techniques daily.",
+      category: "achievement" as const,
+      date: "Aug 10, 2024"
+    },
+    {
+      text: "You've had a breakthrough in understanding how work triggers affect your stress levels.",
+      category: "breakthrough" as const,
+      date: "Aug 5, 2024"
+    },
+    {
+      text: "Try to incorporate more breathing exercises before stressful meetings.",
+      category: "insight" as const,
+      date: "Jul 28, 2024"
+    }
   ];
 
   const mockAchievements = [
-    "You've completed 5 consecutive coaching sessions without missing any.",
-    "You've reported improved sleep quality for 2 weeks straight.",
-    "You've successfully implemented 3 new stress management techniques."
+    {
+      text: "You've completed 5 consecutive coaching sessions without missing any.",
+      category: "achievement" as const,
+      date: "Aug 12, 2024"
+    },
+    {
+      text: "Major breakthrough: You successfully managed your anxiety during a high-stakes presentation.",
+      category: "breakthrough" as const,
+      date: "Aug 8, 2024"
+    },
+    {
+      text: "You've reported improved sleep quality for 2 weeks straight.",
+      category: "achievement" as const,
+      date: "Aug 1, 2024"
+    }
   ];
 
   const mockTimelineEvents = [
@@ -86,11 +109,12 @@ const Progress = () => {
     },
     {
       date: "August 5, 2024",
-      title: "Reported reduced anxiety levels",
-      description: "First measurable improvement in well-being metrics",
-      type: "achievement" as const,
-      source: "whatsapp" as const,
-      details: "In your WhatsApp check-in, you reported a noticeable reduction in anxiety during work meetings. Your self-reported anxiety score dropped from 7/10 to 5/10."
+      title: "Breakthrough: Identified core stress trigger",
+      description: "Discovered key pattern related to work meetings and deadlines",
+      type: "breakthrough" as const,
+      source: "call" as const,
+      details: "During our session, you had a significant breakthrough when you realized that your stress is primarily triggered by uncertainty around project deadlines rather than the workload itself. This insight allows us to develop much more targeted coping strategies.",
+      impact: "high" as const
     },
     {
       date: "August 12, 2024",
@@ -99,6 +123,15 @@ const Progress = () => {
       type: "achievement" as const,
       source: "call" as const,
       details: "You've successfully incorporated the 4-7-8 breathing technique during stressful work situations. You reported using it 3-4 times daily with positive results."
+    },
+    {
+      date: "August 19, 2024",
+      title: "Breakthrough: Connected childhood pattern to current anxiety",
+      description: "Identified how past experiences shape current responses",
+      type: "breakthrough" as const,
+      source: "whatsapp" as const,
+      details: "In your WhatsApp message, you shared a powerful insight about how your perfectionism stems from childhood experiences. This awareness is helping you be more compassionate with yourself when you feel anxious about performance.",
+      impact: "high" as const
     }
   ];
 
@@ -163,6 +196,38 @@ const Progress = () => {
               totalMilestones={mockTotalMilestones}
               objectivesProgress={mockObjectivesProgress}
             />
+            
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-purple-500" />
+                  Breakthrough Moments
+                </CardTitle>
+                <CardDescription>
+                  Significant turning points in your coaching journey
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {mockTimelineEvents
+                    .filter(event => event.type === 'breakthrough')
+                    .map((event, index) => (
+                      <div key={index} className="border-l-2 border-purple-500 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-purple-500">{event.date}</p>
+                          {event.source && (
+                            <Badge variant="outline" className="text-xs py-0 h-5">
+                              {event.source === 'call' ? 'Call' : 'WhatsApp'}
+                            </Badge>
+                          )}
+                        </div>
+                        <h3 className="text-base font-medium">{event.title}</h3>
+                        <p className="text-sm text-muted-foreground">{event.description}</p>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
             
             <CallTimeline 
               calls={callLogs || []}
