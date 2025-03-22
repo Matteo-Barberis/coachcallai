@@ -165,7 +165,7 @@ const AchievementTimeline = () => {
       case 'breakthrough':
         return 'bg-purple-500 hover:bg-purple-600';
       case 'milestone':
-        return 'bg-[#F97316] hover:bg-[#ea6c10]';
+        return 'bg-orange-500 hover:bg-orange-600';
       case 'missed':
         return 'bg-[#FF7081] hover:bg-[#e5636f]';
       case 'call-completed':
@@ -412,7 +412,7 @@ const AchievementTimeline = () => {
           <span className="text-xs text-muted-foreground">Breakthrough</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-[#F97316]"></div>
+          <div className="w-3 h-3 rounded-sm bg-orange-500"></div>
           <span className="text-xs text-muted-foreground">Milestone</span>
         </div>
         <div className="flex items-center gap-2">
