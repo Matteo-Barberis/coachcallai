@@ -120,6 +120,11 @@ const mockAchievements: Achievement[] = [
     description: 'Attended coaching call and shared breakthrough', 
     type: 'call-completed' 
   },
+  { 
+    date: new Date(2024, 2, 16), // March 16th, 2024 
+    description: 'Attended monthly coaching call', 
+    type: 'call-completed' 
+  },
 ];
 
 const AchievementTimeline = () => {
