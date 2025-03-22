@@ -122,7 +122,7 @@ const mockAchievements: Achievement[] = [
     type: 'call-completed' 
   },
   { 
-    date: new Date(2025, 2, 16), // March 16, 2025 (months are 0-indexed in JavaScript)
+    date: new Date(2025, 2, 16), 
     description: 'Completed quarterly review coaching call', 
     type: 'call-completed' 
   },
@@ -271,18 +271,18 @@ const AchievementTimeline = () => {
     
     return (
       <div className="pb-4">
-        <div className="flex mb-1 pl-10">
+        <div className="flex mb-1 pl-10 pr-2">
           {monthsData.map((month, index) => {
             const weeksInMonth = Math.ceil(getDaysInMonth(month.firstDay) / 7);
-            const approximateWidth = weeksInMonth * 16;
+            const approximateWidth = weeksInMonth * 14;
             
             return (
               <div 
                 key={index} 
-                className="text-xs text-muted-foreground"
+                className="text-xs text-muted-foreground text-center"
                 style={{ 
-                  minWidth: `${approximateWidth}px`,
-                  marginRight: index < 11 ? '4px' : 0
+                  width: `${approximateWidth}px`,
+                  marginRight: index < 11 ? '2px' : 0
                 }}
               >
                 {month.name}
@@ -292,9 +292,12 @@ const AchievementTimeline = () => {
         </div>
         
         <div className="flex">
-          <div className="flex flex-col mr-2 pt-1">
+          <div className="flex flex-col mr-2 pt-1 w-10 justify-between" style={{ height: "140px" }}>
             {weekDays.map((day, index) => (
-              <div key={index} className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1" style={{ marginBottom: '1px' }}>
+              <div 
+                key={index} 
+                className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
+              >
                 {day}
               </div>
             ))}
@@ -399,7 +402,7 @@ const AchievementTimeline = () => {
 
       <ScrollArea className="w-full">
         {view === 'yearly' ? (
-          <div className="py-2" style={{ minWidth: "850px", maxHeight: "220px" }}>
+          <div className="py-2" style={{ minWidth: "830px", maxHeight: "220px", overflowX: "auto" }}>
             {renderYearlyView()}
           </div>
         ) : (
@@ -454,19 +457,21 @@ const AchievementTimeline = () => {
                           <TooltipContent side="top" align="center" className="max-w-[200px]">
                             <div className="text-xs">
                               <div className="font-medium mb-1">{format(achievement.date, 'MMM d, yyyy')}</div>
-                              <div className="mb-1">
-                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
-                                  achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
-                                  achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
-                                  achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
-                                  achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {achievement.type === 'call-completed' ? 'Call Completed' : 
-                                  achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                                </span>
-                              </div>
-                              <p>{achievement.description}</p>
+                              {achievements.map((achievement, idx) => (
+                                <div key={idx} className="mb-1">
+                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                    achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                    achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                    achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                    achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                    achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                  </span>
+                                  <p>{achievement.description}</p>
+                                </div>
+                              ))}
                             </div>
                           </TooltipContent>
                         </Tooltip>
