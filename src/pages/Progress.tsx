@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -11,7 +12,7 @@ import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
+import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight, Star, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -135,6 +136,15 @@ const Progress = () => {
       source: "whatsapp" as const,
       details: "In your WhatsApp message, you shared a powerful insight about how your perfectionism stems from childhood experiences. This awareness is helping you be more compassionate with yourself when you feel anxious about performance.",
       impact: "high" as const
+    },
+    {
+      date: "August 25, 2024",
+      title: "Completed first phase of anxiety management program",
+      description: "Successfully finished all modules in phase one",
+      type: "milestone" as const,
+      source: "call" as const,
+      details: "You've completed all the foundational modules of the anxiety management program, demonstrating consistent engagement and progress. This completion marks a significant step in your journey.",
+      impact: "high" as const
     }
   ];
 
@@ -206,25 +216,40 @@ const Progress = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-purple-500" />
-                  Breakthrough Moments
+                  Key Moments
                 </CardTitle>
                 <CardDescription>
-                  Significant turning points in your coaching journey
+                  Significant breakthroughs and milestones in your coaching journey
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {mockTimelineEvents
-                    .filter(event => event.type === 'breakthrough')
+                    .filter(event => event.type === 'breakthrough' || event.type === 'milestone')
                     .map((event, index) => (
-                      <div key={index} className="border-l-2 border-purple-500 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors">
+                      <div 
+                        key={index} 
+                        className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
+                          event.type === 'breakthrough' ? 'border-purple-500' : 'border-orange-500'
+                        }`}
+                      >
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-purple-500">{event.date}</p>
+                          <p className={`text-sm font-medium ${
+                            event.type === 'breakthrough' ? 'text-purple-500' : 'text-orange-500'
+                          }`}>
+                            {event.date}
+                          </p>
                           {event.source && (
                             <Badge variant="outline" className="text-xs py-0 h-5">
                               {event.source === 'call' ? 'Call' : 'WhatsApp'}
                             </Badge>
                           )}
+                          <Badge variant="outline" className={`text-xs py-0 h-5 ${
+                            event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
+                            'bg-orange-100 border-orange-200 text-orange-700'
+                          }`}>
+                            {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
+                          </Badge>
                         </div>
                         <h3 className="text-base font-medium">{event.title}</h3>
                         <p className="text-sm text-muted-foreground">{event.description}</p>
@@ -399,4 +424,3 @@ const Progress = () => {
 };
 
 export default Progress;
-
