@@ -299,8 +299,8 @@ const AchievementTimeline = () => {
                 key={index} 
                 className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
                 style={{ 
-                  // Create equal spacing between the three labels
-                  marginTop: index === 0 ? '8px' : index === 1 ? '42px' : '42px'
+                  // Distribute the labels more evenly across the vertical space
+                  marginTop: index === 0 ? '8px' : index === 1 ? '28px' : '28px'
                 }}
               >
                 {day}
@@ -308,9 +308,9 @@ const AchievementTimeline = () => {
             ))}
           </div>
           
-          <div className="flex">
+          <div className="flex flex-1">
             {yearData.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col mr-0.5">
+              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow">
                 {week.map((day, dayIndex) => {
                   if (!day) return <div key={dayIndex} className="h-3.5 w-3.5 mb-0.5 opacity-0"></div>;
                   
@@ -321,11 +321,16 @@ const AchievementTimeline = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div 
-                            className={`h-3.5 w-3.5 mb-0.5 rounded-sm ${
+                            className={`h-3.5 mb-0.5 rounded-sm ${
                               achievements.length > 0 
                                 ? getAchievementColor(achievements[0].type) 
                                 : 'bg-transparent border border-gray-200'
                             }`}
+                            style={{
+                              minWidth: "3.5px",
+                              maxWidth: "8px",
+                              width: "100%"
+                            }}
                           >
                             {achievements.length > 1 && (
                               <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
@@ -407,7 +412,7 @@ const AchievementTimeline = () => {
 
       <ScrollArea className="w-full">
         {view === 'yearly' ? (
-          <div className="py-2" style={{ minWidth: "830px", maxHeight: "220px", overflowX: "auto" }}>
+          <div className="py-2" style={{ minWidth: "830px", maxHeight: "220px" }}>
             {renderYearlyView()}
           </div>
         ) : (
