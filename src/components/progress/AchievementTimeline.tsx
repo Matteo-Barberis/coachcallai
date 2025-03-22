@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,11 @@ const mockAchievements: Achievement[] = [
   { 
     date: addDays(new Date(), -21), 
     description: 'Attended coaching call and shared breakthrough', 
+    type: 'call-completed' 
+  },
+  { 
+    date: new Date(2025, 2, 16), // March 16, 2025 (months are 0-indexed in JavaScript)
+    description: 'Completed quarterly review coaching call', 
     type: 'call-completed' 
   },
 ];
