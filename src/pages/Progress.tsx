@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -259,24 +258,11 @@ const Progress = () => {
               </CardContent>
             </Card>
             
-            <CallTimeline 
-              calls={callLogs || []}
-              title="Call Completion Timeline"
-              description="View your coaching call history and completion status"
+            <KeywordCloud 
+              title="Focus Areas" 
+              description="Topics frequently discussed in your coaching sessions"
+              keywords={mockKeywords}
             />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InsightCard 
-                title="Key Insights" 
-                description="Personalized observations from your coach"
-                insights={mockInsights}
-              />
-              <KeywordCloud 
-                title="Focus Areas" 
-                description="Topics frequently discussed in your coaching sessions"
-                keywords={mockKeywords}
-              />
-            </div>
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
