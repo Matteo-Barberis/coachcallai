@@ -9,47 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      call_logs: {
-        Row: {
-          call_summary: string | null
-          created_at: string | null
-          id: string
-          payload: Json | null
-          response: Json | null
-          scheduled_call_id: string
-          status: string | null
-          vapi_call_id: string | null
-        }
-        Insert: {
-          call_summary?: string | null
-          created_at?: string | null
-          id?: string
-          payload?: Json | null
-          response?: Json | null
-          scheduled_call_id: string
-          status?: string | null
-          vapi_call_id?: string | null
-        }
-        Update: {
-          call_summary?: string | null
-          created_at?: string | null
-          id?: string
-          payload?: Json | null
-          response?: Json | null
-          scheduled_call_id?: string
-          status?: string | null
-          vapi_call_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "call_logs_scheduled_call_id_fkey"
-            columns: ["scheduled_call_id"]
-            isOneToOne: false
-            referencedRelation: "scheduled_calls"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       greetings: {
         Row: {
           created_at: string | null
