@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-type AchievementType = 'achievement' | 'breakthrough' | 'missed';
+type AchievementType = 'achievement' | 'breakthrough' | 'milestone' | 'missed';
 
 type Achievement = {
   date: Date;
@@ -95,6 +95,16 @@ const mockAchievements: Achievement[] = [
     description: 'Successfully navigated difficult family conversation using new tools', 
     type: 'achievement' 
   },
+  { 
+    date: addDays(new Date(), -9), 
+    description: 'Completed first month of anxiety management program', 
+    type: 'milestone' 
+  },
+  { 
+    date: addDays(new Date(), -4), 
+    description: 'Reached 30 days of consistent meditation practice', 
+    type: 'milestone' 
+  },
 ];
 
 const AchievementTimeline = () => {
@@ -120,6 +130,8 @@ const AchievementTimeline = () => {
         return 'bg-[#5CE65C] hover:bg-[#4cbc4c]';
       case 'breakthrough':
         return 'bg-purple-500 hover:bg-purple-600';
+      case 'milestone':
+        return 'bg-[#F97316] hover:bg-[#ea6c10]';
       case 'missed':
         return 'bg-[#FF7081] hover:bg-[#e5636f]';
       default:
@@ -160,6 +172,10 @@ const AchievementTimeline = () => {
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-purple-500"></div>
           <span className="text-xs text-muted-foreground">Breakthrough</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-[#F97316]"></div>
+          <span className="text-xs text-muted-foreground">Milestone</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-[#FF7081]"></div>
@@ -214,6 +230,7 @@ const AchievementTimeline = () => {
                               <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
                                 achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
                                 achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
                                 'bg-red-100 text-red-800'
                               }`}>
                                 {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
