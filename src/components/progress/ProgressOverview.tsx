@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { TrendingUp, Award, Target, Clock } from "lucide-react";
 
 interface ProgressOverviewProps {
@@ -20,64 +19,67 @@ const ProgressOverview = ({
   objectivesProgress
 }: ProgressOverviewProps) => {
   const callsPercentage = totalCalls > 0 ? Math.round((completedCalls / totalCalls) * 100) : 0;
-  const milestonesPercentage = totalMilestones > 0 ? Math.round((milestonesAchieved / totalMilestones) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Coaching Calls</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <Card className="shadow-sm border-muted">
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            Coaching Calls
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 p-4">
           <div className="text-2xl font-bold">{completedCalls} / {totalCalls}</div>
-          <Progress value={callsPercentage} className="h-2 mt-2" />
-          <p className="text-xs text-muted-foreground mt-1">
-            {callsPercentage}% of scheduled calls completed
+          <p className="text-xs text-muted-foreground">
+            {callsPercentage}% complete
           </p>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Milestones Achieved</CardTitle>
-          <Award className="h-4 w-4 text-muted-foreground" />
+      <Card className="shadow-sm border-muted">
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Award className="h-4 w-4 text-muted-foreground" />
+            Milestones
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 p-4">
           <div className="text-2xl font-bold">{milestonesAchieved}</div>
-          <Progress value={milestonesPercentage} className="h-2 mt-2" />
-          <p className="text-xs text-muted-foreground mt-1">
-            {milestonesPercentage}%
+          <p className="text-xs text-muted-foreground">
+            achieved so far
           </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Small Achievements</CardTitle>
-          <Target className="h-4 w-4 text-muted-foreground" />
+      <Card className="shadow-sm border-muted">
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            Small Achievements
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 p-4">
           <div className="text-2xl font-bold">{objectivesProgress}</div>
-          <Progress value={objectivesProgress} className="h-2 mt-2" />
-          <p className="text-xs text-muted-foreground mt-1">
-            Overall progress towards your objectives
+          <p className="text-xs text-muted-foreground">
+            completed
           </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium">Consistency Score</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
+      <Card className="shadow-sm border-muted">
+        <CardHeader className="pb-2 p-4">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            Consistency
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 p-4">
           <div className="text-2xl font-bold">
-            {callsPercentage > 80 ? 'Excellent' : callsPercentage > 60 ? 'Good' : callsPercentage > 40 ? 'Average' : 'Needs Improvement'}
+            {callsPercentage > 80 ? 'Excellent' : callsPercentage > 60 ? 'Good' : callsPercentage > 40 ? 'Average' : 'Needs Work'}
           </div>
-          <Progress value={callsPercentage} className="h-2 mt-2" />
-          <p className="text-xs text-muted-foreground mt-1">
-            Based on your attendance and engagement
+          <p className="text-xs text-muted-foreground">
+            based on attendance
           </p>
         </CardContent>
       </Card>
