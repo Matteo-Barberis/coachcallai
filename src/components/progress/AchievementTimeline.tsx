@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,85 +14,85 @@ type Achievement = {
   type: AchievementType;
 };
 
-// Enhanced mock data with more achievements and different types
+// Updated mock data using current dates to ensure visibility
 const mockAchievements: Achievement[] = [
   { 
-    date: new Date('2024-04-05'), 
+    date: addDays(new Date(), -6), 
     description: 'Completed morning meditation routine', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-06'), 
+    date: addDays(new Date(), -5), 
     description: 'Practiced deep breathing during stressful meeting', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-08'), 
+    date: addDays(new Date(), -3), 
     description: 'First breakthrough: Connected childhood pattern to current anxiety', 
     type: 'breakthrough' 
   },
   { 
-    date: new Date('2024-04-10'), 
+    date: addDays(new Date(), -2), 
     description: 'Completed daily meditation practice', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-10'), 
+    date: addDays(new Date(), -2), 
     description: 'Successful presentation to the board while managing anxiety', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-12'), 
+    date: addDays(new Date(), -1), 
     description: 'Missed coaching call', 
     type: 'missed' 
   },
   { 
-    date: new Date('2024-04-13'), 
+    date: new Date(), 
     description: 'Used new coping strategies during family gathering', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-15'), 
+    date: new Date(), 
     description: 'Week-long meditation streak achieved', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-15'), 
+    date: addDays(new Date(), -5), 
     description: 'Completed stress management workshop', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-17'), 
+    date: addDays(new Date(), -4), 
     description: 'Major breakthrough: Identified core stress trigger related to work deadlines', 
     type: 'breakthrough' 
   },
   { 
-    date: new Date('2024-04-18'), 
+    date: addDays(new Date(), -3), 
     description: 'Successfully implemented boundary setting with colleague', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-20'), 
+    date: addDays(new Date(), -10), 
     description: 'Missed scheduled self-care routine', 
     type: 'missed' 
   },
   { 
-    date: new Date('2024-04-22'), 
+    date: addDays(new Date(), -8), 
     description: 'Applied mindfulness techniques during high-pressure meeting', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-25'), 
+    date: addDays(new Date(), -7), 
     description: 'Breakthrough: Connected sleep patterns with stress levels', 
     type: 'breakthrough' 
   },
   { 
-    date: new Date('2024-04-27'), 
+    date: addDays(new Date(), -1), 
     description: 'Consistently practiced evening wind-down routine', 
     type: 'achievement' 
   },
   { 
-    date: new Date('2024-04-28'), 
+    date: new Date(), 
     description: 'Successfully navigated difficult family conversation using new tools', 
     type: 'achievement' 
   },
@@ -200,16 +200,18 @@ const AchievementTimeline = () => {
                   key={dayIndex}
                   className="flex flex-col-reverse justify-start items-center h-[calc(100%-2rem)]"
                   style={{ width: `${dayWidth}%` }}
+                  data-testid={`day-column-${dayIndex}`}
                 >
                   <TooltipProvider>
                     {achievements.map((achievement, achievementIndex) => (
                       <Tooltip key={achievementIndex}>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                           <div
-                            className={`w-4/5 mx-1 mb-1 rounded ${getAchievementColor(achievement.type)}`}
+                            className={`w-4/5 mx-1 mb-1 rounded ${getAchievementColor(achievement.type)} cursor-pointer`}
                             style={{
                               height: '20px',
                             }}
+                            aria-label={achievement.description}
                           />
                         </TooltipTrigger>
                         <TooltipContent side="top" align="center" className="max-w-[200px]">
