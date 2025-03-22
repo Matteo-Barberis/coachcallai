@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth, parse, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -215,10 +214,9 @@ const AchievementTimeline = () => {
     const year = today.getFullYear();
     const monthsData = [];
     
-    // Create array for all months
     for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
       const monthStart = new Date(year, monthIndex, 1);
-      const monthName = format(monthStart, 'MMMM');
+      const monthName = format(monthStart, 'MMM');
       
       monthsData.push({
         month: monthIndex,
@@ -233,22 +231,18 @@ const AchievementTimeline = () => {
   const renderYearlyView = () => {
     const monthsData = getYearlyViewStructure();
     const yearStartDate = startOfYear(today);
-    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weekDays = ['Mon', 'Wed', 'Fri'];
     
-    // Generate all days of the year in a week-based structure
     const getYearData = () => {
       const result = [];
       let currentDate = yearStartDate;
       
-      // Generate weeks up to 53 (max in a year with overlap)
       for (let weekIndex = 0; weekIndex < 53; weekIndex++) {
         const weekData = [];
         
-        // For each day of the week
         for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
           const date = addDays(currentDate, (weekIndex * 7) + dayIndex);
           
-          // Only include dates from current year
           if (date.getFullYear() === today.getFullYear()) {
             weekData.push({
               date,
@@ -257,16 +251,14 @@ const AchievementTimeline = () => {
               achievements: getDayAchievements(date)
             });
           } else {
-            weekData.push(null); // Placeholder for days outside current year
+            weekData.push(null);
           }
         }
         
-        // Only add weeks that have at least one day in the current year
         if (weekData.some(day => day !== null)) {
           result.push(weekData);
         }
         
-        // If all dates in the last week are outside the current year, break
         if (weekData.every(day => day === null)) {
           break;
         }
@@ -279,12 +271,10 @@ const AchievementTimeline = () => {
     
     return (
       <div className="pb-4">
-        {/* Month labels */}
         <div className="flex mb-1 pl-10">
           {monthsData.map((month, index) => {
-            // Calculate approximate width based on weeks in month
             const weeksInMonth = Math.ceil(getDaysInMonth(month.firstDay) / 7);
-            const approximateWidth = weeksInMonth * 16; // 16px per week (14px square + 2px gap)
+            const approximateWidth = weeksInMonth * 16;
             
             return (
               <div 
@@ -301,18 +291,15 @@ const AchievementTimeline = () => {
           })}
         </div>
         
-        {/* GitHub-style calendar grid */}
         <div className="flex">
-          {/* Day of week labels */}
           <div className="flex flex-col mr-2 pt-1">
             {weekDays.map((day, index) => (
               <div key={index} className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1" style={{ marginBottom: '1px' }}>
-                {index % 2 === 0 ? day.charAt(0) : ''}
+                {day}
               </div>
             ))}
           </div>
           
-          {/* Calendar grid */}
           <div className="flex">
             {yearData.map((week, weekIndex) => (
               <div key={weekIndex} className="flex flex-col mr-0.5">
