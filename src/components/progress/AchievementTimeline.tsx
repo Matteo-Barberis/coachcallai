@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth, parse, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -292,11 +293,15 @@ const AchievementTimeline = () => {
         </div>
         
         <div className="flex">
-          <div className="flex flex-col mr-2 pt-1 w-10 justify-between" style={{ height: "140px" }}>
+          <div className="flex flex-col mr-2 pt-1 w-10" style={{ height: "120px" }}>
             {weekDays.map((day, index) => (
               <div 
                 key={index} 
                 className="text-xs text-muted-foreground h-3.5 flex items-center justify-end pr-1"
+                style={{ 
+                  // Create equal spacing between the three labels
+                  marginTop: index === 0 ? '8px' : index === 1 ? '42px' : '42px'
+                }}
               >
                 {day}
               </div>
