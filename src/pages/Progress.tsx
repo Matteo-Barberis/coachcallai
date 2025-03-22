@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -12,7 +11,7 @@ import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight, Star, Trophy } from 'lucide-react';
+import { Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -182,18 +181,10 @@ const Progress = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid grid-cols-4 md:w-[600px]">
+          <TabsList className="grid grid-cols-2 md:w-[400px]">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center gap-2">
-              <FileBarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Insights</span>
-            </TabsTrigger>
-            <TabsTrigger value="timeline" className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4" />
-              <span className="hidden sm:inline">Timeline</span>
             </TabsTrigger>
             <TabsTrigger value="calls" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
@@ -266,57 +257,6 @@ const Progress = () => {
                 keywords={mockKeywords}
               />
             </div>
-          </TabsContent>
-
-          <TabsContent value="insights" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <InsightCard 
-                title="Key Achievements" 
-                description="Significant milestones you've reached during your coaching journey"
-                insights={mockAchievements}
-                type="achievement"
-              />
-              
-              <KeywordCloud 
-                title="Growth Areas" 
-                description="Topics where you've shown the most improvement"
-                keywords={mockKeywords.slice(0, 8)}
-              />
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Personalized Insights</CardTitle>
-                <CardDescription>
-                  Actionable insights based on your coaching sessions
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="font-medium text-primary">Strengths to Leverage</h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6 list-disc">
-                    <li>Consistent practice of mindfulness techniques</li>
-                    <li>Excellent follow-through on action items</li>
-                    <li>Openness to trying new approaches</li>
-                    <li>Self-awareness of triggers and patterns</li>
-                  </ul>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="font-medium text-primary">Opportunities for Growth</h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6 list-disc">
-                    <li>Implementing boundaries in work situations</li>
-                    <li>Practicing self-compassion during setbacks</li>
-                    <li>Consistent evening wind-down routine</li>
-                    <li>Prioritizing recovery after high-stress periods</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="timeline" className="space-y-6">
-            <ProgressTimeline events={mockTimelineEvents} />
           </TabsContent>
 
           <TabsContent value="calls" className="space-y-4">
@@ -413,3 +353,4 @@ const Progress = () => {
 };
 
 export default Progress;
+
