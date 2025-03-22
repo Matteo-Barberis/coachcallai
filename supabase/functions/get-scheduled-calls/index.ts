@@ -149,9 +149,61 @@ serve(async (req) => {
             
             vapiResult = await vapiResponse.json();
             console.log(`Vapi API response for call ${call.id}:`, JSON.stringify(vapiResult));
+            
+            // Log the call to the database
+            try {
+              // Extract Vapi call ID and status
+              const vapiCallId = vapiResult?.id;
+              const callStatus = vapiResult?.status || 'unknown';
+              
+              console.log(`Logging call to database: Scheduled call ID: ${call.id}, Vapi call ID: ${vapiCallId}, Status: ${callStatus}`);
+              
+              // Insert the call log record
+              const { error: logError } = await supabaseClient
+                .from('call_logs')
+                .insert({
+                  scheduled_call_id: call.id,
+                  vapi_call_id: vapiCallId,
+                  status: callStatus,
+                  payload: vapiPayload,
+                  response: vapiResult
+                });
+                
+              if (logError) {
+                console.error(`Error logging call to database:`, logError);
+              } else {
+                console.log(`Successfully logged call to database`);
+              }
+            } catch (logError) {
+              console.error(`Error logging call to database:`, logError);
+            }
           } else {
             console.log(`SKIPPED actual Vapi API call for call ${call.id} (test mode)`);
             vapiResult = { status: "TEST_MODE", message: "API call was skipped due to test mode" };
+            
+            // Log the test call to the database
+            try {
+              console.log(`Logging test call to database: Scheduled call ID: ${call.id}`);
+              
+              // Insert the call log record for test mode
+              const { error: logError } = await supabaseClient
+                .from('call_logs')
+                .insert({
+                  scheduled_call_id: call.id,
+                  vapi_call_id: 'test-mode-' + Date.now(),
+                  status: 'TEST_MODE',
+                  payload: vapiPayload,
+                  response: vapiResult
+                });
+                
+              if (logError) {
+                console.error(`Error logging test call to database:`, logError);
+              } else {
+                console.log(`Successfully logged test call to database`);
+              }
+            } catch (logError) {
+              console.error(`Error logging test call to database:`, logError);
+            }
           }
           
           return {
@@ -161,6 +213,30 @@ serve(async (req) => {
           };
         } catch (callError) {
           console.error(`Error processing call ${call.id} for user ${call.full_name || call.user_id}:`, callError);
+          
+          // Log failed call attempt to database
+          try {
+            console.log(`Logging failed call attempt to database: Scheduled call ID: ${call.id}`);
+            
+            // Insert the failed call log record
+            const { error: logError } = await supabaseClient
+              .from('call_logs')
+              .insert({
+                scheduled_call_id: call.id,
+                status: 'error',
+                call_summary: callError.message,
+                payload: { error: callError.message }
+              });
+              
+            if (logError) {
+              console.error(`Error logging failed call to database:`, logError);
+            } else {
+              console.log(`Successfully logged failed call to database`);
+            }
+          } catch (logError) {
+            console.error(`Error logging failed call to database:`, logError);
+          }
+          
           return {
             callId: call.id,
             error: callError.message
