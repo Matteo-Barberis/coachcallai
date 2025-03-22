@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -176,7 +175,6 @@ const AchievementTimeline = () => {
   };
 
   const renderDateLabel = (day: Date, index: number) => {
-    // For yearly view, only show month names at the start of each month or for the first day
     if (view === 'yearly') {
       const isFirstDayOfMonth = day.getDate() === 1;
       const isFirstDay = index === 0;
@@ -198,7 +196,6 @@ const AchievementTimeline = () => {
       return null;
     }
     
-    // For weekly and monthly views, show abbreviated date
     return (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -213,7 +210,6 @@ const AchievementTimeline = () => {
     );
   };
 
-  // Function to organize yearly view into months with stacked days
   const getYearlyViewStructure = () => {
     const year = today.getFullYear();
     const months = [];
@@ -221,93 +217,112 @@ const AchievementTimeline = () => {
     for (let month = 0; month < 12; month++) {
       const firstDayOfMonth = new Date(year, month, 1);
       const daysInMonth = getDaysInMonth(firstDayOfMonth);
-      const monthDays = [];
       
-      for (let day = 1; day <= daysInMonth; day++) {
-        monthDays.push(new Date(year, month, day));
+      const weeks = [];
+      let currentDate = firstDayOfMonth;
+      
+      const firstDay = dateStartOfWeek(firstDayOfMonth, { weekStartsOn: 0 });
+      
+      while (currentDate.getMonth() === month || 
+             (weeks.length > 0 && weeks[weeks.length - 1].some(d => d.getMonth() === month))) {
+        
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
+          const day = addDays(firstDay, weeks.length * 7 + i);
+          weekDays.push(day);
+        }
+        
+        weeks.push(weekDays);
+        currentDate = addWeeks(currentDate, 1);
       }
       
       months.push({
         monthDate: firstDayOfMonth,
-        days: monthDays
+        weeks
       });
     }
     
     return months;
   };
   
-  // Rendering the yearly view with stacked days
   const renderYearlyView = () => {
     const months = getYearlyViewStructure();
     
     return (
-      <div className="flex w-full">
+      <div className="flex flex-wrap gap-4 justify-center">
         {months.map((month, monthIndex) => (
           <div 
             key={monthIndex} 
-            className="flex-1 flex flex-col"
-            style={{ minWidth: '90px' }}
+            className="flex flex-col"
           >
             <div className="mb-2 text-center">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="text-xs text-muted-foreground">
-                    {format(month.monthDate, 'MMM')}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">
-                  {format(month.monthDate, 'MMMM yyyy')}
-                </TooltipContent>
-              </Tooltip>
+              <div className="text-xs font-medium text-muted-foreground">
+                {format(month.monthDate, 'MMMM')}
+              </div>
             </div>
             
-            <div className="grid grid-cols-7 gap-0.5 h-full">
-              {month.days.map((day, dayIndex) => {
-                const achievements = getDayAchievements(day);
-                return (
-                  <TooltipProvider key={dayIndex}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div 
-                          className={`h-3 w-3 rounded-sm m-0.5 ${
-                            achievements.length > 0 
-                              ? getAchievementColor(achievements[0].type) 
-                              : 'bg-transparent border border-gray-200'
-                          }`}
-                        >
-                          {achievements.length > 1 && (
-                            <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
-                              {achievements.length}
+            <div className="grid grid-rows-7 grid-flow-col gap-1">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                <div key={i} className="text-[8px] text-muted-foreground h-3 flex items-center">
+                  {day}
+                </div>
+              ))}
+              
+              {Array.from({ length: 7 }).map((_, dayOfWeek) => (
+                <div key={dayOfWeek} className="flex">
+                  {month.weeks.map((week, weekIndex) => {
+                    const day = week[dayOfWeek];
+                    const achievements = getDayAchievements(day);
+                    const isCurrentMonth = isSameMonth(day, month.monthDate);
+                    
+                    return (
+                      <TooltipProvider key={weekIndex}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div 
+                              className={`h-3 w-3 rounded-sm ${
+                                isCurrentMonth ? 
+                                  achievements.length > 0 
+                                    ? getAchievementColor(achievements[0].type) 
+                                    : 'bg-transparent border border-gray-200' 
+                                  : 'bg-transparent'
+                              }`}
+                            >
+                              {isCurrentMonth && achievements.length > 1 && (
+                                <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
+                                  {achievements.length}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </TooltipTrigger>
-                      {achievements.length > 0 && (
-                        <TooltipContent side="top" align="center" className="max-w-[200px]">
-                          <div className="text-xs">
-                            <div className="font-medium mb-1">{format(day, 'MMM d, yyyy')}</div>
-                            {achievements.map((achievement, idx) => (
-                              <div key={idx} className="mb-1">
-                                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
-                                  achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
-                                  achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
-                                  achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
-                                  achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {achievement.type === 'call-completed' ? 'Call Completed' : 
-                                  achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                                </span>
-                                <p>{achievement.description}</p>
+                          </TooltipTrigger>
+                          {isCurrentMonth && achievements.length > 0 && (
+                            <TooltipContent side="top" align="center" className="max-w-[200px]">
+                              <div className="text-xs">
+                                <div className="font-medium mb-1">{format(day, 'MMM d, yyyy')}</div>
+                                {achievements.map((achievement, idx) => (
+                                  <div key={idx} className="mb-1">
+                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                      achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                      achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                      achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                      achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                      'bg-red-100 text-red-800'
+                                    }`}>
+                                      {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                      achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                    </span>
+                                    <p>{achievement.description}</p>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                );
-              })}
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           </div>
         ))}
@@ -354,7 +369,7 @@ const AchievementTimeline = () => {
 
       <ScrollArea className="w-full">
         {view === 'yearly' ? (
-          <div className="h-[220px] min-w-[1000px]">
+          <div className="py-2" style={{ minWidth: "1000px", maxHeight: "220px" }}>
             {renderYearlyView()}
           </div>
         ) : (
