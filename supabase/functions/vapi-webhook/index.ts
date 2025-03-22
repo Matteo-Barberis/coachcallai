@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-vapi-signature',
 };
 
 serve(async (req) => {
@@ -28,11 +28,10 @@ serve(async (req) => {
     // Verify webhook secret if configured
     const webhookSecret = Deno.env.get('VAPI_WEBHOOK_SECRET');
     if (webhookSecret) {
-      const authHeader = req.headers.get('authorization') || '';
-      const token = authHeader.replace('Bearer ', '');
+      const signature = req.headers.get('x-vapi-signature') || '';
       
-      if (token !== webhookSecret) {
-        console.error('Invalid webhook secret');
+      if (signature !== webhookSecret) {
+        console.error('Invalid webhook signature');
         return new Response(
           JSON.stringify({ error: 'Unauthorized' }),
           {
