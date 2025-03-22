@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays, getMonth, getDate, getDaysInMonth, getDay, startOfWeek as dateStartOfWeek, addWeeks, isSameMonth, parse, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -306,11 +307,11 @@ const AchievementTimeline = () => {
             ))}
           </div>
           
-          <div className="flex flex-1">
+          <div className="flex flex-1 overflow-x-auto">
             {yearData.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col mr-0.5">
+              <div key={weekIndex} className="flex flex-col mr-0.5 flex-grow">
                 {week.map((day, dayIndex) => {
-                  if (!day) return <div key={dayIndex} className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 mb-0.5 opacity-0"></div>;
+                  if (!day) return <div key={dayIndex} className="aspect-square mb-0.5 opacity-0 min-w-[0.5rem]"></div>;
                   
                   const { date, achievements } = day;
                   
@@ -319,11 +320,17 @@ const AchievementTimeline = () => {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div 
-                            className={`h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 mb-0.5 rounded-sm aspect-square ${
+                            className={`aspect-square mb-0.5 rounded-sm ${
                               achievements.length > 0 
                                 ? getAchievementColor(achievements[0].type) 
                                 : 'bg-transparent border border-gray-200'
                             }`}
+                            style={{
+                              minWidth: '0.5rem',
+                              minHeight: '0.5rem',
+                              width: 'calc(100% - 2px)',
+                              height: 'auto',
+                            }}
                           >
                             {achievements.length > 1 && (
                               <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
@@ -405,7 +412,7 @@ const AchievementTimeline = () => {
 
       <ScrollArea className="w-full">
         {view === 'yearly' ? (
-          <div className="py-2" style={{ minWidth: "830px", maxHeight: "220px" }}>
+          <div className="py-2" style={{ minWidth: "830px", width: "100%", maxWidth: "100%", maxHeight: "220px" }}>
             {renderYearlyView()}
           </div>
         ) : (
