@@ -1,10 +1,11 @@
 
 import React, { useState } from 'react';
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PhoneCall } from 'lucide-react';
 
 type AchievementType = 'achievement' | 'breakthrough' | 'milestone' | 'missed' | 'call-completed';
@@ -129,13 +130,25 @@ const mockAchievements: Achievement[] = [
 ];
 
 const AchievementTimeline = () => {
-  const [view, setView] = useState<'weekly' | 'monthly'>('weekly');
+  const [view, setView] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
 
   const today = new Date();
-  const dateRange = view === 'weekly' 
-    ? { start: startOfWeek(today), end: endOfWeek(today) }
-    : { start: startOfMonth(today), end: endOfMonth(today) };
+  let dateRange;
+  
+  switch(view) {
+    case 'weekly':
+      dateRange = { start: startOfWeek(today), end: endOfWeek(today) };
+      break;
+    case 'monthly':
+      dateRange = { start: startOfMonth(today), end: endOfMonth(today) };
+      break;
+    case 'yearly':
+      dateRange = { start: startOfYear(today), end: endOfYear(today) };
+      break;
+    default:
+      dateRange = { start: startOfWeek(today), end: endOfWeek(today) };
+  }
 
   const days = eachDayOfInterval(dateRange);
 
@@ -162,6 +175,44 @@ const AchievementTimeline = () => {
     }
   };
 
+  const renderDateLabel = (day: Date, index: number) => {
+    // For yearly view, only show month names at the start of each month or for the first day
+    if (view === 'yearly') {
+      const isFirstDayOfMonth = day.getDate() === 1;
+      const isFirstDay = index === 0;
+      
+      if (isFirstDayOfMonth || isFirstDay) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-xs text-muted-foreground whitespace-nowrap">
+                {format(day, 'MMM')}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {format(day, 'MMMM yyyy')}
+            </TooltipContent>
+          </Tooltip>
+        );
+      }
+      return null;
+    }
+    
+    // For weekly and monthly views, show abbreviated date
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="text-xs text-muted-foreground whitespace-nowrap">
+            {format(day, 'd')}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="text-xs">
+          {format(day, 'MMM d, yyyy')}
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
+  
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -169,22 +220,11 @@ const AchievementTimeline = () => {
           <h3 className="text-lg font-semibold">Achievement Timeline</h3>
           <p className="text-sm text-muted-foreground">Track your progress and accomplishments over time</p>
         </div>
-        <div className="space-x-2">
-          <Button 
-            variant={view === 'weekly' ? 'default' : 'outline'}
-            onClick={() => setView('weekly')}
-            size="sm"
-          >
-            Weekly
-          </Button>
-          <Button 
-            variant={view === 'monthly' ? 'default' : 'outline'}
-            onClick={() => setView('monthly')}
-            size="sm"
-          >
-            Monthly
-          </Button>
-        </div>
+        <ToggleGroup type="single" value={view} onValueChange={(value) => value && setView(value as 'weekly' | 'monthly' | 'yearly')}>
+          <ToggleGroupItem value="weekly" size="sm">Weekly</ToggleGroupItem>
+          <ToggleGroupItem value="monthly" size="sm">Monthly</ToggleGroupItem>
+          <ToggleGroupItem value="yearly" size="sm">Yearly</ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       <div className="flex mb-4 gap-4 justify-end">
@@ -215,13 +255,13 @@ const AchievementTimeline = () => {
           className="relative"
           style={{ 
             height: '200px',
-            minWidth: view === 'weekly' ? '600px' : '900px'
+            minWidth: view === 'weekly' ? '600px' : view === 'monthly' ? '900px' : '1200px'
           }}
         >
           <div className="flex justify-between absolute bottom-0 w-full pb-2">
             {days.map((day, index) => (
-              <div key={index} className="text-xs text-muted-foreground transform -rotate-45 origin-top-left">
-                {format(day, 'MMM d')}
+              <div key={index} className="flex justify-center" style={{ width: `${100 / days.length}%` }}>
+                {renderDateLabel(day, index)}
               </div>
             ))}
           </div>
@@ -230,6 +270,10 @@ const AchievementTimeline = () => {
             {days.map((day, dayIndex) => {
               const achievements = getDayAchievements(day);
               const dayWidth = 100 / days.length;
+              
+              // For yearly view, make the achievements more compact
+              const achievementHeight = view === 'yearly' ? '12px' : '20px';
+              const achievementWidth = view === 'yearly' ? 'w-full' : 'w-4/5';
 
               return (
                 <div
@@ -243,13 +287,14 @@ const AchievementTimeline = () => {
                       <Tooltip key={achievementIndex}>
                         <TooltipTrigger asChild>
                           <div
-                            className={`w-4/5 mx-1 mb-1 rounded ${getAchievementColor(achievement.type)} cursor-pointer`}
+                            className={`${achievementWidth} mx-1 mb-1 rounded ${getAchievementColor(achievement.type)} cursor-pointer`}
                             style={{
-                              height: '20px',
+                              height: achievementHeight,
+                              minHeight: achievementHeight,
                             }}
                             aria-label={achievement.description}
                           >
-                            {achievement.type === 'call-completed' && (
+                            {achievement.type === 'call-completed' && view !== 'yearly' && (
                               <div className="flex justify-center items-center h-full">
                                 <PhoneCall className="h-3 w-3 text-white" />
                               </div>
