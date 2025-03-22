@@ -122,11 +122,11 @@ const AchievementTimeline = () => {
   const getAchievementColor = (type: AchievementType) => {
     switch (type) {
       case 'achievement':
-        return 'bg-green-500 hover:bg-green-600';
+        return 'bg-[#5CE65C] hover:bg-[#4cbc4c]';
       case 'breakthrough':
-        return 'bg-amber-500 hover:bg-amber-600';
+        return 'bg-[#FFD32C] hover:bg-[#e0ba27]';
       case 'missed':
-        return 'bg-red-500 hover:bg-red-600';
+        return 'bg-[#FF7081] hover:bg-[#e5636f]';
       default:
         return 'bg-gray-500 hover:bg-gray-600';
     }
@@ -159,15 +159,15 @@ const AchievementTimeline = () => {
 
       <div className="flex mb-4 gap-4 justify-end">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-green-500"></div>
+          <div className="w-3 h-3 rounded-sm bg-[#5CE65C]"></div>
           <span className="text-xs text-muted-foreground">Achievement</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-amber-500"></div>
+          <div className="w-3 h-3 rounded-sm bg-[#FFD32C]"></div>
           <span className="text-xs text-muted-foreground">Breakthrough</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-red-500"></div>
+          <div className="w-3 h-3 rounded-sm bg-[#FF7081]"></div>
           <span className="text-xs text-muted-foreground">Missed</span>
         </div>
       </div>
