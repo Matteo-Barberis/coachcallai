@@ -25,6 +25,24 @@ serve(async (req) => {
       );
     }
 
+    // Verify webhook secret if configured
+    const webhookSecret = Deno.env.get('VAPI_WEBHOOK_SECRET');
+    if (webhookSecret) {
+      const authHeader = req.headers.get('authorization') || '';
+      const token = authHeader.replace('Bearer ', '');
+      
+      if (token !== webhookSecret) {
+        console.error('Invalid webhook secret');
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 401,
+          }
+        );
+      }
+    }
+
     // Parse the webhook payload
     const payload = await req.json();
     console.log('Received webhook payload:', JSON.stringify(payload));
