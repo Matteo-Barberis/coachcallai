@@ -6,14 +6,31 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+type AchievementType = 'achievement' | 'breakthrough' | 'missed';
+
 type Achievement = {
   date: Date;
   description: string;
-  type: 'achievement' | 'missed';
+  type: AchievementType;
 };
 
-// Mock data - replace with real data later
+// Enhanced mock data with more achievements and different types
 const mockAchievements: Achievement[] = [
+  { 
+    date: new Date('2024-04-05'), 
+    description: 'Completed morning meditation routine', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-06'), 
+    description: 'Practiced deep breathing during stressful meeting', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-08'), 
+    description: 'First breakthrough: Connected childhood pattern to current anxiety', 
+    type: 'breakthrough' 
+  },
   { 
     date: new Date('2024-04-10'), 
     description: 'Completed daily meditation practice', 
@@ -21,13 +38,18 @@ const mockAchievements: Achievement[] = [
   },
   { 
     date: new Date('2024-04-10'), 
-    description: 'Successful presentation to the board', 
+    description: 'Successful presentation to the board while managing anxiety', 
     type: 'achievement' 
   },
   { 
     date: new Date('2024-04-12'), 
     description: 'Missed coaching call', 
     type: 'missed' 
+  },
+  { 
+    date: new Date('2024-04-13'), 
+    description: 'Used new coping strategies during family gathering', 
+    type: 'achievement' 
   },
   { 
     date: new Date('2024-04-15'), 
@@ -37,6 +59,41 @@ const mockAchievements: Achievement[] = [
   { 
     date: new Date('2024-04-15'), 
     description: 'Completed stress management workshop', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-17'), 
+    description: 'Major breakthrough: Identified core stress trigger related to work deadlines', 
+    type: 'breakthrough' 
+  },
+  { 
+    date: new Date('2024-04-18'), 
+    description: 'Successfully implemented boundary setting with colleague', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-20'), 
+    description: 'Missed scheduled self-care routine', 
+    type: 'missed' 
+  },
+  { 
+    date: new Date('2024-04-22'), 
+    description: 'Applied mindfulness techniques during high-pressure meeting', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-25'), 
+    description: 'Breakthrough: Connected sleep patterns with stress levels', 
+    type: 'breakthrough' 
+  },
+  { 
+    date: new Date('2024-04-27'), 
+    description: 'Consistently practiced evening wind-down routine', 
+    type: 'achievement' 
+  },
+  { 
+    date: new Date('2024-04-28'), 
+    description: 'Successfully navigated difficult family conversation using new tools', 
     type: 'achievement' 
   },
 ];
@@ -61,10 +118,27 @@ const AchievementTimeline = () => {
     );
   };
 
+  // Get appropriate color for achievement type
+  const getAchievementColor = (type: AchievementType) => {
+    switch (type) {
+      case 'achievement':
+        return 'bg-green-500 hover:bg-green-600';
+      case 'breakthrough':
+        return 'bg-amber-500 hover:bg-amber-600';
+      case 'missed':
+        return 'bg-red-500 hover:bg-red-600';
+      default:
+        return 'bg-gray-500 hover:bg-gray-600';
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold">Achievement Timeline</h3>
+        <div>
+          <h3 className="text-lg font-semibold">Achievement Timeline</h3>
+          <p className="text-sm text-muted-foreground">Track your progress and accomplishments over time</p>
+        </div>
         <div className="space-x-2">
           <Button 
             variant={view === 'weekly' ? 'default' : 'outline'}
@@ -80,6 +154,21 @@ const AchievementTimeline = () => {
           >
             Monthly
           </Button>
+        </div>
+      </div>
+
+      <div className="flex mb-4 gap-4 justify-end">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-green-500"></div>
+          <span className="text-xs text-muted-foreground">Achievement</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-amber-500"></div>
+          <span className="text-xs text-muted-foreground">Breakthrough</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-red-500"></div>
+          <span className="text-xs text-muted-foreground">Missed</span>
         </div>
       </div>
 
@@ -117,18 +206,26 @@ const AchievementTimeline = () => {
                       <Tooltip key={achievementIndex}>
                         <TooltipTrigger>
                           <div
-                            className={`w-full mx-1 mb-1 rounded ${
-                              achievement.type === 'achievement' 
-                                ? 'bg-green-500 hover:bg-green-600' 
-                                : 'bg-red-500 hover:bg-red-600'
-                            }`}
+                            className={`w-4/5 mx-1 mb-1 rounded ${getAchievementColor(achievement.type)}`}
                             style={{
                               height: '20px',
                             }}
                           />
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{achievement.description}</p>
+                        <TooltipContent side="top" align="center" className="max-w-[200px]">
+                          <div className="text-xs">
+                            <div className="font-medium mb-1">{format(achievement.date, 'MMM d, yyyy')}</div>
+                            <div className="mb-1">
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                              </span>
+                            </div>
+                            <p>{achievement.description}</p>
+                          </div>
                         </TooltipContent>
                       </Tooltip>
                     ))}
