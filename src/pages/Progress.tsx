@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -10,6 +11,7 @@ import InsightCard from '@/components/progress/InsightCard';
 import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
+import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -19,6 +21,7 @@ import type { CallLog } from '@/types/supabase';
 
 const Progress = () => {
   const { session, loading } = useSessionContext();
+  const [openCallId, setOpenCallId] = useState<string | null>(null);
 
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
