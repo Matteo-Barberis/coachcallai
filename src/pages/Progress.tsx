@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -211,58 +212,60 @@ const Progress = () => {
             
             <AchievementTimeline />
             
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-purple-500" />
-                  Key Moments
-                </CardTitle>
-                <CardDescription>
-                  Significant breakthroughs and milestones in your coaching journey
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockTimelineEvents
-                    .filter(event => event.type === 'breakthrough' || event.type === 'milestone')
-                    .map((event, index) => (
-                      <div 
-                        key={index} 
-                        className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
-                          event.type === 'breakthrough' ? 'border-purple-500' : 'border-orange-500'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <p className={`text-sm font-medium ${
-                            event.type === 'breakthrough' ? 'text-purple-500' : 'text-orange-500'
-                          }`}>
-                            {event.date}
-                          </p>
-                          {event.source && (
-                            <Badge variant="outline" className="text-xs py-0 h-5">
-                              {event.source === 'call' ? 'Call' : 'WhatsApp'}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="mb-0">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-purple-500" />
+                    Key Moments
+                  </CardTitle>
+                  <CardDescription>
+                    Significant breakthroughs and milestones in your coaching journey
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {mockTimelineEvents
+                      .filter(event => event.type === 'breakthrough' || event.type === 'milestone')
+                      .map((event, index) => (
+                        <div 
+                          key={index} 
+                          className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
+                            event.type === 'breakthrough' ? 'border-purple-500' : 'border-orange-500'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <p className={`text-sm font-medium ${
+                              event.type === 'breakthrough' ? 'text-purple-500' : 'text-orange-500'
+                            }`}>
+                              {event.date}
+                            </p>
+                            {event.source && (
+                              <Badge variant="outline" className="text-xs py-0 h-5">
+                                {event.source === 'call' ? 'Call' : 'WhatsApp'}
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className={`text-xs py-0 h-5 ${
+                              event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
+                              'bg-orange-100 border-orange-200 text-orange-700'
+                            }`}>
+                              {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
                             </Badge>
-                          )}
-                          <Badge variant="outline" className={`text-xs py-0 h-5 ${
-                            event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
-                            'bg-orange-100 border-orange-200 text-orange-700'
-                          }`}>
-                            {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
-                          </Badge>
+                          </div>
+                          <h3 className="text-base font-medium">{event.title}</h3>
+                          <p className="text-sm text-muted-foreground">{event.description}</p>
                         </div>
-                        <h3 className="text-base font-medium">{event.title}</h3>
-                        <p className="text-sm text-muted-foreground">{event.description}</p>
-                      </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <KeywordCloud 
-              title="Focus Areas" 
-              description="Topics frequently discussed in your coaching sessions"
-              keywords={mockKeywords}
-            />
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <KeywordCloud 
+                title="Focus Areas" 
+                description="Topics frequently discussed in your coaching sessions"
+                keywords={mockKeywords}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
