@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameDay, addDays } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PhoneCall } from 'lucide-react';
 
-type AchievementType = 'achievement' | 'breakthrough' | 'milestone' | 'missed';
+type AchievementType = 'achievement' | 'breakthrough' | 'milestone' | 'missed' | 'call-completed';
 
 type Achievement = {
   date: Date;
@@ -105,6 +105,21 @@ const mockAchievements: Achievement[] = [
     description: 'Reached 30 days of consistent meditation practice', 
     type: 'milestone' 
   },
+  { 
+    date: addDays(new Date(), -7), 
+    description: 'Attended coaching call successfully', 
+    type: 'call-completed' 
+  },
+  { 
+    date: addDays(new Date(), -14), 
+    description: 'Completed coaching call with progress on anxiety management', 
+    type: 'call-completed' 
+  },
+  { 
+    date: addDays(new Date(), -21), 
+    description: 'Attended coaching call and shared breakthrough', 
+    type: 'call-completed' 
+  },
 ];
 
 const AchievementTimeline = () => {
@@ -134,6 +149,8 @@ const AchievementTimeline = () => {
         return 'bg-[#F97316] hover:bg-[#ea6c10]';
       case 'missed':
         return 'bg-[#FF7081] hover:bg-[#e5636f]';
+      case 'call-completed':
+        return 'bg-blue-500 hover:bg-blue-600';
       default:
         return 'bg-gray-500 hover:bg-gray-600';
     }
@@ -181,6 +198,10 @@ const AchievementTimeline = () => {
           <div className="w-3 h-3 rounded-sm bg-[#FF7081]"></div>
           <span className="text-xs text-muted-foreground">Missed</span>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-sm bg-blue-500"></div>
+          <span className="text-xs text-muted-foreground">Call Completed</span>
+        </div>
       </div>
 
       <ScrollArea className="w-full">
@@ -221,7 +242,13 @@ const AchievementTimeline = () => {
                               height: '20px',
                             }}
                             aria-label={achievement.description}
-                          />
+                          >
+                            {achievement.type === 'call-completed' && (
+                              <div className="flex justify-center items-center h-full">
+                                <PhoneCall className="h-3 w-3 text-white" />
+                              </div>
+                            )}
+                          </div>
                         </TooltipTrigger>
                         <TooltipContent side="top" align="center" className="max-w-[200px]">
                           <div className="text-xs">
@@ -231,9 +258,11 @@ const AchievementTimeline = () => {
                                 achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
                                 achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
                                 achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
                                 'bg-red-100 text-red-800'
                               }`}>
-                                {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
                               </span>
                             </div>
                             <p>{achievement.description}</p>
