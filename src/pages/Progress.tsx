@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -60,9 +59,7 @@ const Progress = () => {
     enabled: !!session,
   });
 
-  // Count only completed calls
   const completedCalls = callLogs?.filter(call => call.status === 'completed').length || 0;
-  // Use total number of call logs instead of hardcoded 12
   const totalCalls = callLogs?.length || 0;
   
   const mockMilestonesAchieved = 4;
@@ -270,6 +267,8 @@ const Progress = () => {
                                 </Badge>
                               </div>
                               <h3 className="text-base font-medium">
+                                {achievement.type === 'breakthrough' ? 'Breakthrough: ' : 
+                                 achievement.type === 'milestone' ? 'Milestone: ' : ''}
                                 {achievement.description}
                               </h3>
                             </div>
