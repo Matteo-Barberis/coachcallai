@@ -12,7 +12,7 @@ import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, FileBarChart, MessageSquare, ArrowRight, Star, Trophy, Award } from 'lucide-react';
+import { Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -92,7 +92,6 @@ const Progress = () => {
     }
   ];
 
-  // Updated mock timeline events to include more achievements with achievement type
   const mockTimelineEvents = [
     {
       date: "July 15, 2024",
@@ -110,24 +109,10 @@ const Progress = () => {
       details: "You reported successfully integrating a 5-minute mindfulness practice into your morning routine for 7 consecutive days. This is helping you start the day with more focus and less anxiety."
     },
     {
-      date: "July 25, 2024",
-      title: "Reduced caffeine intake",
-      description: "Cut daily coffee consumption by 50%",
-      type: "achievement" as const,
-      details: "You've successfully reduced your caffeine intake, which has contributed to improved sleep quality and less anxiety during the day."
-    },
-    {
       date: "July 29, 2024",
       title: "Missed scheduled call",
       description: "Due to unexpected work emergency",
       type: "alert" as const
-    },
-    {
-      date: "August 2, 2024",
-      title: "Completed first week of journaling",
-      description: "Successfully maintained daily emotional tracking",
-      type: "achievement" as const,
-      details: "You've completed your first full week of daily journaling, tracking your emotions and identifying patterns in your anxiety triggers."
     },
     {
       date: "August 5, 2024",
@@ -137,13 +122,6 @@ const Progress = () => {
       source: "call" as const,
       details: "During our session, you had a significant breakthrough when you realized that your stress is primarily triggered by uncertainty around project deadlines rather than the workload itself. This insight allows us to develop much more targeted coping strategies.",
       impact: "high" as const
-    },
-    {
-      date: "August 8, 2024",
-      title: "First successful application of 4-7-8 breathing technique",
-      description: "Used technique during stressful meeting with positive results",
-      type: "achievement" as const,
-      details: "You successfully applied the 4-7-8 breathing technique during a stressful project meeting and reported significantly reduced anxiety levels."
     },
     {
       date: "August 12, 2024",
@@ -161,13 +139,6 @@ const Progress = () => {
       source: "whatsapp" as const,
       details: "In your WhatsApp message, you shared a powerful insight about how your perfectionism stems from childhood experiences. This awareness is helping you be more compassionate with yourself when you feel anxious about performance.",
       impact: "high" as const
-    },
-    {
-      date: "August 22, 2024",
-      title: "Established consistent sleep schedule",
-      description: "Maintained regular sleep and wake times for one week",
-      type: "achievement" as const,
-      details: "You've successfully established a consistent sleep schedule, going to bed and waking up at the same time for a full week, which has improved your overall energy levels and mood."
     },
     {
       date: "August 25, 2024",
@@ -244,38 +215,31 @@ const Progress = () => {
                     Key Moments
                   </CardTitle>
                   <CardDescription>
-                    Significant breakthroughs, achievements, and milestones in your coaching journey
+                    Significant breakthroughs and milestones in your coaching journey
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {mockTimelineEvents
-                      .filter(event => event.type === 'breakthrough' || event.type === 'milestone' || event.type === 'achievement')
+                      .filter(event => event.type === 'breakthrough' || event.type === 'milestone')
                       .map((event, index) => (
                         <div 
                           key={index} 
                           className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
-                            event.type === 'breakthrough' ? 'border-purple-500' : 
-                            event.type === 'achievement' ? 'border-green-500' : 
-                            'border-orange-500'
+                            event.type === 'breakthrough' ? 'border-purple-500' : 'border-orange-500'
                           }`}
                         >
                           <div className="flex items-center gap-2">
                             <p className={`text-sm font-medium ${
-                              event.type === 'breakthrough' ? 'text-purple-500' : 
-                              event.type === 'achievement' ? 'text-green-500' : 
-                              'text-orange-500'
+                              event.type === 'breakthrough' ? 'text-purple-500' : 'text-orange-500'
                             }`}>
                               {event.date}
                             </p>
                             <Badge variant="outline" className={`text-xs py-0 h-5 ${
                               event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
-                              event.type === 'achievement' ? 'bg-green-100 border-green-200 text-green-700' :
                               'bg-orange-100 border-orange-200 text-orange-700'
                             }`}>
-                              {event.type === 'breakthrough' ? 'Breakthrough' : 
-                               event.type === 'achievement' ? 'Achievement' : 
-                               'Milestone'}
+                              {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
                             </Badge>
                           </div>
                           <h3 className="text-base font-medium">
