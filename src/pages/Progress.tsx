@@ -17,7 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import type { CallLog } from '@/types/supabase';
+import type { CallLog, UserAchievement } from '@/types/supabase';
 import AchievementTimeline from '@/components/progress/AchievementTimeline';
 
 const Progress = () => {
@@ -38,6 +38,23 @@ const Progress = () => {
 
       if (error) throw error;
       return data as CallLog[];
+    },
+    enabled: !!session,
+  });
+
+  const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
+    queryKey: ['userAchievements'],
+    queryFn: async () => {
+      if (!session?.user.id) return [];
+      
+      const { data, error } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('achievement_date', { ascending: false });
+      
+      if (error) throw error;
+      return data as UserAchievement[];
     },
     enabled: !!session,
   });
@@ -219,36 +236,49 @@ const Progress = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {mockTimelineEvents
-                      .filter(event => event.type === 'breakthrough' || event.type === 'milestone')
-                      .map((event, index) => (
-                        <div 
-                          key={index} 
-                          className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
-                            event.type === 'breakthrough' ? 'border-purple-500' : 'border-orange-500'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <p className={`text-sm font-medium ${
-                              event.type === 'breakthrough' ? 'text-purple-500' : 'text-orange-500'
-                            }`}>
-                              {event.date}
-                            </p>
-                            <Badge variant="outline" className={`text-xs py-0 h-5 ${
-                              event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
-                              'bg-orange-100 border-orange-200 text-orange-700'
-                            }`}>
-                              {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
-                            </Badge>
+                  {achievementsLoading ? (
+                    <div className="text-center py-4">Loading achievements...</div>
+                  ) : userAchievements && userAchievements.length > 0 ? (
+                    <div className="space-y-4">
+                      {userAchievements
+                        .filter(achievement => achievement.type === 'breakthrough' || achievement.type === 'milestone' || achievement.type === 'achievement')
+                        .slice(0, 5) // Show only the first 5 achievements
+                        .map((achievement, index) => (
+                          <div 
+                            key={index} 
+                            className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
+                              achievement.type === 'breakthrough' ? 'border-purple-500' : 
+                              achievement.type === 'milestone' ? 'border-orange-500' : 
+                              'border-green-500'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className={`text-sm font-medium ${
+                                achievement.type === 'breakthrough' ? 'text-purple-500' : 
+                                achievement.type === 'milestone' ? 'text-orange-500' : 
+                                'text-green-500'
+                              }`}>
+                                {new Date(achievement.achievement_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
+                              <Badge variant="outline" className={`text-xs py-0 h-5 ${
+                                achievement.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
+                                achievement.type === 'milestone' ? 'bg-orange-100 border-orange-200 text-orange-700' : 
+                                'bg-green-100 border-green-200 text-green-700'
+                              }`}>
+                                {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                              </Badge>
+                            </div>
+                            <h3 className="text-base font-medium">
+                              {achievement.description}
+                            </h3>
                           </div>
-                          <h3 className="text-base font-medium">
-                            {event.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{event.description}</p>
-                        </div>
-                      ))}
-                  </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No achievements recorded yet. Your progress will be tracked here as you go through your coaching journey.
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               
