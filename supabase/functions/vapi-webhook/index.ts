@@ -85,7 +85,6 @@ serve(async (req) => {
     console.log(`Processing webhook for Vapi call ID: ${vapiCallId}`);
     console.log(`Call summary: ${callSummary.substring(0, 100)}...`);
     console.log(`Call transcript: ${callTranscript.substring(0, 100)}...`);
-    console.log(`Call endedReason: ${endedReason}`);
 
     // Create Supabase client with admin privileges using service role key
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -130,19 +129,13 @@ serve(async (req) => {
 
     console.log(`Found call log with ID: ${existingCallLog.id}`);
 
-    // Determine call status based on endedReason
-    const missedCallReasons = ['customer-did-not-answer', 'voicemail', 'customer-busy'];
-    const callStatus = missedCallReasons.includes(endedReason) ? 'missed' : 'completed';
-    
-    console.log(`Setting call status to: ${callStatus} based on endedReason: ${endedReason}`);
-
     // Update the call log with the summary information and transcript
     const { error: updateError } = await supabaseClient
       .from('call_logs')
       .update({
         call_summary: callSummary,
         call_transcript: callTranscript,  // Add transcript to the update
-        status: callStatus,
+        status: 'completed',
         response: {
           ...message,
           endedReason,
@@ -164,7 +157,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Successfully updated call log ${existingCallLog.id} with summary and transcript, status: ${callStatus}`);
+    console.log(`Successfully updated call log ${existingCallLog.id} with summary and transcript`);
     
     // Return a success response
     return new Response(
@@ -172,8 +165,7 @@ serve(async (req) => {
         success: true, 
         message: 'Call summary and transcript recorded successfully',
         callLogId: existingCallLog.id,
-        scheduledCallId: existingCallLog.scheduled_call_id,
-        status: callStatus
+        scheduledCallId: existingCallLog.scheduled_call_id
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
