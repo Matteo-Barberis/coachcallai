@@ -126,14 +126,15 @@ const ProgressTimeline = ({ events, title = "Your Progress Journey", description
                 <div className="group">
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-muted-foreground">{event.date}</p>
+                    {event.source && (
+                      <Badge variant="outline" className="text-xs py-0 h-5">
+                        {event.source === 'call' ? 'Call' : 
+                         event.source === 'whatsapp' ? 'WhatsApp' : 'Manual'}
+                      </Badge>
+                    )}
                     {event.type === 'breakthrough' && (
                       <Badge className="bg-purple-500 text-white text-xs py-0 h-5">
                         Breakthrough
-                      </Badge>
-                    )}
-                    {event.type === 'milestone' && (
-                      <Badge className="bg-secondary text-white text-xs py-0 h-5">
-                        Milestone
                       </Badge>
                     )}
                     {event.impact === 'high' && (
@@ -145,9 +146,7 @@ const ProgressTimeline = ({ events, title = "Your Progress Journey", description
                   <HoverCard>
                     <HoverCardTrigger asChild>
                       <h3 className="text-base font-medium leading-tight flex items-center gap-2">
-                        {event.type === 'breakthrough' ? `Breakthrough: ${event.description}` :
-                         event.type === 'milestone' ? `Milestone: ${event.description}` :
-                         event.title}
+                        {event.title}
                         {event.type === 'achievement' && (
                           <Trophy className="h-4 w-4 text-yellow-500 hidden group-hover:inline" />
                         )}
@@ -165,9 +164,7 @@ const ProgressTimeline = ({ events, title = "Your Progress Journey", description
                       </HoverCardContent>
                     )}
                   </HoverCard>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {event.type === 'breakthrough' || event.type === 'milestone' ? '' : event.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
                   
                   {/* Expanded content */}
                   {expandedEvent === event.title && event.details && (
