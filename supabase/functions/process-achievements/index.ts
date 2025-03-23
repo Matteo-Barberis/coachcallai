@@ -1,5 +1,7 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
+
+// Immediate logging at the top level of the file
+console.log(`[${new Date().toISOString()}] Edge function file loaded`);
 
 // Function to interact with OpenAI's API with proper JSON schema
 async function analyzeWithGPT(transcript: string, summary: string) {
@@ -96,12 +98,13 @@ async function analyzeWithGPT(transcript: string, summary: string) {
   }
 }
 
-// Main function to process achievements
+// Create a new handler function separate from Deno.serve
 export async function main() {
   console.log(`[${new Date().toISOString()}] Starting process-achievements function...`);
   console.log(`[${new Date().toISOString()}] Memory usage at start: ${JSON.stringify(Deno.memoryUsage())}`);
   
   try {
+    // Log environment check
     console.log(`[${new Date().toISOString()}] Checking for service role key...`);
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!serviceRoleKey) {
@@ -266,3 +269,23 @@ export async function main() {
     return { error: error.message };
   }
 }
+
+// Add a Deno.serve handler at the bottom
+Deno.serve(async (req) => {
+  console.log(`[${new Date().toISOString()}] Request received: ${req.method} ${req.url}`);
+  
+  try {
+    const result = await main();
+    console.log(`[${new Date().toISOString()}] Request completed successfully`);
+    return new Response(JSON.stringify(result), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Error in request handler:`, error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { "Content-Type": "application/json" },
+      status: 500,
+    });
+  }
+});
