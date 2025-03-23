@@ -1,14 +1,8 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// Function to interact with OpenAI's API
-async function analyzeWithGPT(transcript: string, summary: string): Promise<any[]> {
+// Function to interact with OpenAI's API with proper JSON schema
+async function analyzeWithGPT(transcript: string, summary: string) {
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
     throw new Error('OPENAI_API_KEY is not set in environment variables');
@@ -30,8 +24,7 @@ async function analyzeWithGPT(transcript: string, summary: string): Promise<any[
             Your job is to analyze coaching call transcripts and identify NEW achievements, breakthroughs, or milestones 
             that the user mentions for the FIRST time in THIS conversation. 
             Only include achievements that are being reported as recently completed.
-            Exclude any achievements that are simply being repeated, acknowledged again, or mentioned as past events.
-            Respond ONLY with a JSON array with no additional text.`
+            Exclude any achievements that are simply being repeated, acknowledged again, or mentioned as past events.`
           },
           {
             role: 'user',
@@ -39,21 +32,38 @@ async function analyzeWithGPT(transcript: string, summary: string): Promise<any[
             
             Call Summary: ${summary || 'No summary available'}
             
-            Call Transcript: ${transcript || 'No transcript available'}
-            
-            Return ONLY an array of objects formatted like this:
-            [
-              {"type": "achievement", "description": "Short description of a small daily achievement"},
-              {"type": "milestone", "description": "Short description of a significant milestone"},
-              {"type": "breakthrough", "description": "Short description of a major breakthrough"}
-            ]
-            
-            If no new achievements are mentioned, return an empty array [].`
+            Call Transcript: ${transcript || 'No transcript available'}`
           }
         ],
         temperature: 0.7,
         max_tokens: 2000,
-        response_format: { type: "json_object" }
+        response_format: { 
+          type: "json_object",
+          schema: {
+            type: "object",
+            properties: {
+              achievements: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    type: {
+                      type: "string",
+                      enum: ["achievement", "milestone", "breakthrough"],
+                      description: "The type of achievement detected"
+                    },
+                    description: {
+                      type: "string",
+                      description: "Short description of a small daily achievement, significant milestone, or major breakthrough"
+                    }
+                  },
+                  required: ["type", "description"]
+                }
+              }
+            },
+            required: ["achievements"]
+          }
+        }
       }),
     });
 
@@ -66,36 +76,18 @@ async function analyzeWithGPT(transcript: string, summary: string): Promise<any[
     const data = await response.json();
     console.log('OpenAI API Response:', JSON.stringify(data));
     
-    // Extract and parse the content
+    // Extract the achievements array
     const content = data.choices[0].message.content;
-    try {
-      const parsedContent = JSON.parse(content);
-      return parsedContent.achievements || [];
-    } catch (error) {
-      console.error('Error parsing OpenAI response:', error);
-      console.error('Raw content:', content);
-      return [];
-    }
+    const parsedContent = JSON.parse(content);
+    return parsedContent.achievements || [];
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     throw error;
   }
 }
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  // Check if request method is POST
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-
+// Main function to process achievements
+export async function main() {
   try {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!serviceRoleKey) {
@@ -125,10 +117,7 @@ serve(async (req) => {
     console.log(`Found ${unprocessedLogs?.length || 0} unprocessed call logs`);
     
     if (!unprocessedLogs || unprocessedLogs.length === 0) {
-      return new Response(
-        JSON.stringify({ message: 'No unprocessed call logs found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return { message: 'No unprocessed call logs found' };
     }
 
     const results = [];
@@ -166,17 +155,6 @@ serve(async (req) => {
           const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
           
           for (const achievement of achievements) {
-            if (!achievement.type || !achievement.description) {
-              console.warn('Invalid achievement format:', achievement);
-              continue;
-            }
-            
-            // Check if the achievement type is valid
-            if (!['achievement', 'breakthrough', 'milestone'].includes(achievement.type)) {
-              console.warn(`Invalid achievement type: ${achievement.type}`);
-              continue;
-            }
-
             // Insert achievement
             const { data: insertedAchievement, error: insertError } = await supabaseClient
               .from('user_achievements')
@@ -213,18 +191,12 @@ serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ 
-        message: `Processed ${unprocessedLogs.length} call logs`, 
-        achievements: results 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return { 
+      message: `Processed ${unprocessedLogs.length} call logs`, 
+      achievements: results 
+    };
   } catch (error) {
     console.error('Error in process-achievements function:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return { error: error.message };
   }
-});
+}
