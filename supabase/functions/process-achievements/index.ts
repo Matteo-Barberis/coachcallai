@@ -99,7 +99,7 @@ async function analyzeWithGPT(transcript: string, summary: string) {
 // Main function to process achievements
 export async function main() {
   console.log(`[${new Date().toISOString()}] Starting process-achievements function...`);
-  console.log(`[${new Date().toISOString()}] Memory usage: ${JSON.stringify(Deno.memoryUsage())}`);
+  console.log(`[${new Date().toISOString()}] Memory usage at start: ${JSON.stringify(Deno.memoryUsage())}`);
   
   try {
     console.log(`[${new Date().toISOString()}] Checking for service role key...`);
@@ -108,14 +108,20 @@ export async function main() {
       console.error(`[${new Date().toISOString()}] Error: SUPABASE_SERVICE_ROLE_KEY is not set`);
       throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set in environment variables');
     }
+    console.log(`[${new Date().toISOString()}] Service role key found`);
     
     console.log(`[${new Date().toISOString()}] Creating Supabase client...`);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    console.log(`[${new Date().toISOString()}] Using Supabase URL: ${supabaseUrl}`);
+    
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      supabaseUrl ?? '',
       serviceRoleKey
     );
+    console.log(`[${new Date().toISOString()}] Supabase client created successfully`);
 
     console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs...`);
+    console.log(`[${new Date().toISOString()}] SQL query: SELECT id, call_summary, call_transcript, scheduled_call_id FROM call_logs WHERE processed_by_ai = false AND call_summary IS NOT NULL`);
     
     // Get all unprocessed call logs
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
@@ -131,6 +137,12 @@ export async function main() {
     }
 
     console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs?.length || 0} unprocessed call logs`);
+    if (unprocessedLogs?.length) {
+      console.log(`[${new Date().toISOString()}] First log ID: ${unprocessedLogs[0]?.id}`);
+      console.log(`[${new Date().toISOString()}] First log summary length: ${unprocessedLogs[0]?.call_summary?.length || 0}`);
+      console.log(`[${new Date().toISOString()}] First log transcript length: ${unprocessedLogs[0]?.call_transcript?.length || 0}`);
+    }
+    
     console.log(`[${new Date().toISOString()}] Memory usage after fetching logs: ${JSON.stringify(Deno.memoryUsage())}`);
     
     if (!unprocessedLogs || unprocessedLogs.length === 0) {
@@ -148,6 +160,8 @@ export async function main() {
 
         // Get user_id from scheduled_call
         console.log(`[${new Date().toISOString()}] Fetching scheduled call data for call ID: ${log.scheduled_call_id}`);
+        console.log(`[${new Date().toISOString()}] SQL query: SELECT user_id FROM scheduled_calls WHERE id = '${log.scheduled_call_id}'`);
+        
         const { data: scheduledCall, error: scheduledCallError } = await supabaseClient
           .from('scheduled_calls')
           .select('user_id')
@@ -156,10 +170,11 @@ export async function main() {
 
         if (scheduledCallError) {
           console.error(`[${new Date().toISOString()}] Error fetching scheduled call for log ${log.id}:`, scheduledCallError);
+          console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(scheduledCallError));
           continue;
         }
 
-        const userId = scheduledCall.user_id;
+        const userId = scheduledCall?.user_id;
         if (!userId) {
           console.error(`[${new Date().toISOString()}] No user_id found for scheduled call ${log.scheduled_call_id}`);
           continue;
@@ -167,14 +182,22 @@ export async function main() {
         console.log(`[${new Date().toISOString()}] Found user_id: ${userId} for call log ${log.id}`);
 
         // Analyze transcript with ChatGPT
-        console.log(`[${new Date().toISOString()}] Sending call log ${log.id} to GPT for analysis...`);
+        console.log(`[${new Date().toISOString()}] BEFORE sending call log ${log.id} to GPT for analysis...`);
+        console.log(`[${new Date().toISOString()}] Transcript sample (first 100 chars): ${log.call_transcript?.substring(0, 100) || 'empty'}`);
+        console.log(`[${new Date().toISOString()}] Summary sample (first 100 chars): ${log.call_summary?.substring(0, 100) || 'empty'}`);
+        
+        // Will send full data to OpenAI API
         const achievements = await analyzeWithGPT(log.call_transcript || '', log.call_summary || '');
-        console.log(`[${new Date().toISOString()}] Received ${achievements.length} achievements from GPT analysis for log ${log.id}`);
+        console.log(`[${new Date().toISOString()}] AFTER GPT analysis - Received ${achievements?.length || 0} achievements from GPT analysis for log ${log.id}`);
+        if (achievements?.length) {
+          console.log(`[${new Date().toISOString()}] First achievement: ${JSON.stringify(achievements[0])}`);
+        }
         console.log(`[${new Date().toISOString()}] Memory usage after GPT analysis: ${JSON.stringify(Deno.memoryUsage())}`);
 
         // Store achievements
         if (achievements && achievements.length > 0) {
           const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+          console.log(`[${new Date().toISOString()}] Storing ${achievements.length} achievements with date ${today}`);
           
           for (const [achievementIndex, achievement] of achievements.entries()) {
             console.log(`[${new Date().toISOString()}] Processing achievement ${achievementIndex + 1}/${achievements.length} for log ${log.id}`);
@@ -182,6 +205,8 @@ export async function main() {
             
             // Insert achievement
             console.log(`[${new Date().toISOString()}] Inserting achievement into database...`);
+            console.log(`[${new Date().toISOString()}] SQL query: INSERT INTO user_achievements (user_id, type, description, achievement_date) VALUES ('${userId}', '${achievement.type}', '${achievement.description}', '${today}')`);
+            
             const { data: insertedAchievement, error: insertError } = await supabaseClient
               .from('user_achievements')
               .insert({
@@ -194,6 +219,7 @@ export async function main() {
 
             if (insertError) {
               console.error(`[${new Date().toISOString()}] Error inserting achievement:`, insertError);
+              console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(insertError));
             } else {
               console.log(`[${new Date().toISOString()}] Successfully inserted achievement: ${JSON.stringify(insertedAchievement)}`);
               results.push(insertedAchievement);
@@ -205,6 +231,8 @@ export async function main() {
 
         // Mark log as processed
         console.log(`[${new Date().toISOString()}] Marking call log ${log.id} as processed...`);
+        console.log(`[${new Date().toISOString()}] SQL query: UPDATE call_logs SET processed_by_ai = true WHERE id = '${log.id}'`);
+        
         const { error: updateError } = await supabaseClient
           .from('call_logs')
           .update({ processed_by_ai: true })
@@ -212,6 +240,7 @@ export async function main() {
 
         if (updateError) {
           console.error(`[${new Date().toISOString()}] Error marking call log ${log.id} as processed:`, updateError);
+          console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(updateError));
         } else {
           console.log(`[${new Date().toISOString()}] Successfully marked call log ${log.id} as processed`);
         }
@@ -220,6 +249,7 @@ export async function main() {
         console.log(`[${new Date().toISOString()}] Memory usage after processing log: ${JSON.stringify(Deno.memoryUsage())}`);
       } catch (error) {
         console.error(`[${new Date().toISOString()}] Error processing call log ${log.id}:`, error);
+        console.error(`[${new Date().toISOString()}] Error stack:`, error.stack);
       }
     }
 
@@ -232,6 +262,7 @@ export async function main() {
     };
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Fatal error in process-achievements function:`, error);
+    console.error(`[${new Date().toISOString()}] Error stack:`, error.stack);
     return { error: error.message };
   }
 }
