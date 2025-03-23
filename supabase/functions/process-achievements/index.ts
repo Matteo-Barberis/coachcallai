@@ -3,12 +3,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Function to interact with OpenAI's API with proper JSON schema
 async function analyzeWithGPT(transcript: string, summary: string) {
+  console.log(`[${new Date().toISOString()}] Starting OpenAI API call...`);
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
+    console.error(`[${new Date().toISOString()}] Error: OPENAI_API_KEY is not set`);
     throw new Error('OPENAI_API_KEY is not set in environment variables');
   }
 
   try {
+    console.log(`[${new Date().toISOString()}] Preparing OpenAI API request with transcript length: ${transcript?.length || 0}, summary length: ${summary?.length || 0}`);
+    
+    console.log(`[${new Date().toISOString()}] Sending request to OpenAI API...`);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -67,39 +72,50 @@ async function analyzeWithGPT(transcript: string, summary: string) {
       }),
     });
 
+    console.log(`[${new Date().toISOString()}] OpenAI API response status: ${response.status}`);
+
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API Error:', errorData);
+      console.error(`[${new Date().toISOString()}] OpenAI API Error:`, errorData);
       throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
     }
 
+    console.log(`[${new Date().toISOString()}] Processing OpenAI API response...`);
     const data = await response.json();
-    console.log('OpenAI API Response:', JSON.stringify(data));
+    console.log(`[${new Date().toISOString()}] OpenAI API Response:`, JSON.stringify(data));
     
     // Extract the achievements array
     const content = data.choices[0].message.content;
+    console.log(`[${new Date().toISOString()}] Parsing content from OpenAI response...`);
     const parsedContent = JSON.parse(content);
+    console.log(`[${new Date().toISOString()}] Successfully parsed OpenAI response`);
     return parsedContent.achievements || [];
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error(`[${new Date().toISOString()}] Error calling OpenAI API:`, error);
     throw error;
   }
 }
 
 // Main function to process achievements
 export async function main() {
+  console.log(`[${new Date().toISOString()}] Starting process-achievements function...`);
+  console.log(`[${new Date().toISOString()}] Memory usage: ${JSON.stringify(Deno.memoryUsage())}`);
+  
   try {
+    console.log(`[${new Date().toISOString()}] Checking for service role key...`);
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!serviceRoleKey) {
+      console.error(`[${new Date().toISOString()}] Error: SUPABASE_SERVICE_ROLE_KEY is not set`);
       throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set in environment variables');
     }
     
+    console.log(`[${new Date().toISOString()}] Creating Supabase client...`);
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       serviceRoleKey
     );
 
-    console.log('Fetching unprocessed call logs...');
+    console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs...`);
     
     // Get all unprocessed call logs
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
@@ -110,24 +126,28 @@ export async function main() {
       .order('created_at', { ascending: true });
 
     if (fetchError) {
-      console.error('Error fetching unprocessed call logs:', fetchError);
+      console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
       throw fetchError;
     }
 
-    console.log(`Found ${unprocessedLogs?.length || 0} unprocessed call logs`);
+    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs?.length || 0} unprocessed call logs`);
+    console.log(`[${new Date().toISOString()}] Memory usage after fetching logs: ${JSON.stringify(Deno.memoryUsage())}`);
     
     if (!unprocessedLogs || unprocessedLogs.length === 0) {
+      console.log(`[${new Date().toISOString()}] No unprocessed call logs found, exiting function`);
       return { message: 'No unprocessed call logs found' };
     }
 
     const results = [];
 
     // Process each log
-    for (const log of unprocessedLogs) {
+    for (const [index, log] of unprocessedLogs.entries()) {
       try {
-        console.log(`Processing call log ID: ${log.id}`);
+        console.log(`[${new Date().toISOString()}] Processing call log ${index + 1}/${unprocessedLogs.length}, ID: ${log.id}`);
+        console.log(`[${new Date().toISOString()}] Summary length: ${log.call_summary?.length || 0}, Transcript length: ${log.call_transcript?.length || 0}`);
 
         // Get user_id from scheduled_call
+        console.log(`[${new Date().toISOString()}] Fetching scheduled call data for call ID: ${log.scheduled_call_id}`);
         const { data: scheduledCall, error: scheduledCallError } = await supabaseClient
           .from('scheduled_calls')
           .select('user_id')
@@ -135,27 +155,33 @@ export async function main() {
           .single();
 
         if (scheduledCallError) {
-          console.error(`Error fetching scheduled call for log ${log.id}:`, scheduledCallError);
+          console.error(`[${new Date().toISOString()}] Error fetching scheduled call for log ${log.id}:`, scheduledCallError);
           continue;
         }
 
         const userId = scheduledCall.user_id;
         if (!userId) {
-          console.error(`No user_id found for scheduled call ${log.scheduled_call_id}`);
+          console.error(`[${new Date().toISOString()}] No user_id found for scheduled call ${log.scheduled_call_id}`);
           continue;
         }
+        console.log(`[${new Date().toISOString()}] Found user_id: ${userId} for call log ${log.id}`);
 
         // Analyze transcript with ChatGPT
-        console.log(`Sending call log ${log.id} to GPT for analysis...`);
+        console.log(`[${new Date().toISOString()}] Sending call log ${log.id} to GPT for analysis...`);
         const achievements = await analyzeWithGPT(log.call_transcript || '', log.call_summary || '');
-        console.log(`Received ${achievements.length} achievements from GPT analysis`);
+        console.log(`[${new Date().toISOString()}] Received ${achievements.length} achievements from GPT analysis for log ${log.id}`);
+        console.log(`[${new Date().toISOString()}] Memory usage after GPT analysis: ${JSON.stringify(Deno.memoryUsage())}`);
 
         // Store achievements
         if (achievements && achievements.length > 0) {
           const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
           
-          for (const achievement of achievements) {
+          for (const [achievementIndex, achievement] of achievements.entries()) {
+            console.log(`[${new Date().toISOString()}] Processing achievement ${achievementIndex + 1}/${achievements.length} for log ${log.id}`);
+            console.log(`[${new Date().toISOString()}] Achievement data: ${JSON.stringify(achievement)}`);
+            
             // Insert achievement
+            console.log(`[${new Date().toISOString()}] Inserting achievement into database...`);
             const { data: insertedAchievement, error: insertError } = await supabaseClient
               .from('user_achievements')
               .insert({
@@ -167,36 +193,45 @@ export async function main() {
               .select();
 
             if (insertError) {
-              console.error('Error inserting achievement:', insertError);
+              console.error(`[${new Date().toISOString()}] Error inserting achievement:`, insertError);
             } else {
-              console.log(`Inserted achievement: ${JSON.stringify(insertedAchievement)}`);
+              console.log(`[${new Date().toISOString()}] Successfully inserted achievement: ${JSON.stringify(insertedAchievement)}`);
               results.push(insertedAchievement);
             }
           }
+        } else {
+          console.log(`[${new Date().toISOString()}] No achievements found for call log ${log.id}`);
         }
 
         // Mark log as processed
+        console.log(`[${new Date().toISOString()}] Marking call log ${log.id} as processed...`);
         const { error: updateError } = await supabaseClient
           .from('call_logs')
           .update({ processed_by_ai: true })
           .eq('id', log.id);
 
         if (updateError) {
-          console.error(`Error marking call log ${log.id} as processed:`, updateError);
+          console.error(`[${new Date().toISOString()}] Error marking call log ${log.id} as processed:`, updateError);
         } else {
-          console.log(`Marked call log ${log.id} as processed`);
+          console.log(`[${new Date().toISOString()}] Successfully marked call log ${log.id} as processed`);
         }
+        
+        console.log(`[${new Date().toISOString()}] Completed processing for call log ${log.id}`);
+        console.log(`[${new Date().toISOString()}] Memory usage after processing log: ${JSON.stringify(Deno.memoryUsage())}`);
       } catch (error) {
-        console.error(`Error processing call log ${log.id}:`, error);
+        console.error(`[${new Date().toISOString()}] Error processing call log ${log.id}:`, error);
       }
     }
 
+    console.log(`[${new Date().toISOString()}] Process-achievements function completed successfully`);
+    console.log(`[${new Date().toISOString()}] Final memory usage: ${JSON.stringify(Deno.memoryUsage())}`);
+    
     return { 
       message: `Processed ${unprocessedLogs.length} call logs`, 
       achievements: results 
     };
   } catch (error) {
-    console.error('Error in process-achievements function:', error);
+    console.error(`[${new Date().toISOString()}] Fatal error in process-achievements function:`, error);
     return { error: error.message };
   }
 }
