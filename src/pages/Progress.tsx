@@ -243,7 +243,7 @@ const Progress = () => {
                     <ScrollArea className="h-[350px] pr-4">
                       <div className="space-y-4">
                         {userAchievements
-                          .filter(achievement => achievement.type === 'breakthrough' || achievement.type === 'milestone' || achievement.type === 'achievement')
+                          .filter(achievement => achievement.type === 'breakthrough' || achievement.type === 'milestone')
                           .map((achievement, index) => (
                             <div 
                               key={index} 
@@ -278,7 +278,7 @@ const Progress = () => {
                     </ScrollArea>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      No achievements recorded yet. Your progress will be tracked here as you go through your coaching journey.
+                      No breakthroughs or milestones recorded yet. Your key moments will be tracked here as you go through your coaching journey.
                     </div>
                   )}
                 </CardContent>
