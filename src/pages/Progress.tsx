@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -41,8 +42,11 @@ const Progress = () => {
     enabled: !!session,
   });
 
-  const mockCompletedCalls = callLogs?.length || 0;
-  const mockTotalCalls = 12;
+  // Count only completed calls
+  const completedCalls = callLogs?.filter(call => call.status === 'completed').length || 0;
+  // Use total number of call logs instead of hardcoded 12
+  const totalCalls = callLogs?.length || 0;
+  
   const mockMilestonesAchieved = 4;
   const mockTotalMilestones = 10;
   const mockObjectivesProgress = 65;
@@ -194,8 +198,8 @@ const Progress = () => {
 
           <TabsContent value="overview" className="space-y-8">
             <ProgressOverview 
-              completedCalls={mockCompletedCalls}
-              totalCalls={mockTotalCalls}
+              completedCalls={completedCalls}
+              totalCalls={totalCalls}
               milestonesAchieved={mockMilestonesAchieved}
               totalMilestones={mockTotalMilestones}
               objectivesProgress={mockObjectivesProgress}
@@ -353,4 +357,3 @@ const Progress = () => {
 };
 
 export default Progress;
-
