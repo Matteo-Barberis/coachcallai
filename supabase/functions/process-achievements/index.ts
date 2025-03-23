@@ -1,4 +1,3 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -46,30 +45,34 @@ async function analyzeWithGPT(transcript: string, summary: string) {
         temperature: 0.7,
         max_tokens: 2000,
         response_format: { 
-          type: "json_object",
-          schema: {
-            type: "object",
-            properties: {
-              achievements: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    type: {
-                      type: "string",
-                      enum: ["achievement", "milestone", "breakthrough"],
-                      description: "The type of achievement detected"
+          type: "json_schema",
+          json_schema: {
+            name: "achievements_analysis",
+            schema: {
+              type: "object",
+              properties: {
+                achievements: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      type: {
+                        type: "string",
+                        enum: ["achievement", "milestone", "breakthrough"],
+                        description: "The type of achievement detected"
+                      },
+                      description: {
+                        type: "string",
+                        description: "Short description of a small daily achievement, significant milestone, or major breakthrough"
+                      }
                     },
-                    description: {
-                      type: "string",
-                      description: "Short description of a small daily achievement, significant milestone, or major breakthrough"
-                    }
-                  },
-                  required: ["type", "description"]
+                    required: ["type", "description"]
+                  }
                 }
-              }
+              },
+              required: ["achievements"]
             },
-            required: ["achievements"]
+            strict: true
           }
         }
       }),
