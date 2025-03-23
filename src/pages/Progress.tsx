@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -20,10 +19,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Button } from '@/components/ui/button';
 import type { CallLog, UserAchievement } from '@/types/supabase';
 import AchievementTimeline from '@/components/progress/AchievementTimeline';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Progress = () => {
   const { session, loading } = useSessionContext();
   const [openCallId, setOpenCallId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
@@ -63,7 +64,6 @@ const Progress = () => {
   const completedCalls = callLogs?.filter(call => call.status === 'completed').length || 0;
   const totalCalls = callLogs?.length || 0;
   
-  // Count achievements by type
   const milestonesAchieved = userAchievements?.filter(achievement => 
     achievement.type === 'milestone'
   ).length || 0;
@@ -72,7 +72,6 @@ const Progress = () => {
     achievement.type === 'achievement'
   ).length || 0;
   
-  // Using 10 as a placeholder for total milestones - this could be dynamic in the future
   const totalMilestones = 10;
 
   const mockInsights = [

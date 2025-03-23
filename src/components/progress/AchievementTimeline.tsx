@@ -9,6 +9,7 @@ import { PhoneCall, PhoneMissed } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionContext } from '@/context/SessionContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { UserAchievement, CallLog } from '@/types/supabase';
 
 type AchievementType = 'achievement' | 'breakthrough' | 'milestone' | 'missed' | 'call-completed';
@@ -30,6 +31,7 @@ const AchievementTimeline = () => {
   const [hoveredDay, setHoveredDay] = useState<Date | null>(null);
   const { session } = useSessionContext();
   const userId = session?.user.id;
+  const isMobile = useIsMobile();
 
   const { data: userAchievements, isLoading: achievementsLoading } = useQuery({
     queryKey: ['userAchievements'],
@@ -213,6 +215,114 @@ const AchievementTimeline = () => {
     );
   };
 
+  const renderMobileYearlyView = () => {
+    const monthsData = getYearlyViewStructure();
+    
+    return (
+      <div className="pb-4">
+        <div className="grid grid-cols-4 gap-1">
+          {monthsData.map((month, index) => (
+            <div key={index} className="p-1">
+              <div className="text-xs font-medium text-center mb-1">
+                {month.name}
+              </div>
+              <div className="grid grid-cols-7 gap-0.5">
+                {Array.from({ length: month.days }).map((_, dayIndex) => {
+                  const date = new Date(today.getFullYear(), month.month, dayIndex + 1);
+                  const dayAchievements = getDayAchievements(date);
+                  
+                  return (
+                    <TooltipProvider key={dayIndex}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div 
+                            className={`aspect-square rounded-sm ${
+                              dayAchievements.length > 0 
+                                ? getAchievementColor(dayAchievements[0].type) 
+                                : 'bg-transparent border border-gray-200'
+                            }`}
+                            style={{
+                              minWidth: '4px',
+                              minHeight: '4px',
+                              width: '100%',
+                              height: 'auto',
+                            }}
+                          >
+                            {dayAchievements.length > 1 && (
+                              <div className="text-[6px] text-white font-bold flex items-center justify-center h-full">
+                                {dayAchievements.length}
+                              </div>
+                            )}
+                          </div>
+                        </TooltipTrigger>
+                        {dayAchievements.length > 0 && (
+                          <TooltipContent side="top" align="center" className="max-w-[200px]">
+                            <div className="text-xs">
+                              <div className="font-medium mb-1">{format(date, 'MMM d, yyyy')}</div>
+                              {dayAchievements.map((achievement, idx) => (
+                                <div key={idx} className="mb-1">
+                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${
+                                    achievement.type === 'breakthrough' ? 'bg-amber-100 text-amber-800' : 
+                                    achievement.type === 'achievement' ? 'bg-green-100 text-green-800' : 
+                                    achievement.type === 'milestone' ? 'bg-orange-100 text-orange-800' :
+                                    achievement.type === 'call-completed' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {achievement.type === 'call-completed' ? 'Call Completed' : 
+                                    achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                  </span>
+                                  <p>{achievement.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMobileTimelineView = () => {
+    return (
+      <div className="space-y-2">
+        {days.map((day, dayIndex) => {
+          const dayAchievements = getDayAchievements(day);
+          
+          return (
+            <div key={dayIndex} className="flex flex-col">
+              <div className="text-xs font-medium mb-1">
+                {format(day, view === 'weekly' ? 'EEE, MMM d' : 'd')}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {dayAchievements.length > 0 ? (
+                  dayAchievements.map((achievement, achievementIndex) => (
+                    <div 
+                      key={`${achievement.id}-${achievementIndex}`}
+                      className={`px-2 py-1 rounded-md text-white text-xs flex items-center gap-1 ${getAchievementColor(achievement.type)}`}
+                    >
+                      {achievement.type === 'call-completed' && <PhoneCall className="h-3 w-3" />}
+                      {achievement.type === 'missed' && <PhoneMissed className="h-3 w-3" />}
+                      <span className="truncate max-w-[150px]">{achievement.description}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-muted-foreground">No achievements</div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const getYearlyViewStructure = () => {
     const year = today.getFullYear();
     const monthsData = [];
@@ -234,6 +344,10 @@ const AchievementTimeline = () => {
   };
   
   const renderYearlyView = () => {
+    if (isMobile) {
+      return renderMobileYearlyView();
+    }
+    
     const monthsData = getYearlyViewStructure();
     const yearStartDate = startOfYear(today);
     const weekDays = ['Mon', 'Wed', 'Fri'];
@@ -390,7 +504,7 @@ const AchievementTimeline = () => {
 
   return (
     <Card className="p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
           <h3 className="text-lg font-semibold">Achievement Timeline</h3>
           <p className="text-sm text-muted-foreground">Track your progress and accomplishments over time</p>
@@ -402,7 +516,7 @@ const AchievementTimeline = () => {
         </ToggleGroup>
       </div>
 
-      <div className="flex mb-4 gap-4 justify-end">
+      <div className="flex flex-wrap mb-4 gap-3 justify-start sm:justify-end">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-[#5CE65C]"></div>
           <span className="text-xs text-muted-foreground">Achievement</span>
@@ -436,8 +550,16 @@ const AchievementTimeline = () => {
       ) : (
         <ScrollArea className="w-full">
           {view === 'yearly' ? (
-            <div className="py-2" style={{ width: "100%", maxWidth: "100%", maxHeight: "220px" }}>
+            <div className="py-2" style={{ 
+              width: "100%", 
+              maxWidth: "100%", 
+              maxHeight: isMobile ? "400px" : "220px" 
+            }}>
               {renderYearlyView()}
+            </div>
+          ) : isMobile ? (
+            <div className="py-2" style={{ maxHeight: "400px" }}>
+              {renderMobileTimelineView()}
             </div>
           ) : (
             <div 
@@ -527,3 +649,4 @@ const AchievementTimeline = () => {
 };
 
 export default AchievementTimeline;
+
