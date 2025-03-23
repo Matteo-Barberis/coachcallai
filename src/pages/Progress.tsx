@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -142,7 +141,7 @@ const Progress = () => {
     },
     {
       date: "August 25, 2024",
-      title: "Completed first phase of anxiety management program",
+      title: "Milestone: Completed first phase of anxiety management program",
       description: "Successfully finished all modules in phase one",
       type: "milestone" as const,
       source: "call" as const,
@@ -235,11 +234,6 @@ const Progress = () => {
                             }`}>
                               {event.date}
                             </p>
-                            {event.source && (
-                              <Badge variant="outline" className="text-xs py-0 h-5">
-                                {event.source === 'call' ? 'Call' : 'WhatsApp'}
-                              </Badge>
-                            )}
                             <Badge variant="outline" className={`text-xs py-0 h-5 ${
                               event.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
                               'bg-orange-100 border-orange-200 text-orange-700'
@@ -247,7 +241,10 @@ const Progress = () => {
                               {event.type === 'breakthrough' ? 'Breakthrough' : 'Milestone'}
                             </Badge>
                           </div>
-                          <h3 className="text-base font-medium">{event.title}</h3>
+                          <h3 className="text-base font-medium">
+                            {event.type === 'breakthrough' ? 'Breakthrough: ' : 'Milestone: '}
+                            {event.title}
+                          </h3>
                           <p className="text-sm text-muted-foreground">{event.description}</p>
                         </div>
                       ))}
