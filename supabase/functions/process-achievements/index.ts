@@ -109,14 +109,13 @@ serve(async (req) => {
 
     console.log('Fetching unprocessed call logs...');
     
-    // Get unprocessed call logs
+    // Get all unprocessed call logs
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
       .select('id, call_summary, call_transcript, scheduled_call_id')
       .eq('processed_by_ai', false)
       .is('call_summary', 'not.null')  // Only process logs with summaries
-      .order('created_at', { ascending: true })
-      .limit(10);  // Process in batches
+      .order('created_at', { ascending: true });
 
     if (fetchError) {
       console.error('Error fetching unprocessed call logs:', fetchError);
