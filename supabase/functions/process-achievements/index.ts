@@ -60,9 +60,26 @@ async function analyzeWithGPT(transcript: string, summary: string) {
             role: 'system',
             content: `You are an achievement analyzer for a coaching application. 
             Your job is to analyze coaching call transcripts and identify NEW achievements, breakthroughs, or milestones 
-            that the user mentions for the FIRST time in THIS conversation. 
-            Only include achievements that are being reported as recently completed.
-            Exclude any achievements that are simply being repeated, acknowledged again, or mentioned as past events.`
+            that the user mentions for the FIRST time in THIS conversation.
+            
+            Categorize each item using these specific definitions:
+            1. ACHIEVEMENT: Small, daily wins or regular positive actions. Examples: completing a workout, 
+               finishing a task, meeting a daily goal, practicing a habit consistently. These are routine 
+               accomplishments that show progress.
+            
+            2. MILESTONE: Significant progress markers or "firsts" that represent meaningful advancement 
+               toward larger goals. Examples: meditating for the first time, completing a month of consistent
+               exercise, finishing a project phase, reaching a weight loss target. These are noteworthy steps
+               that indicate substantial progress.
+            
+            3. BREAKTHROUGH: Major transformative moments, paradigm shifts, or overcoming significant barriers.
+               Examples: overcoming a long-standing fear, having a life-changing realization, resolving a 
+               persistent conflict, or experiencing a dramatic improvement in mindset or capability. These
+               represent fundamental changes in the user's life or perspective.
+            
+            Only include items that are being reported as recently completed.
+            Exclude any items that are simply being repeated, acknowledged again, or mentioned as past events.
+            Do not include future goals or aspirations - only actual completed achievements.`
           },
           {
             role: 'user',
