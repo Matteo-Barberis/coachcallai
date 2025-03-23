@@ -12,6 +12,7 @@ import ProgressTimeline from '@/components/progress/ProgressTimeline';
 import KeywordCloud from '@/components/progress/KeywordCloud';
 import CallTimeline from '@/components/progress/CallTimeline';
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sparkles, FileBarChart, MessageSquare, ArrowRight, Star } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -239,41 +240,42 @@ const Progress = () => {
                   {achievementsLoading ? (
                     <div className="text-center py-4">Loading achievements...</div>
                   ) : userAchievements && userAchievements.length > 0 ? (
-                    <div className="space-y-4">
-                      {userAchievements
-                        .filter(achievement => achievement.type === 'breakthrough' || achievement.type === 'milestone' || achievement.type === 'achievement')
-                        .slice(0, 5) // Show only the first 5 achievements
-                        .map((achievement, index) => (
-                          <div 
-                            key={index} 
-                            className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
-                              achievement.type === 'breakthrough' ? 'border-purple-500' : 
-                              achievement.type === 'milestone' ? 'border-orange-500' : 
-                              'border-green-500'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <p className={`text-sm font-medium ${
-                                achievement.type === 'breakthrough' ? 'text-purple-500' : 
-                                achievement.type === 'milestone' ? 'text-orange-500' : 
-                                'text-green-500'
-                              }`}>
-                                {new Date(achievement.achievement_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                              </p>
-                              <Badge variant="outline" className={`text-xs py-0 h-5 ${
-                                achievement.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
-                                achievement.type === 'milestone' ? 'bg-orange-100 border-orange-200 text-orange-700' : 
-                                'bg-green-100 border-green-200 text-green-700'
-                              }`}>
-                                {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
-                              </Badge>
+                    <ScrollArea className="h-[350px] pr-4">
+                      <div className="space-y-4">
+                        {userAchievements
+                          .filter(achievement => achievement.type === 'breakthrough' || achievement.type === 'milestone' || achievement.type === 'achievement')
+                          .map((achievement, index) => (
+                            <div 
+                              key={index} 
+                              className={`border-l-2 pl-4 py-2 hover:bg-muted/50 rounded-r-md transition-colors ${
+                                achievement.type === 'breakthrough' ? 'border-purple-500' : 
+                                achievement.type === 'milestone' ? 'border-orange-500' : 
+                                'border-green-500'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <p className={`text-sm font-medium ${
+                                  achievement.type === 'breakthrough' ? 'text-purple-500' : 
+                                  achievement.type === 'milestone' ? 'text-orange-500' : 
+                                  'text-green-500'
+                                }`}>
+                                  {new Date(achievement.achievement_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </p>
+                                <Badge variant="outline" className={`text-xs py-0 h-5 ${
+                                  achievement.type === 'breakthrough' ? 'bg-purple-100 border-purple-200 text-purple-700' : 
+                                  achievement.type === 'milestone' ? 'bg-orange-100 border-orange-200 text-orange-700' : 
+                                  'bg-green-100 border-green-200 text-green-700'
+                                }`}>
+                                  {achievement.type.charAt(0).toUpperCase() + achievement.type.slice(1)}
+                                </Badge>
+                              </div>
+                              <h3 className="text-base font-medium">
+                                {achievement.description}
+                              </h3>
                             </div>
-                            <h3 className="text-base font-medium">
-                              {achievement.description}
-                            </h3>
-                          </div>
-                        ))}
-                    </div>
+                          ))}
+                      </div>
+                    </ScrollArea>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
                       No achievements recorded yet. Your progress will be tracked here as you go through your coaching journey.
