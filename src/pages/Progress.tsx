@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -62,9 +63,17 @@ const Progress = () => {
   const completedCalls = callLogs?.filter(call => call.status === 'completed').length || 0;
   const totalCalls = callLogs?.length || 0;
   
-  const mockMilestonesAchieved = 4;
-  const mockTotalMilestones = 10;
-  const mockObjectivesProgress = 65;
+  // Count achievements by type
+  const milestonesAchieved = userAchievements?.filter(achievement => 
+    achievement.type === 'milestone'
+  ).length || 0;
+  
+  const smallAchievements = userAchievements?.filter(achievement => 
+    achievement.type === 'achievement'
+  ).length || 0;
+  
+  // Using 10 as a placeholder for total milestones - this could be dynamic in the future
+  const totalMilestones = 10;
 
   const mockInsights = [
     {
@@ -215,9 +224,9 @@ const Progress = () => {
             <ProgressOverview 
               completedCalls={completedCalls}
               totalCalls={totalCalls}
-              milestonesAchieved={mockMilestonesAchieved}
-              totalMilestones={mockTotalMilestones}
-              objectivesProgress={mockObjectivesProgress}
+              milestonesAchieved={milestonesAchieved}
+              totalMilestones={totalMilestones}
+              objectivesProgress={smallAchievements}
             />
             
             <AchievementTimeline />
