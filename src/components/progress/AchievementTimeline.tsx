@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PhoneCall } from 'lucide-react';
+import { PhoneCall, PhoneMissed } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionContext } from '@/context/SessionContext';
@@ -484,6 +484,11 @@ const AchievementTimeline = () => {
                                 {achievement.type === 'call-completed' && (
                                   <div className="flex justify-center items-center h-full">
                                     <PhoneCall className="h-3 w-3 text-white" />
+                                  </div>
+                                )}
+                                {achievement.type === 'missed' && (
+                                  <div className="flex justify-center items-center h-full">
+                                    <PhoneMissed className="h-3 w-3 text-white" />
                                   </div>
                                 )}
                               </div>
