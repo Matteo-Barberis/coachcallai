@@ -1,3 +1,4 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -126,13 +127,12 @@ export async function main() {
     console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs...`);
     console.log(`[${new Date().toISOString()}] SQL query: SELECT id, call_summary, call_transcript, scheduled_call_id FROM call_logs WHERE processed_by_ai = false AND call_summary IS NOT NULL`);
     
-    // Get all unprocessed call logs
+    // Get all unprocessed call logs - FIXED QUERY HERE
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
       .select('id, call_summary, call_transcript, scheduled_call_id')
       .eq('processed_by_ai', false)
-      .is('call_summary', 'not.null')  // Only process logs with summaries
-      .order('created_at', { ascending: true });
+      .not('call_summary', 'is', null);  // Fixed: Changed is.not.null to not('call_summary', 'is', null)
 
     if (fetchError) {
       console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
