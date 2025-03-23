@@ -1,9 +1,40 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
 console.log(`[${new Date().toISOString()}] Edge function file loaded`);
 
-// Function to interact with OpenAI's API with proper JSON schema
+// Define achievement analysis function schema
+const achievementsAnalysisFunction = {
+  name: "analyze_achievements",
+  description: "Analyze coaching call transcripts to identify achievements and breakthroughs",
+  parameters: {
+    type: "object",
+    properties: {
+      achievements: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: ["achievement", "milestone", "breakthrough"],
+              description: "The type of achievement detected"
+            },
+            description: {
+              type: "string",
+              description: "Short description of a small daily achievement, significant milestone, or major breakthrough"
+            }
+          },
+          required: ["type", "description"]
+        }
+      }
+    },
+    required: ["achievements"]
+  }
+};
+
+// Function to interact with OpenAI's API with function calling
 async function analyzeWithGPT(transcript: string, summary: string) {
   console.log(`[${new Date().toISOString()}] Starting OpenAI API call...`);
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
@@ -42,39 +73,10 @@ async function analyzeWithGPT(transcript: string, summary: string) {
             Call Transcript: ${transcript || 'No transcript available'}`
           }
         ],
+        functions: [achievementsAnalysisFunction],
+        function_call: { name: "analyze_achievements" },
         temperature: 0.7,
         max_tokens: 2000,
-        response_format: { 
-          type: "json_schema",
-          json_schema: {
-            name: "achievements_analysis",
-            schema: {
-              type: "object",
-              properties: {
-                achievements: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      type: {
-                        type: "string",
-                        enum: ["achievement", "milestone", "breakthrough"],
-                        description: "The type of achievement detected"
-                      },
-                      description: {
-                        type: "string",
-                        description: "Short description of a small daily achievement, significant milestone, or major breakthrough"
-                      }
-                    },
-                    required: ["type", "description"]
-                  }
-                }
-              },
-              required: ["achievements"]
-            },
-            strict: true
-          }
-        }
       }),
     });
 
@@ -90,12 +92,22 @@ async function analyzeWithGPT(transcript: string, summary: string) {
     const data = await response.json();
     console.log(`[${new Date().toISOString()}] OpenAI API Response:`, JSON.stringify(data));
     
-    // Extract the achievements array
-    const content = data.choices[0].message.content;
-    console.log(`[${new Date().toISOString()}] Parsing content from OpenAI response...`);
-    const parsedContent = JSON.parse(content);
-    console.log(`[${new Date().toISOString()}] Successfully parsed OpenAI response`);
-    return parsedContent.achievements || [];
+    // Extract the achievements array from function call arguments
+    if (data.choices && 
+        data.choices[0].message && 
+        data.choices[0].message.function_call) {
+      try {
+        const functionCallArgs = JSON.parse(data.choices[0].message.function_call.arguments);
+        console.log(`[${new Date().toISOString()}] Successfully parsed function call arguments`);
+        return functionCallArgs.achievements || [];
+      } catch (parseError) {
+        console.error(`[${new Date().toISOString()}] Error parsing function call arguments:`, parseError);
+        throw new Error('Failed to parse achievements from OpenAI response');
+      }
+    } else {
+      console.error(`[${new Date().toISOString()}] Unexpected response format from OpenAI API`);
+      throw new Error('Unexpected response format from OpenAI API');
+    }
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Error calling OpenAI API:`, error);
     throw error;
