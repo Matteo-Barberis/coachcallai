@@ -26,4 +26,15 @@ export type CallLog = {
   created_at: string | null;
   payload: any | null;
   response: any | null;
+  processed_by_ai: boolean;
+};
+
+export type UserAchievement = {
+  id: string;
+  user_id: string;
+  description: string;
+  type: 'achievement' | 'breakthrough' | 'milestone';
+  achievement_date: string;
+  created_at: string;
+  updated_at: string;
 };

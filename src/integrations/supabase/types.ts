@@ -16,6 +16,7 @@ export type Database = {
           created_at: string | null
           id: string
           payload: Json | null
+          processed_by_ai: boolean | null
           response: Json | null
           scheduled_call_id: string
           status: string | null
@@ -27,6 +28,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           payload?: Json | null
+          processed_by_ai?: boolean | null
           response?: Json | null
           scheduled_call_id: string
           status?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           payload?: Json | null
+          processed_by_ai?: boolean | null
           response?: Json | null
           scheduled_call_id?: string
           status?: string | null
@@ -193,6 +196,36 @@ export type Database = {
           description?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_date: string
+          created_at: string
+          description: string
+          id: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_date: string
+          created_at?: string
+          description: string
+          id?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_date?: string
+          created_at?: string
+          description?: string
+          id?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
