@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -115,7 +116,7 @@ const Progress = () => {
     },
     {
       date: "August 5, 2024",
-      title: "Breakthrough: Identified core stress trigger",
+      title: "Identified core stress trigger",
       description: "Discovered key pattern related to work meetings and deadlines",
       type: "breakthrough" as const,
       source: "call" as const,
@@ -132,7 +133,7 @@ const Progress = () => {
     },
     {
       date: "August 19, 2024",
-      title: "Breakthrough: Connected childhood pattern to current anxiety",
+      title: "Connected childhood pattern to current anxiety",
       description: "Identified how past experiences shape current responses",
       type: "breakthrough" as const,
       source: "whatsapp" as const,
@@ -141,7 +142,7 @@ const Progress = () => {
     },
     {
       date: "August 25, 2024",
-      title: "Milestone: Completed first phase of anxiety management program",
+      title: "Completed first phase of anxiety management program",
       description: "Successfully finished all modules in phase one",
       type: "milestone" as const,
       source: "call" as const,
@@ -242,7 +243,6 @@ const Progress = () => {
                             </Badge>
                           </div>
                           <h3 className="text-base font-medium">
-                            {event.type === 'breakthrough' ? 'Breakthrough: ' : 'Milestone: '}
                             {event.title}
                           </h3>
                           <p className="text-sm text-muted-foreground">{event.description}</p>
