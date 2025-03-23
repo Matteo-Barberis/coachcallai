@@ -27,6 +27,13 @@ export type CallLog = {
   payload: any | null;
   response: any | null;
   processed_by_ai: boolean;
+  scheduled_calls?: {
+    template_id: string | null;
+  };
+  template?: {
+    name: string;
+    description: string;
+  } | null;
 };
 
 export type UserAchievement = {
