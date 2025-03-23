@@ -43,7 +43,7 @@ async function analyzeWithGPT(transcript: string, summary: string): Promise<any[
             
             Return ONLY an array of objects formatted like this:
             [
-              {"type": "achievement", "description": "Short description of a small achievement"},
+              {"type": "achievement", "description": "Short description of a small daily achievement"},
               {"type": "milestone", "description": "Short description of a significant milestone"},
               {"type": "breakthrough", "description": "Short description of a major breakthrough"}
             ]
