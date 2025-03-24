@@ -1,3 +1,4 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -227,7 +228,7 @@ export async function main() {
           console.log(`[${new Date().toISOString()}] First keyword: ${JSON.stringify(newKeywords[0])}`);
         }
 
-        // Merge with existing focus areas
+        // Merge with existing focus areas - IMPROVED LOGIC HERE
         let updatedFocusAreas = [...existingFocusAreas];
         
         if (newKeywords && newKeywords.length > 0) {
@@ -238,11 +239,14 @@ export async function main() {
             );
             
             if (existingIndex >= 0) {
-              // Update existing keyword value
-              updatedFocusAreas[existingIndex].value = 
-                Math.min(10, Math.round((updatedFocusAreas[existingIndex].value + keyword.value) / 2));
+              // Increase the existing keyword value by adding the new value
+              // But cap it at a maximum of 10
+              const newValue = Math.min(10, updatedFocusAreas[existingIndex].value + keyword.value);
+              console.log(`[${new Date().toISOString()}] Increasing value for keyword "${keyword.text}" from ${updatedFocusAreas[existingIndex].value} to ${newValue}`);
+              updatedFocusAreas[existingIndex].value = newValue;
             } else {
               // Add new keyword
+              console.log(`[${new Date().toISOString()}] Adding new keyword "${keyword.text}" with value ${keyword.value}`);
               updatedFocusAreas.push({
                 text: keyword.text,
                 value: keyword.value
