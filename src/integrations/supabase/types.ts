@@ -17,6 +17,7 @@ export type Database = {
           id: string
           payload: Json | null
           processed_by_ai: boolean | null
+          processed_keywords: boolean | null
           response: Json | null
           scheduled_call_id: string
           status: string | null
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           payload?: Json | null
           processed_by_ai?: boolean | null
+          processed_keywords?: boolean | null
           response?: Json | null
           scheduled_call_id: string
           status?: string | null
@@ -41,6 +43,7 @@ export type Database = {
           id?: string
           payload?: Json | null
           processed_by_ai?: boolean | null
+          processed_keywords?: boolean | null
           response?: Json | null
           scheduled_call_id?: string
           status?: string | null
@@ -89,6 +92,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          focus_areas: Json | null
           full_name: string | null
           id: string
           objectives: string | null
@@ -102,6 +106,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          focus_areas?: Json | null
           full_name?: string | null
           id: string
           objectives?: string | null
@@ -115,6 +120,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          focus_areas?: Json | null
           full_name?: string | null
           id?: string
           objectives?: string | null

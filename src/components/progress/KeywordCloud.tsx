@@ -3,21 +3,42 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-interface Keyword {
-  text: string;
-  value: number;
-  trend?: 'up' | 'down' | 'stable';
-}
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useSessionContext } from '@/context/SessionContext';
+import { FocusArea } from '@/types/supabase';
 
 interface KeywordCloudProps {
   title: string;
   description: string;
-  keywords: Keyword[];
+  keywords?: FocusArea[];
+  isLoading?: boolean;
 }
 
-const KeywordCloud = ({ title, description, keywords }: KeywordCloudProps) => {
+const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: propIsLoading }: KeywordCloudProps) => {
   const [sortBy, setSortBy] = useState<'value' | 'alphabetical'>('value');
+  const { session } = useSessionContext();
+
+  // Fetch focus areas from user profile if keywords not provided
+  const { data: focusAreas, isLoading: loadingFocusAreas } = useQuery({
+    queryKey: ['focusAreas'],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('focus_areas')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data?.focus_areas as FocusArea[] || [];
+    },
+    enabled: !propKeywords && !!session?.user?.id,
+  });
+  
+  const isLoading = propIsLoading || loadingFocusAreas;
+  const keywords = propKeywords || focusAreas || [];
   
   // Sort keywords based on the selected sorting option
   const sortedKeywords = [...keywords].sort((a, b) => {
@@ -28,7 +49,39 @@ const KeywordCloud = ({ title, description, keywords }: KeywordCloudProps) => {
   });
   
   // Get the maximum value for scaling
-  const maxValue = Math.max(...keywords.map(k => k.value));
+  const maxValue = Math.max(...keywords.map(k => k.value), 1);
+  
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-48 flex items-center justify-center">
+            <p className="text-muted-foreground">Loading focus areas...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  if (keywords.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-48 flex items-center justify-center">
+            <p className="text-muted-foreground">No focus areas available yet. They will appear here as your coaching journey progresses.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card>

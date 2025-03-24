@@ -6,6 +6,13 @@ export type Profile = {
   created_at: string;
   updated_at: string;
   objectives: string | null;
+  focus_areas: FocusArea[] | null;
+};
+
+export type FocusArea = {
+  text: string;
+  value: number;
+  trend?: 'up' | 'down' | 'stable';
 };
 
 export type UserObjective = {
@@ -27,6 +34,7 @@ export type CallLog = {
   payload: any | null;
   response: any | null;
   processed_by_ai: boolean;
+  processed_keywords: boolean;
   scheduled_calls?: {
     template_id: string | null;
   };
