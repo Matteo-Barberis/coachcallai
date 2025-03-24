@@ -117,13 +117,14 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-2 justify-start max-w-full min-h-[200px]">
           <TooltipProvider>
             {sortedKeywords.map((keyword, index) => {
               // Calculate font size based on the keyword value relative to the max value
-              const fontSize = 0.8 + (keyword.value / maxValue) * 1.2;
+              // Use a more moderate scaling to prevent excessive size differences
+              const fontSize = 0.8 + (keyword.value / maxValue) * 0.8;
               // Calculate opacity based on the keyword value relative to the max value
-              const opacity = 0.6 + (keyword.value / maxValue) * 0.4;
+              const opacity = 0.7 + (keyword.value / maxValue) * 0.3;
               
               // Determine color based on trend
               let bgColor = 'bg-primary/10';
