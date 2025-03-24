@@ -117,7 +117,7 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-2 justify-start min-h-[200px] items-center">
           <TooltipProvider>
             {sortedKeywords.map((keyword, index) => {
               // Calculate font size based on the keyword value relative to the max value
@@ -141,7 +141,7 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
                 <Tooltip key={index}>
                   <TooltipTrigger asChild>
                     <span 
-                      className={`px-2 py-1 rounded-full ${bgColor} ${textColor} transition-all duration-300 hover:scale-110 cursor-pointer`}
+                      className={`inline-flex items-center justify-center px-3 py-1 rounded-full ${bgColor} ${textColor} transition-all duration-300 hover:scale-110 cursor-pointer`}
                       style={{ 
                         fontSize: `${fontSize}rem`,
                         opacity: opacity,
