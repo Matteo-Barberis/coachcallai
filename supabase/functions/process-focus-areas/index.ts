@@ -34,7 +34,7 @@ const focusAreasAnalysisFunction = {
 };
 
 // Function to interact with OpenAI's API with function calling
-async function analyzeWithGPT(transcript: string, summary: string) {
+async function analyzeWithGPT(transcript: string) {
   console.log(`[${new Date().toISOString()}] Starting OpenAI API call for focus areas...`);
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
@@ -43,7 +43,7 @@ async function analyzeWithGPT(transcript: string, summary: string) {
   }
 
   try {
-    console.log(`[${new Date().toISOString()}] Preparing OpenAI API request with transcript length: ${transcript?.length || 0}, summary length: ${summary?.length || 0}`);
+    console.log(`[${new Date().toISOString()}] Preparing OpenAI API request with transcript length: ${transcript?.length || 0}`);
     
     console.log(`[${new Date().toISOString()}] Sending request to OpenAI API...`);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -61,24 +61,24 @@ async function analyzeWithGPT(transcript: string, summary: string) {
             Your job is to analyze coaching call transcripts and identify key focus areas, topics, and themes
             that are important to the user.
             
-            Provide ONLY keywords that represent the key areas of focus in the coaching relationship.
+            IMPORTANT: Only analyze what the USER says in the transcript. Completely ignore anything said by the coach/AI.
+            
+            Provide ONLY keywords that represent the key areas of focus mentioned by the USER ONLY in the coaching conversation.
             For each keyword:
-            1. Assign a value (1-10) indicating its importance based on frequency and emphasis in the conversation
+            1. Assign a value (1-10) indicating its importance based on frequency and emphasis in the user's statements
             
             Examples of good focus area keywords:
             - "Meditation" (specific practice)
-            - "Work-life balance" (broad goal)
+            - "Work-life" (broad goal)
             - "Morning routine" (specific habit)
-            - "Anxiety management" (specific challenge)
+            - "Anxiety" (specific challenge)
             - "Goal setting" (process-oriented)
             
-            Keep keywords concise (1-3 words) and focus on the most meaningful topics.`
+            Keep keywords concise (1-2 words) and focus on the most meaningful topics mentioned by the USER ONLY.`
           },
           {
             role: 'user',
-            content: `Analyze the following coaching call data and identify key focus areas.
-            
-            Call Summary: ${summary || 'No summary available'}
+            content: `Analyze the following coaching call transcript and identify key focus areas from what the USER says ONLY.
             
             Call Transcript: ${transcript || 'No transcript available'}`
           }
@@ -154,10 +154,10 @@ export async function main() {
     // Get all call logs that are completed but not processed for keywords
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
-      .select('id, call_summary, call_transcript, scheduled_call_id')
+      .select('id, call_transcript, scheduled_call_id')
       .eq('processed_keywords', false)
       .eq('status', 'completed')
-      .not('call_summary', 'is', null);
+      .not('call_transcript', 'is', null);
 
     if (fetchError) {
       console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
@@ -178,7 +178,7 @@ export async function main() {
     for (const [index, log] of unprocessedLogs.entries()) {
       try {
         console.log(`[${new Date().toISOString()}] Processing call log ${index + 1}/${unprocessedLogs.length}, ID: ${log.id}`);
-        console.log(`[${new Date().toISOString()}] Summary length: ${log.call_summary?.length || 0}, Transcript length: ${log.call_transcript?.length || 0}`);
+        console.log(`[${new Date().toISOString()}] Transcript length: ${log.call_transcript?.length || 0}`);
 
         // Get user_id from scheduled_call
         console.log(`[${new Date().toISOString()}] Fetching scheduled call data for call ID: ${log.scheduled_call_id}`);
@@ -220,11 +220,8 @@ export async function main() {
         // Analyze transcript with ChatGPT
         console.log(`[${new Date().toISOString()}] Sending call log ${log.id} to GPT for focus area analysis...`);
         
-        // Will send full data to OpenAI API
-        const newKeywords = await analyzeWithGPT(
-          log.call_transcript || '', 
-          log.call_summary || ''
-        );
+        // Will send only transcript to OpenAI API (no summary)
+        const newKeywords = await analyzeWithGPT(log.call_transcript || '');
         
         console.log(`[${new Date().toISOString()}] Received ${newKeywords?.length || 0} keywords from GPT analysis for log ${log.id}`);
         if (newKeywords?.length) {
