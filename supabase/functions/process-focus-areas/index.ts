@@ -109,7 +109,14 @@ async function analyzeWithGPT(transcript: string) {
       try {
         const functionCallArgs = JSON.parse(data.choices[0].message.function_call.arguments);
         console.log(`[${new Date().toISOString()}] Successfully parsed function call arguments`);
-        return functionCallArgs.keywords || [];
+        
+        // Capitalize the first letter of each keyword
+        const capitalizedKeywords = functionCallArgs.keywords?.map(keyword => ({
+          ...keyword,
+          text: keyword.text.charAt(0).toUpperCase() + keyword.text.slice(1)
+        })) || [];
+        
+        return capitalizedKeywords;
       } catch (parseError) {
         console.error(`[${new Date().toISOString()}] Error parsing function call arguments:`, parseError);
         throw new Error('Failed to parse keywords from OpenAI response');
@@ -233,22 +240,27 @@ export async function main() {
         
         if (newKeywords && newKeywords.length > 0) {
           for (const keyword of newKeywords) {
-            // Check if keyword already exists
+            // Ensure the keyword text is properly capitalized
+            const capitalizedText = keyword.text.charAt(0).toUpperCase() + keyword.text.slice(1);
+            
+            // Check if keyword already exists (case-insensitive comparison)
             const existingIndex = updatedFocusAreas.findIndex(
-              k => k.text.toLowerCase() === keyword.text.toLowerCase()
+              k => k.text.toLowerCase() === capitalizedText.toLowerCase()
             );
             
             if (existingIndex >= 0) {
               // Increase the existing keyword value by adding the new value
               // No cap on max value now
               const newValue = updatedFocusAreas[existingIndex].value + keyword.value;
-              console.log(`[${new Date().toISOString()}] Increasing value for keyword "${keyword.text}" from ${updatedFocusAreas[existingIndex].value} to ${newValue}`);
+              console.log(`[${new Date().toISOString()}] Increasing value for keyword "${capitalizedText}" from ${updatedFocusAreas[existingIndex].value} to ${newValue}`);
               updatedFocusAreas[existingIndex].value = newValue;
+              // Also ensure the existing keyword has correct capitalization
+              updatedFocusAreas[existingIndex].text = capitalizedText;
             } else {
-              // Add new keyword
-              console.log(`[${new Date().toISOString()}] Adding new keyword "${keyword.text}" with value ${keyword.value}`);
+              // Add new keyword with proper capitalization
+              console.log(`[${new Date().toISOString()}] Adding new keyword "${capitalizedText}" with value ${keyword.value}`);
               updatedFocusAreas.push({
-                text: keyword.text,
+                text: capitalizedText,
                 value: keyword.value
               });
             }

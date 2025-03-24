@@ -32,7 +32,14 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
         .single();
       
       if (error) throw error;
-      return data?.focus_areas as FocusArea[] || [];
+      
+      // Ensure all focus areas have capitalized first letter
+      const areas = (data?.focus_areas as FocusArea[] || []).map(area => ({
+        ...area,
+        text: area.text.charAt(0).toUpperCase() + area.text.slice(1)
+      }));
+      
+      return areas;
     },
     enabled: !propKeywords && !!session?.user?.id,
   });
