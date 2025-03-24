@@ -64,7 +64,7 @@ async function analyzeWithGPT(transcript: string) {
             
             Provide ONLY keywords that represent the key areas of focus mentioned by the USER ONLY in the coaching conversation.
             For each keyword:
-            1. Assign a value (1-10) indicating its frequency mentioned in the conversation
+            1. Assign a value indicating its frequency mentioned in the conversation
             
             Examples of good focus area keywords:
             - "Meditation" (specific practice)
@@ -326,4 +326,3 @@ Deno.serve(async (req) => {
     });
   }
 });
-
