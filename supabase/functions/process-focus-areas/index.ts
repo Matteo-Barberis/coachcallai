@@ -22,7 +22,7 @@ const focusAreasAnalysisFunction = {
             },
             value: {
               type: "integer",
-              description: "A value from 1-10 indicating the importance or frequency of this focus area"
+              description: "A value indicating the importance or frequency of this focus area"
             }
           },
           required: ["text", "value"]
@@ -240,8 +240,8 @@ export async function main() {
             
             if (existingIndex >= 0) {
               // Increase the existing keyword value by adding the new value
-              // But cap it at a maximum of 10
-              const newValue = Math.min(10, updatedFocusAreas[existingIndex].value + keyword.value);
+              // No cap on max value now
+              const newValue = updatedFocusAreas[existingIndex].value + keyword.value;
               console.log(`[${new Date().toISOString()}] Increasing value for keyword "${keyword.text}" from ${updatedFocusAreas[existingIndex].value} to ${newValue}`);
               updatedFocusAreas[existingIndex].value = newValue;
             } else {
