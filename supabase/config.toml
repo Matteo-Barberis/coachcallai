@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.process-achievements]
 verify_jwt = false
+
+[functions.process-focus-areas]
+verify_jwt = false

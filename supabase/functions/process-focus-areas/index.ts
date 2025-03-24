@@ -23,11 +23,6 @@ const focusAreasAnalysisFunction = {
             value: {
               type: "integer",
               description: "A value from 1-10 indicating the importance or frequency of this focus area"
-            },
-            trend: {
-              type: "string",
-              enum: ["up", "down", "stable"],
-              description: "The trend of this focus area compared to previous calls"
             }
           },
           required: ["text", "value"]
@@ -39,7 +34,7 @@ const focusAreasAnalysisFunction = {
 };
 
 // Function to interact with OpenAI's API with function calling
-async function analyzeWithGPT(transcript: string, summary: string, existingKeywords: any[]) {
+async function analyzeWithGPT(transcript: string, summary: string) {
   console.log(`[${new Date().toISOString()}] Starting OpenAI API call for focus areas...`);
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
@@ -49,7 +44,6 @@ async function analyzeWithGPT(transcript: string, summary: string, existingKeywo
 
   try {
     console.log(`[${new Date().toISOString()}] Preparing OpenAI API request with transcript length: ${transcript?.length || 0}, summary length: ${summary?.length || 0}`);
-    console.log(`[${new Date().toISOString()}] Existing keywords: ${JSON.stringify(existingKeywords)}`);
     
     console.log(`[${new Date().toISOString()}] Sending request to OpenAI API...`);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -67,10 +61,9 @@ async function analyzeWithGPT(transcript: string, summary: string, existingKeywo
             Your job is to analyze coaching call transcripts and identify key focus areas, topics, and themes
             that are important to the user.
             
-            Provide keywords that represent the key areas of focus in the coaching relationship.
+            Provide ONLY keywords that represent the key areas of focus in the coaching relationship.
             For each keyword:
             1. Assign a value (1-10) indicating its importance based on frequency and emphasis in the conversation
-            2. If previous keywords are provided, indicate a trend (up, down, stable) compared to before
             
             Examples of good focus area keywords:
             - "Meditation" (specific practice)
@@ -84,8 +77,6 @@ async function analyzeWithGPT(transcript: string, summary: string, existingKeywo
           {
             role: 'user',
             content: `Analyze the following coaching call data and identify key focus areas.
-            
-            Previous Focus Areas: ${JSON.stringify(existingKeywords || [])}
             
             Call Summary: ${summary || 'No summary available'}
             
@@ -160,11 +151,12 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs for keywords...`);
     
-    // Get all unprocessed call logs for keywords
+    // Get all call logs that are completed but not processed for keywords
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
       .select('id, call_summary, call_transcript, scheduled_call_id')
       .eq('processed_keywords', false)
+      .eq('status', 'completed')
       .not('call_summary', 'is', null);
 
     if (fetchError) {
@@ -173,7 +165,6 @@ export async function main() {
     }
 
     console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs?.length || 0} unprocessed call logs for keywords`);
-    
     console.log(`[${new Date().toISOString()}] Memory usage after fetching logs: ${JSON.stringify(Deno.memoryUsage())}`);
     
     if (!unprocessedLogs || unprocessedLogs.length === 0) {
@@ -230,38 +221,58 @@ export async function main() {
         console.log(`[${new Date().toISOString()}] Sending call log ${log.id} to GPT for focus area analysis...`);
         
         // Will send full data to OpenAI API
-        const focusAreas = await analyzeWithGPT(
+        const newKeywords = await analyzeWithGPT(
           log.call_transcript || '', 
-          log.call_summary || '', 
-          existingFocusAreas
+          log.call_summary || ''
         );
         
-        console.log(`[${new Date().toISOString()}] Received ${focusAreas?.length || 0} focus areas from GPT analysis for log ${log.id}`);
-        if (focusAreas?.length) {
-          console.log(`[${new Date().toISOString()}] First focus area: ${JSON.stringify(focusAreas[0])}`);
+        console.log(`[${new Date().toISOString()}] Received ${newKeywords?.length || 0} keywords from GPT analysis for log ${log.id}`);
+        if (newKeywords?.length) {
+          console.log(`[${new Date().toISOString()}] First keyword: ${JSON.stringify(newKeywords[0])}`);
         }
 
-        // Update user's focus areas in profile
-        if (focusAreas && focusAreas.length > 0) {
-          console.log(`[${new Date().toISOString()}] Updating focus areas for user ${userId}...`);
-          
-          const { error: updateError } = await supabaseClient
-            .from('profiles')
-            .update({ focus_areas: focusAreas })
-            .eq('id', userId);
-
-          if (updateError) {
-            console.error(`[${new Date().toISOString()}] Error updating focus areas for user ${userId}:`, updateError);
-            console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(updateError));
-          } else {
-            console.log(`[${new Date().toISOString()}] Successfully updated focus areas for user ${userId}`);
-            results.push({
-              user_id: userId,
-              keywords: focusAreas
-            });
+        // Merge with existing focus areas
+        let updatedFocusAreas = [...existingFocusAreas];
+        
+        if (newKeywords && newKeywords.length > 0) {
+          for (const keyword of newKeywords) {
+            // Check if keyword already exists
+            const existingIndex = updatedFocusAreas.findIndex(
+              k => k.text.toLowerCase() === keyword.text.toLowerCase()
+            );
+            
+            if (existingIndex >= 0) {
+              // Update existing keyword value
+              updatedFocusAreas[existingIndex].value = 
+                Math.min(10, Math.round((updatedFocusAreas[existingIndex].value + keyword.value) / 2));
+            } else {
+              // Add new keyword
+              updatedFocusAreas.push({
+                text: keyword.text,
+                value: keyword.value
+              });
+            }
           }
+        }
+        
+        console.log(`[${new Date().toISOString()}] Updating focus areas for user ${userId}...`);
+        console.log(`[${new Date().toISOString()}] New focus areas count: ${updatedFocusAreas.length}`);
+        
+        // Update user's focus areas in profile
+        const { error: updateError } = await supabaseClient
+          .from('profiles')
+          .update({ focus_areas: updatedFocusAreas })
+          .eq('id', userId);
+
+        if (updateError) {
+          console.error(`[${new Date().toISOString()}] Error updating focus areas for user ${userId}:`, updateError);
+          console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(updateError));
         } else {
-          console.log(`[${new Date().toISOString()}] No focus areas found for call log ${log.id}`);
+          console.log(`[${new Date().toISOString()}] Successfully updated focus areas for user ${userId}`);
+          results.push({
+            user_id: userId,
+            keywords: updatedFocusAreas
+          });
         }
 
         // Mark log as processed for keywords
