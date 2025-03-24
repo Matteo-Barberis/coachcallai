@@ -22,7 +22,7 @@ const focusAreasAnalysisFunction = {
             },
             value: {
               type: "integer",
-              description: "A value indicating the importance or frequency of this focus area"
+              description: "A value indicating its frequency mentioned in the conversation"
             }
           },
           required: ["text", "value"]
