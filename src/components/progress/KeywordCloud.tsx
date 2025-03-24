@@ -114,7 +114,12 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
             </Button>
           </div>
         </div>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription>
+          {description}
+          <div className="text-xs text-muted-foreground mt-1">
+            Updates may take a few minutes to appear after your coaching sessions.
+          </div>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2 justify-center">
