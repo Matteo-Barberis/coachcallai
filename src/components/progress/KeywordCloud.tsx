@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
   const [sortBy, setSortBy] = useState<'value' | 'alphabetical'>('value');
   const { session } = useSessionContext();
 
-  // Fetch focus areas from user profile if keywords not provided
   const { data: focusAreas, isLoading: loadingFocusAreas } = useQuery({
     queryKey: ['focusAreas'],
     queryFn: async () => {
@@ -33,7 +31,6 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
       
       if (error) throw error;
       
-      // Ensure all focus areas have capitalized first letter
       const areas = (data?.focus_areas as FocusArea[] || []).map(area => ({
         ...area,
         text: area.text.charAt(0).toUpperCase() + area.text.slice(1)
@@ -47,7 +44,6 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
   const isLoading = propIsLoading || loadingFocusAreas;
   const keywords = propKeywords || focusAreas || [];
   
-  // Sort keywords based on the selected sorting option
   const sortedKeywords = [...keywords].sort((a, b) => {
     if (sortBy === 'alphabetical') {
       return a.text.localeCompare(b.text);
@@ -55,7 +51,6 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
     return b.value - a.value;
   });
   
-  // Get the maximum value for scaling
   const maxValue = Math.max(...keywords.map(k => k.value), 1);
   
   if (isLoading) {
@@ -115,22 +110,16 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
           </div>
         </div>
         <CardDescription>
-          {description}
-          <div className="text-xs text-muted-foreground mt-1">
-            Updates may take a few minutes to appear after your coaching sessions.
-          </div>
+          {description} Updates may take a few minutes to appear after your coaching sessions.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2 justify-center">
           <TooltipProvider>
             {sortedKeywords.map((keyword, index) => {
-              // Calculate font size based on the keyword value relative to the max value
               const fontSize = 0.8 + (keyword.value / maxValue) * 1.2;
-              // Calculate opacity based on the keyword value relative to the max value
               const opacity = 0.6 + (keyword.value / maxValue) * 0.4;
               
-              // Determine color based on trend
               let bgColor = 'bg-primary/10';
               let textColor = 'text-primary';
               
