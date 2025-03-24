@@ -117,14 +117,13 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2 justify-start max-w-full min-h-[200px]">
+        <div className="flex flex-wrap gap-3 justify-start max-w-full min-h-[200px]">
           <TooltipProvider>
             {sortedKeywords.map((keyword, index) => {
               // Calculate font size based on the keyword value relative to the max value
-              // Use a more moderate scaling to prevent excessive size differences
-              const fontSize = 0.8 + (keyword.value / maxValue) * 0.8;
+              const fontSize = 0.75 + (keyword.value / maxValue) * 0.85;
               // Calculate opacity based on the keyword value relative to the max value
-              const opacity = 0.7 + (keyword.value / maxValue) * 0.3;
+              const opacity = 0.75 + (keyword.value / maxValue) * 0.25;
               
               // Determine color based on trend
               let bgColor = 'bg-primary/10';
@@ -138,15 +137,22 @@ const KeywordCloud = ({ title, description, keywords: propKeywords, isLoading: p
                 textColor = 'text-orange-700';
               }
               
+              // Calculate width based on text length
+              const minWidth = 60 + (keyword.text.length * 6);
+              const height = 32 + (keyword.value / maxValue) * 16;
+              
               return (
                 <Tooltip key={index}>
                   <TooltipTrigger asChild>
                     <span 
-                      className={`px-2 py-1 rounded-full ${bgColor} ${textColor} transition-all duration-300 hover:scale-110 cursor-pointer`}
+                      className={`px-3 py-1 rounded-full ${bgColor} ${textColor} transition-all duration-300 hover:scale-105 cursor-pointer inline-flex items-center justify-center`}
                       style={{ 
                         fontSize: `${fontSize}rem`,
                         opacity: opacity,
-                        fontWeight: keyword.value > maxValue * 0.7 ? 'bold' : 'normal'
+                        fontWeight: keyword.value > maxValue * 0.7 ? 'bold' : 'normal',
+                        width: `${minWidth}px`,
+                        height: `${height}px`,
+                        minWidth: 'fit-content',
                       }}
                     >
                       {keyword.text}
