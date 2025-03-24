@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -294,7 +295,6 @@ const Progress = () => {
               <KeywordCloud 
                 title="Focus Areas" 
                 description="Topics frequently discussed in your coaching sessions"
-                keywords={mockKeywords}
               />
             </div>
           </TabsContent>
