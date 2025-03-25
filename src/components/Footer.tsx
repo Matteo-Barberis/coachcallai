@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -61,7 +60,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">About Us</a></li>
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Careers</a></li>
-              <li><Link to="/privacy-policy" className="text-gray-600 hover:text-brand-primary">Privacy Policy</Link></li>
+              <li><a href="/privacy-policy" className="text-gray-600 hover:text-brand-primary">Privacy Policy</a></li>
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Terms of Service</a></li>
               <li><a href="#contact" className="text-gray-600 hover:text-brand-primary">Contact</a></li>
             </ul>
@@ -73,7 +72,7 @@ const Footer = () => {
             © {new Date().getFullYear()} Coach Call AI. All rights reserved.
           </p>
           <div className="flex space-x-6">
-            <Link to="/privacy-policy" className="text-gray-500 text-sm hover:text-brand-primary">Privacy Policy</Link>
+            <a href="/privacy-policy" className="text-gray-500 text-sm hover:text-brand-primary">Privacy Policy</a>
             <a href="#" className="text-gray-500 text-sm hover:text-brand-primary">Terms of Service</a>
             <a href="#" className="text-gray-500 text-sm hover:text-brand-primary">Cookies</a>
           </div>
