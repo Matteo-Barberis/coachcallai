@@ -15,6 +15,7 @@ export type Database = {
           id: string
           name: string
           personality: string
+          personality_id: string | null
           vapi_assistant_id: string
         }
         Insert: {
@@ -22,6 +23,7 @@ export type Database = {
           id?: string
           name: string
           personality: string
+          personality_id?: string | null
           vapi_assistant_id: string
         }
         Update: {
@@ -29,9 +31,18 @@ export type Database = {
           id?: string
           name?: string
           personality?: string
+          personality_id?: string | null
           vapi_assistant_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_personality"
+            columns: ["personality_id"]
+            isOneToOne: false
+            referencedRelation: "personalities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       call_logs: {
         Row: {
@@ -121,6 +132,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      personalities: {
+        Row: {
+          behavior: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          behavior: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          behavior?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

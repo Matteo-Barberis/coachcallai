@@ -9,7 +9,9 @@ import { Info } from "lucide-react";
 type Assistant = {
   id: string;
   name: string;
-  personality: string;
+  personality_id: string;
+  personality_name: string;
+  personality_behavior: string;
 };
 
 // Group coaches by personality
@@ -17,10 +19,10 @@ const groupCoachesByPersonality = (coaches: Assistant[]) => {
   const groupedCoaches: Record<string, Assistant[]> = {};
   
   coaches.forEach(coach => {
-    if (!groupedCoaches[coach.personality]) {
-      groupedCoaches[coach.personality] = [];
+    if (!groupedCoaches[coach.personality_name]) {
+      groupedCoaches[coach.personality_name] = [];
     }
-    groupedCoaches[coach.personality].push(coach);
+    groupedCoaches[coach.personality_name].push(coach);
   });
   
   return groupedCoaches;
@@ -35,17 +37,35 @@ const CoachSelect = () => {
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
+        // Updated query to join assistants with personalities table
         const { data, error } = await supabase
           .from('assistants')
-          .select('id, name, personality');
+          .select(`
+            id, 
+            name, 
+            personality_id,
+            personalities!inner (
+              name, 
+              behavior
+            )
+          `);
         
         if (error) throw error;
         
         if (data && data.length > 0) {
-          setCoaches(data);
+          // Transform the data to match the Assistant type
+          const transformedData = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            personality_id: item.personality_id,
+            personality_name: item.personalities.name,
+            personality_behavior: item.personalities.behavior
+          }));
+          
+          setCoaches(transformedData);
           // Set the first coach as default if no coach is selected
           if (!selectedCoach) {
-            setSelectedCoach(data[0].id);
+            setSelectedCoach(transformedData[0].id);
           }
         }
       } catch (error) {
@@ -87,16 +107,18 @@ const CoachSelect = () => {
               <SelectValue placeholder="Select a coach" />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(groupedCoaches).map(([personality, personalityCoaches]) => (
-                <SelectGroup key={personality}>
+              {Object.entries(groupedCoaches).map(([personalityName, personalityCoaches]) => (
+                <SelectGroup key={personalityName}>
                   <SelectLabel className="flex items-center">
-                    {personality}
+                    {personalityName}
                     <HoverCard>
                       <HoverCardTrigger asChild>
                         <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                       </HoverCardTrigger>
                       <HoverCardContent className="w-60 p-2">
-                        <p className="text-sm text-muted-foreground">{personality} coaches focus on {personality.toLowerCase()} aspects of your development.</p>
+                        <p className="text-sm text-muted-foreground">
+                          {personalityCoaches[0].personality_behavior}
+                        </p>
                       </HoverCardContent>
                     </HoverCard>
                   </SelectLabel>
@@ -109,7 +131,7 @@ const CoachSelect = () => {
                         <div>
                           <h4 className="font-semibold mb-1">{coach.name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            A {coach.personality.toLowerCase()} coach who helps you develop your skills and achieve your goals.
+                            A {coach.personality_name.toLowerCase()} coach who {coach.personality_behavior.toLowerCase()}.
                           </p>
                         </div>
                       </HoverCardContent>
