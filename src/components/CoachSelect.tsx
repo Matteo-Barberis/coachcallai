@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,7 +34,6 @@ const CoachSelect = () => {
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
-        // Updated query to join assistants with personalities table
         const { data, error } = await supabase
           .from('assistants')
           .select(`
@@ -52,7 +49,6 @@ const CoachSelect = () => {
         if (error) throw error;
         
         if (data && data.length > 0) {
-          // Transform the data to match the Assistant type
           const transformedData = data.map(item => ({
             id: item.id,
             name: item.name,
@@ -62,7 +58,6 @@ const CoachSelect = () => {
           }));
           
           setCoaches(transformedData);
-          // Set the first coach as default if no coach is selected
           if (!selectedCoach) {
             setSelectedCoach(transformedData[0].id);
           }
@@ -80,7 +75,6 @@ const CoachSelect = () => {
   const handleCoachChange = (coachId: string) => {
     setSelectedCoach(coachId);
     
-    // Find the coach name for the toast
     const coach = coaches.find(c => c.id === coachId);
     
     toast({
@@ -93,7 +87,6 @@ const CoachSelect = () => {
     return <div className="text-sm text-gray-500">Loading coaches...</div>;
   }
 
-  // Group coaches by personality
   const groupedCoaches = groupCoachesByPersonality(coaches);
 
   return (
@@ -112,19 +105,7 @@ const CoachSelect = () => {
                     {personalityName}
                   </SelectLabel>
                   {personalityCoaches.map((coach) => (
-                    <HoverCard key={coach.id}>
-                      <HoverCardTrigger asChild>
-                        <SelectItem value={coach.id}>{coach.name}</SelectItem>
-                      </HoverCardTrigger>
-                      <HoverCardContent className="w-80 p-4">
-                        <div>
-                          <h4 className="font-semibold mb-1">{coach.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            A {coach.personality_name.toLowerCase()} coach who {coach.personality_behavior.toLowerCase()}.
-                          </p>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
+                    <SelectItem key={coach.id} value={coach.id}>{coach.name}</SelectItem>
                   ))}
                 </SelectGroup>
               ))}
