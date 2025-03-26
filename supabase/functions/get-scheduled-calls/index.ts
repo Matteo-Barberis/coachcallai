@@ -109,9 +109,51 @@ serve(async (req) => {
             }
           }
           
+          // Get the user's selected assistant ID from the profile
+          console.log(`Fetching user's selected assistant ID for user ${call.user_id}`);
+          const { data: profileData, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('assistant_id, full_name')
+            .eq('id', call.user_id)
+            .single();
+            
+          // Default assistant ID to use if none found in profile
+          const defaultAssistantId = "3990f3ad-880c-4d8c-95bf-42d72a90ac14";
+          let assistantId = defaultAssistantId;
+          
+          if (profileError) {
+            console.error(`Error fetching profile data for user ${call.user_id}:`, profileError);
+            console.log(`Using default assistant ID: ${defaultAssistantId}`);
+          } else if (profileData?.assistant_id) {
+            console.log(`User ${profileData.full_name || call.user_id} has selected assistant ID: ${profileData.assistant_id}`);
+            assistantId = profileData.assistant_id;
+          } else {
+            console.log(`No selected assistant found for user ${profileData?.full_name || call.user_id}, using default: ${defaultAssistantId}`);
+          }
+          
+          // Fetch the actual Vapi assistant ID associated with this Supabase assistant ID
+          console.log(`Fetching Vapi assistant ID for assistant ${assistantId}`);
+          const { data: assistantData, error: assistantError } = await supabaseClient
+            .from('assistants')
+            .select('vapi_assistant_id, name')
+            .eq('id', assistantId)
+            .single();
+            
+          let vapiAssistantId = "3990f3ad-880c-4d8c-95bf-42d72a90ac14"; // Default Vapi Assistant ID
+          
+          if (assistantError) {
+            console.error(`Error fetching assistant data for ID ${assistantId}:`, assistantError);
+            console.log(`Using default Vapi assistant ID: ${vapiAssistantId}`);
+          } else if (assistantData?.vapi_assistant_id) {
+            console.log(`Found Vapi assistant ID for ${assistantData.name}: ${assistantData.vapi_assistant_id}`);
+            vapiAssistantId = assistantData.vapi_assistant_id;
+          } else {
+            console.log(`No Vapi assistant ID found for assistant ${assistantId}, using default: ${vapiAssistantId}`);
+          }
+          
           // Prepare Vapi API call payload
           const vapiPayload = {
-            "assistantId": "3990f3ad-880c-4d8c-95bf-42d72a90ac14",
+            "assistantId": vapiAssistantId,
             "customer": {
               "number": call.phone
             },
@@ -131,6 +173,7 @@ serve(async (req) => {
           console.log(`Processing call ${call.id} for user ${call.full_name || call.user_id}:`);
           console.log(`Template: ${templateName} - ${templateDescription}`);
           console.log(`Greeting: ${greeting}`);
+          console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
           // Make request to Vapi API only if SKIP_VAPI_API_CALLS is false
