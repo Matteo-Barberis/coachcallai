@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -214,21 +213,8 @@ const CoachSelect = () => {
                     {personalityName}
                   </SelectLabel>
                   {personalityCoaches.map((coach) => (
-                    <SelectItem key={coach.id} value={coach.id} className="flex items-center justify-between">
-                      <span>{coach.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="ml-2 h-6 w-6 p-0" 
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          playCoachAudio(coach.id);
-                        }}
-                      >
-                        <Volume2 className={`h-4 w-4 ${playingCoachId === coach.id ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
-                      </Button>
+                    <SelectItem key={coach.id} value={coach.id}>
+                      {coach.name}
                     </SelectItem>
                   ))}
                 </SelectGroup>
