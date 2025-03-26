@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Info } from "lucide-react";
 
 type Assistant = {
   id: string;
@@ -111,16 +110,6 @@ const CoachSelect = () => {
                 <SelectGroup key={personalityName}>
                   <SelectLabel className="flex items-center">
                     {personalityName}
-                    <HoverCard>
-                      <HoverCardTrigger asChild>
-                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
-                      </HoverCardTrigger>
-                      <HoverCardContent className="w-60 p-2">
-                        <p className="text-sm text-muted-foreground">
-                          {personalityCoaches[0].personality_behavior}
-                        </p>
-                      </HoverCardContent>
-                    </HoverCard>
                   </SelectLabel>
                   {personalityCoaches.map((coach) => (
                     <HoverCard key={coach.id}>

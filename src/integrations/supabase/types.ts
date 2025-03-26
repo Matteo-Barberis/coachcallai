@@ -14,7 +14,6 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          personality: string
           personality_id: string | null
           vapi_assistant_id: string
         }
@@ -22,7 +21,6 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          personality: string
           personality_id?: string | null
           vapi_assistant_id: string
         }
@@ -30,7 +28,6 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          personality?: string
           personality_id?: string | null
           vapi_assistant_id?: string
         }
