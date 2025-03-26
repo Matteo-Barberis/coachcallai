@@ -2,13 +2,28 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Info } from "lucide-react";
 
 type Assistant = {
   id: string;
   name: string;
   personality: string;
+};
+
+// Group coaches by personality
+const groupCoachesByPersonality = (coaches: Assistant[]) => {
+  const groupedCoaches: Record<string, Assistant[]> = {};
+  
+  coaches.forEach(coach => {
+    if (!groupedCoaches[coach.personality]) {
+      groupedCoaches[coach.personality] = [];
+    }
+    groupedCoaches[coach.personality].push(coach);
+  });
+  
+  return groupedCoaches;
 };
 
 const CoachSelect = () => {
@@ -59,30 +74,52 @@ const CoachSelect = () => {
     return <div className="text-sm text-gray-500">Loading coaches...</div>;
   }
 
+  // Group coaches by personality
+  const groupedCoaches = groupCoachesByPersonality(coaches);
+
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium">Coach:</span>
+      <span className="text-sm font-medium mr-1">Coach:</span>
       {coaches.length > 0 ? (
-        <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
-          <SelectTrigger className="w-[180px] h-9">
-            <SelectValue placeholder="Select a coach" />
-          </SelectTrigger>
-          <SelectContent>
-            {coaches.map((coach) => (
-              <HoverCard key={coach.id}>
-                <HoverCardTrigger asChild>
-                  <SelectItem value={coach.id}>{coach.name}</SelectItem>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80 p-4">
-                  <div>
-                    <h4 className="font-semibold mb-1">{coach.name}</h4>
-                    <p className="text-sm text-muted-foreground">{coach.personality}</p>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center">
+          <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Select a coach" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(groupedCoaches).map(([personality, personalityCoaches]) => (
+                <SelectGroup key={personality}>
+                  <SelectLabel className="flex items-center">
+                    {personality}
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-60 p-2">
+                        <p className="text-sm text-muted-foreground">{personality} coaches focus on {personality.toLowerCase()} aspects of your development.</p>
+                      </HoverCardContent>
+                    </HoverCard>
+                  </SelectLabel>
+                  {personalityCoaches.map((coach) => (
+                    <HoverCard key={coach.id}>
+                      <HoverCardTrigger asChild>
+                        <SelectItem value={coach.id}>{coach.name}</SelectItem>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-80 p-4">
+                        <div>
+                          <h4 className="font-semibold mb-1">{coach.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            A {coach.personality.toLowerCase()} coach who helps you develop your skills and achieve your goals.
+                          </p>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  ))}
+                </SelectGroup>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       ) : (
         <div className="text-sm text-gray-500">No coaches available</div>
       )}
