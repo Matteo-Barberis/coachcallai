@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useSessionContext } from "@/context/SessionContext";
+import { Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Assistant = {
   id: string;
@@ -31,6 +33,8 @@ const CoachSelect = () => {
   const [coaches, setCoaches] = useState<Assistant[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [playingCoachId, setPlayingCoachId] = useState<string | null>(null);
   const { toast } = useToast();
   const { session } = useSessionContext();
 
@@ -127,6 +131,45 @@ const CoachSelect = () => {
     }
   };
 
+  // Play coach audio
+  const playCoachAudio = (coachId: string) => {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${coachId}.wav`;
+    const newAudio = new Audio(audioUrl);
+    
+    newAudio.onplay = () => {
+      setPlayingCoachId(coachId);
+    };
+    
+    newAudio.onended = () => {
+      setPlayingCoachId(null);
+    };
+    
+    newAudio.onerror = (e) => {
+      console.error('Error playing audio:', e);
+      setPlayingCoachId(null);
+      toast({
+        title: "Audio Error",
+        description: "Couldn't play the coach's voice sample.",
+        variant: "destructive",
+      });
+    };
+    
+    setAudio(newAudio);
+    newAudio.play().catch(error => {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Audio Error",
+        description: "Couldn't play the coach's voice sample.",
+        variant: "destructive",
+      });
+    });
+  };
+
   if (loading) {
     return <div className="text-sm text-gray-500">Loading coaches...</div>;
   }
@@ -149,12 +192,38 @@ const CoachSelect = () => {
                     {personalityName}
                   </SelectLabel>
                   {personalityCoaches.map((coach) => (
-                    <SelectItem key={coach.id} value={coach.id}>{coach.name}</SelectItem>
+                    <SelectItem key={coach.id} value={coach.id} className="flex items-center justify-between">
+                      <span>{coach.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="ml-2 h-6 w-6 p-0" 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          playCoachAudio(coach.id);
+                        }}
+                      >
+                        <Volume2 className={`h-4 w-4 ${playingCoachId === coach.id ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
+                      </Button>
+                    </SelectItem>
                   ))}
                 </SelectGroup>
               ))}
             </SelectContent>
           </Select>
+          {selectedCoach && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="ml-2 h-8 w-8" 
+              onClick={() => playCoachAudio(selectedCoach)}
+              aria-label="Play coach voice sample"
+            >
+              <Volume2 className={`h-4 w-4 ${playingCoachId === selectedCoach ? 'text-primary animate-pulse' : ''}`} />
+            </Button>
+          )}
         </div>
       ) : (
         <div className="text-sm text-gray-500">No coaches available</div>
