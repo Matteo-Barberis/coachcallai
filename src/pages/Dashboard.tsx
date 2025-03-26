@@ -5,7 +5,6 @@ import { useSessionContext } from '@/context/SessionContext';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
-import CoachSelect from '@/components/CoachSelect';
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
@@ -20,13 +19,7 @@ const Dashboard = () => {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <div className="mt-4 sm:mt-0">
-              <CoachSelect />
-            </div>
-          </div>
-          
+          <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
           <p className="text-gray-600 mb-6">
             Welcome to your Coach Call AI dashboard! This is where you'll manage your coaching sessions and review analytics.
           </p>

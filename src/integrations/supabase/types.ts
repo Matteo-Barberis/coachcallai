@@ -9,30 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      assistants: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          personality: string
-          vapi_assistant_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          personality: string
-          vapi_assistant_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          personality?: string
-          vapi_assistant_id?: string
-        }
-        Relationships: []
-      }
       call_logs: {
         Row: {
           call_summary: string | null
@@ -85,34 +61,24 @@ export type Database = {
       }
       greetings: {
         Row: {
-          assistant_id: string | null
           created_at: string | null
           greeting_text: string
           id: string
           template_id: string | null
         }
         Insert: {
-          assistant_id?: string | null
           created_at?: string | null
           greeting_text: string
           id?: string
           template_id?: string | null
         }
         Update: {
-          assistant_id?: string | null
           created_at?: string | null
           greeting_text?: string
           id?: string
           template_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "greetings_assistant_id_fkey"
-            columns: ["assistant_id"]
-            isOneToOne: false
-            referencedRelation: "assistants"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "greetings_template_id_fkey"
             columns: ["template_id"]
