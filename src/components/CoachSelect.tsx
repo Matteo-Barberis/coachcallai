@@ -96,12 +96,7 @@ const CoachSelect = () => {
                         <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                       </HoverCardTrigger>
                       <HoverCardContent className="w-60 p-2">
-                        <p className="text-sm text-muted-foreground">
-                          {personality === "Friendly" ? "Friendly & Encouraging" : 
-                           personality === "Supportive" ? "Supportive & Empathetic" : 
-                           personality === "Tough Love" ? "Tough Love & No-Nonsense" : 
-                           personality}
-                        </p>
+                        <p className="text-sm text-muted-foreground">{personality} coaches focus on {personality.toLowerCase()} aspects of your development.</p>
                       </HoverCardContent>
                     </HoverCard>
                   </SelectLabel>
@@ -114,7 +109,7 @@ const CoachSelect = () => {
                         <div>
                           <h4 className="font-semibold mb-1">{coach.name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            A {personality.toLowerCase()} coach who helps you develop your skills and achieve your goals.
+                            A {coach.personality.toLowerCase()} coach who helps you develop your skills and achieve your goals.
                           </p>
                         </div>
                       </HoverCardContent>
