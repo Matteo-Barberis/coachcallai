@@ -153,6 +153,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          assistant_id: string | null
           avatar_url: string | null
           created_at: string
           focus_areas: Json | null
@@ -167,6 +168,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
           focus_areas?: Json | null
@@ -181,6 +183,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
           focus_areas?: Json | null
@@ -194,7 +197,15 @@ export type Database = {
           timezone?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "assistants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_calls: {
         Row: {

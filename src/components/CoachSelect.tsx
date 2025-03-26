@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useSessionContext } from "@/context/SessionContext";
 
 type Assistant = {
   id: string;
@@ -30,11 +32,16 @@ const CoachSelect = () => {
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { session } = useSessionContext();
 
+  // Fetch user's stored coach preference and all coaches
   useEffect(() => {
-    const fetchCoaches = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await supabase
+        setLoading(true);
+        
+        // Fetch all coaches
+        const { data: coachesData, error: coachesError } = await supabase
           .from('assistants')
           .select(`
             id, 
@@ -46,41 +53,78 @@ const CoachSelect = () => {
             )
           `);
         
-        if (error) throw error;
+        if (coachesError) throw coachesError;
         
-        if (data && data.length > 0) {
-          const transformedData = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            personality_id: item.personality_id,
-            personality_name: item.personalities.name,
-            personality_behavior: item.personalities.behavior
-          }));
+        // Transform coaches data
+        const transformedCoaches = coachesData.map(item => ({
+          id: item.id,
+          name: item.name,
+          personality_id: item.personality_id,
+          personality_name: item.personalities.name,
+          personality_behavior: item.personalities.behavior
+        }));
+        
+        setCoaches(transformedCoaches);
+        
+        // If user is logged in, fetch their profile to get selected coach
+        if (session?.user.id) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('assistant_id')
+            .eq('id', session.user.id)
+            .single();
           
-          setCoaches(transformedData);
-          if (!selectedCoach) {
-            setSelectedCoach(transformedData[0].id);
+          if (profileError && profileError.code !== 'PGRST116') {
+            throw profileError;
+          }
+          
+          if (profileData?.assistant_id) {
+            setSelectedCoach(profileData.assistant_id);
+          } else if (transformedCoaches.length > 0) {
+            // Default to first coach if user has no selection
+            setSelectedCoach(transformedCoaches[0].id);
           }
         }
       } catch (error) {
-        console.error('Error fetching coaches:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCoaches();
-  }, [selectedCoach]);
+    fetchData();
+  }, [session]);
 
-  const handleCoachChange = (coachId: string) => {
+  // Save user's coach selection
+  const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
     
     const coach = coaches.find(c => c.id === coachId);
     
+    // Show toast notification
     toast({
       title: "Coach Selected",
       description: `You've selected ${coach?.name} as your coach.`,
     });
+    
+    // Save selection to user profile if logged in
+    if (session?.user.id) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ assistant_id: coachId })
+          .eq('id', session.user.id);
+        
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error saving coach selection:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save your coach selection. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   if (loading) {
