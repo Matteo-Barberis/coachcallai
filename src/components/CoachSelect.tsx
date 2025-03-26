@@ -13,6 +13,7 @@ type Assistant = {
   personality_id: string;
   personality_name: string;
   personality_behavior: string;
+  vapi_assistant_id: string;
 };
 
 // Group coaches by personality
@@ -51,6 +52,7 @@ const CoachSelect = () => {
             id, 
             name, 
             personality_id,
+            vapi_assistant_id,
             personalities!inner (
               name, 
               behavior
@@ -64,6 +66,7 @@ const CoachSelect = () => {
           id: item.id,
           name: item.name,
           personality_id: item.personality_id,
+          vapi_assistant_id: item.vapi_assistant_id,
           personality_name: item.personalities.name,
           personality_behavior: item.personalities.behavior
         }));
@@ -138,19 +141,36 @@ const CoachSelect = () => {
       audio.currentTime = 0;
     }
 
-    const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${coachId}.wav`;
+    // Find the coach to get the vapi_assistant_id
+    const coach = coaches.find(c => c.id === coachId);
+    
+    if (!coach) {
+      console.error('Coach not found:', coachId);
+      return;
+    }
+    
+    // Use vapi_assistant_id for the audio file name
+    const vapiAssistantId = coach.vapi_assistant_id;
+    const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${vapiAssistantId}.wav`;
+    
+    console.log(`Attempting to play audio from URL: ${audioUrl}`);
+    
     const newAudio = new Audio(audioUrl);
     
     newAudio.onplay = () => {
+      console.log('Audio started playing successfully');
       setPlayingCoachId(coachId);
     };
     
     newAudio.onended = () => {
+      console.log('Audio playback completed');
       setPlayingCoachId(null);
     };
     
     newAudio.onerror = (e) => {
       console.error('Error playing audio:', e);
+      console.error('Audio element error code:', newAudio.error?.code);
+      console.error('Audio element error message:', newAudio.error?.message);
       setPlayingCoachId(null);
       toast({
         title: "Audio Error",
@@ -162,6 +182,8 @@ const CoachSelect = () => {
     setAudio(newAudio);
     newAudio.play().catch(error => {
       console.error('Error playing audio:', error);
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
       toast({
         title: "Audio Error",
         description: "Couldn't play the coach's voice sample.",
