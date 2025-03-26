@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -127,7 +128,13 @@ const CoachSelect = () => {
       audio.currentTime = 0;
     }
 
-    const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio//${coachId}.wav`;
+    // Try multiple formats in case one doesn't work
+    const formats = ['.mp3', '.wav', '.m4a'];
+    let audioUrl = '';
+    
+    // First try with just the ID
+    audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${coachId}`;
+    
     const newAudio = new Audio(audioUrl);
     
     newAudio.onplay = () => {
