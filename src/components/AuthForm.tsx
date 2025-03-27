@@ -29,7 +29,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
 
     try {
       if (view === 'sign-up') {
-        const { error } = await supabase.auth.signUp({
+        const { data: authData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -39,16 +39,21 @@ const AuthForm = ({ view }: AuthFormProps) => {
           },
         });
 
-        if (error) {
-          // Check specifically for email already in use errors
-          if (error.message.includes("already registered") || 
-              error.message.includes("User already registered") || 
-              error.message.toLowerCase().includes("email already")) {
-            setError("This email is already registered. Please sign in instead.");
-            return;
-          }
-          throw error;
+        // Check specifically for repeated signup (email already exists)
+        // Supabase returns a 200 status for duplicate emails but with specific data patterns
+        const isRepeatedSignup = !error && (!authData?.user?.id || authData?.user?.identities?.length === 0);
+        
+        if (isRepeatedSignup) {
+          setError("This email is already registered. Please sign in instead.");
+          toast({
+            title: "Email already in use",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          });
+          return;
         }
+
+        if (error) throw error;
 
         toast({
           title: "Success!",
