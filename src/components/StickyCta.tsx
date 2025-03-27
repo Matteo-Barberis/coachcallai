@@ -45,7 +45,7 @@ const StickyCta = () => {
             <div className="w-8 h-8 rounded-full bg-brand-accent border-2 border-white"></div>
           </div>
           <p className="font-medium text-gray-700">
-            Join our family of 1000+ motivated achievers
+            Join our growing community of mindful seekers
           </p>
         </div>
         <Button 
