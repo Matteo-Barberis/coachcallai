@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert"; 
+import { AlertCircle } from "lucide-react";
 
 interface OnboardingSignupProps {
   email: string;
@@ -21,10 +23,17 @@ const OnboardingSignup: React.FC<OnboardingSignupProps> = ({
   onComplete
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidPassword = password.length >= 6;
   const isValid = isValidEmail && isValidPassword;
+
+  const handleComplete = () => {
+    // Clear any previous errors
+    setError(null);
+    onComplete();
+  };
 
   return (
     <div className="space-y-6">
@@ -35,6 +44,13 @@ const OnboardingSignup: React.FC<OnboardingSignupProps> = ({
         </p>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email Address</Label>
@@ -42,7 +58,11 @@ const OnboardingSignup: React.FC<OnboardingSignupProps> = ({
             id="email"
             type="email"
             value={email}
-            onChange={(e) => onChange({ email: e.target.value })}
+            onChange={(e) => {
+              onChange({ email: e.target.value });
+              // Clear error when user starts typing
+              if (error) setError(null);
+            }}
             placeholder="johndoe@example.com"
           />
           {email && !isValidEmail && (
@@ -57,7 +77,11 @@ const OnboardingSignup: React.FC<OnboardingSignupProps> = ({
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => onChange({ password: e.target.value })}
+              onChange={(e) => {
+                onChange({ password: e.target.value });
+                // Clear error when user starts typing
+                if (error) setError(null);
+              }}
               placeholder="Create a secure password"
               className="pr-10"
             />
@@ -91,7 +115,7 @@ const OnboardingSignup: React.FC<OnboardingSignupProps> = ({
         <Button
           className="bg-brand-primary hover:bg-brand-primary/90"
           disabled={!isValid}
-          onClick={onComplete}
+          onClick={handleComplete}
         >
           Create Account
         </Button>

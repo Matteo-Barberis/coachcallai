@@ -29,6 +29,7 @@ const Onboarding = () => {
     email: '',
     password: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -58,6 +59,9 @@ const Onboarding = () => {
   };
 
   const handleComplete = async () => {
+    if (isSubmitting) return; // Prevent multiple submissions
+    setIsSubmitting(true);
+    
     try {
       // Sign up the user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
@@ -70,10 +74,30 @@ const Onboarding = () => {
         },
       });
 
-      if (error) throw error;
+      // Check specifically for the email already in use error
+      if (error) {
+        // Look for error messages that indicate the email is already in use
+        if (error.message.includes("already registered") || 
+            error.message.includes("User already registered") || 
+            error.message.toLowerCase().includes("email already")) {
+          
+          toast({
+            title: "Email already in use",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive",
+          });
+          
+          // Redirect to sign in page
+          navigate('/auth/sign-in');
+          return;
+        } else {
+          // Handle other errors
+          throw error;
+        }
+      }
 
       // Update the profile with additional information
-      if (authData.user) {
+      if (authData?.user) {
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
@@ -102,6 +126,8 @@ const Onboarding = () => {
         description: error.message || "An error occurred during signup.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

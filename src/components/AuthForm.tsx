@@ -39,7 +39,16 @@ const AuthForm = ({ view }: AuthFormProps) => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Check specifically for email already in use errors
+          if (error.message.includes("already registered") || 
+              error.message.includes("User already registered") || 
+              error.message.toLowerCase().includes("email already")) {
+            setError("This email is already registered. Please sign in instead.");
+            return;
+          }
+          throw error;
+        }
 
         toast({
           title: "Success!",
