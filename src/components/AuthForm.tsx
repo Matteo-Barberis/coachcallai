@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -55,20 +54,15 @@ const AuthForm = ({ view }: AuthFormProps) => {
 
         if (error) throw error;
 
+        // Success - redirect to sign-in page with success message
         toast({
-          title: "Success!",
-          description: "Account created. Please check your email for verification.",
+          title: "Account created successfully!",
+          description: "Please check your email for verification and then sign in.",
         });
         
-        // Automatically sign in after sign up
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (!signInError) {
-          navigate('/');
-        }
+        // Redirect to sign-in page instead of attempting auto-login
+        navigate('/auth/sign-in');
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
