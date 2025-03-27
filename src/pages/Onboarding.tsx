@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,7 +32,6 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Load saved data from localStorage if available
   useEffect(() => {
     const savedData = localStorage.getItem('onboardingData');
     if (savedData) {
@@ -41,7 +39,6 @@ const Onboarding = () => {
     }
   }, []);
 
-  // Save data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('onboardingData', JSON.stringify(data));
   }, [data]);
@@ -59,11 +56,10 @@ const Onboarding = () => {
   };
 
   const handleComplete = async () => {
-    if (isSubmitting) return; // Prevent multiple submissions
+    if (isSubmitting) return;
     setIsSubmitting(true);
     
     try {
-      // Verify coach exists before proceeding with signup
       if (data.coachId) {
         const { data: coachData, error: coachError } = await supabase
           .from('assistants')
@@ -82,7 +78,6 @@ const Onboarding = () => {
         }
       }
 
-      // Sign up the user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -93,8 +88,6 @@ const Onboarding = () => {
         },
       });
 
-      // Check if this was a repeated signup (email already exists)
-      // Supabase returns a 200 status for duplicate emails but with specific data patterns
       const isRepeatedSignup = !error && (!authData?.user?.id || authData?.user?.identities?.length === 0);
       
       if (isRepeatedSignup) {
@@ -104,17 +97,14 @@ const Onboarding = () => {
           variant: "destructive",
         });
         
-        // Redirect to sign in page
         navigate('/auth/sign-in');
         return;
       }
 
-      // Handle other errors
       if (error) {
         throw error;
       }
 
-      // Update the profile with additional information
       if (authData?.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -127,11 +117,9 @@ const Onboarding = () => {
 
         if (profileError) {
           console.error("Profile update error:", profileError);
-          // Even if the profile update fails, the user account was created
           toast({
             title: "Account created with limited information",
             description: "Your account was created, but we couldn't save all your preferences. You can update them later in your profile.",
-            // Change from "warning" to "default" since "warning" is not an allowed variant
             variant: "default",
           });
         } else {
@@ -141,16 +129,12 @@ const Onboarding = () => {
           });
         }
 
-        // Clear the localStorage data after successful signup
         localStorage.removeItem('onboardingData');
 
-        // Always redirect to dashboard or sign-in page depending on email verification requirements
         const { data: authSettings } = await supabase.auth.getSession();
         if (authSettings?.session) {
-          // User is already authenticated (email verification not required)
           navigate('/dashboard');
         } else {
-          // Email verification likely required
           toast({
             title: "Account created successfully!",
             description: "Please check your email for verification before signing in.",
@@ -194,12 +178,6 @@ const Onboarding = () => {
                   }`}
                 />
               ))}
-            </div>
-            <div className="flex justify-between mt-1 px-1 text-xs text-gray-500">
-              <span className={step >= 1 ? 'text-brand-primary font-medium' : ''}>Struggles</span>
-              <span className={step >= 2 ? 'text-brand-primary font-medium' : ''}>Contact</span>
-              <span className={step >= 3 ? 'text-brand-primary font-medium' : ''}>Coach</span>
-              <span className={step >= 4 ? 'text-brand-primary font-medium' : ''}>Account</span>
             </div>
           </div>
 
