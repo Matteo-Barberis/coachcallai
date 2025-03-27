@@ -31,6 +31,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Remove selectedCoach from dependency array to prevent reloading when selection changes
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
@@ -101,7 +102,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
     };
 
     fetchCoaches();
-  }, [selectedCoach, onSelect]);
+    // Remove selectedCoach from dependency array to prevent unnecessary refetching
+  }, [onSelect]);
 
   return (
     <div className="space-y-6">
