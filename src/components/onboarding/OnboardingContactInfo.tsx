@@ -56,7 +56,6 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
           <PhoneInput
             value={phone}
             onChange={(value) => onChange({ phone: value })}
