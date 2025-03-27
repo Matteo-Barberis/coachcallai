@@ -30,8 +30,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+  // Fetch coaches only once when component mounts
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
@@ -63,10 +63,9 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           
           setCoaches(transformedCoaches);
           
-          // If no coach is selected yet and this is the initial load, select the first one by default
-          if (!selectedCoach && isInitialLoad && transformedCoaches.length > 0) {
+          // If no coach is selected yet, select the first one by default
+          if (!selectedCoach && transformedCoaches.length > 0) {
             onSelect(transformedCoaches[0].id);
-            setIsInitialLoad(false);
           }
         } else {
           // If no coaches are found in the database, set a fallback
@@ -103,14 +102,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
     };
 
     fetchCoaches();
-    // Only run this effect once when the component mounts
   }, []);
-
-  const handleCoachSelect = (coachId: string) => {
-    if (coachId !== selectedCoach) {
-      onSelect(coachId);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -130,18 +122,19 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           <p>{error}</p>
         </div>
       ) : (
-        <RadioGroup value={selectedCoach} onValueChange={handleCoachSelect} className="space-y-4">
+        <RadioGroup value={selectedCoach} onValueChange={onSelect} className="space-y-4">
           {coaches.map((coach) => (
-            <div
+            <label
               key={coach.id}
-              className={`border rounded-lg p-4 transition-all ${
+              htmlFor={coach.id}
+              className={`block border rounded-lg p-4 transition-all cursor-pointer ${
                 selectedCoach === coach.id
                   ? 'border-brand-primary bg-brand-light/20 shadow-sm'
                   : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
               }`}
             >
               <div className="flex items-center space-x-4">
-                <RadioGroupItem id={coach.id} value={coach.id} className="sr-only" />
+                <RadioGroupItem id={coach.id} value={coach.id} />
                 <div className="h-16 w-16 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
                   <img 
                     src={coach.imageUrl} 
@@ -162,7 +155,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
                   </div>
                 )}
               </div>
-            </div>
+            </label>
           ))}
         </RadioGroup>
       )}
