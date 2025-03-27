@@ -3,18 +3,16 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import UserMenu from "@/components/UserMenu";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const isHomePage = location.pathname === '/';
 
   const handleEarlyAccess = () => {
-    toast({
-      title: "Early Access Requested",
-      description: "Thanks for your interest! We'll be in touch soon.",
-    });
+    navigate('/onboarding');
   };
 
   return (

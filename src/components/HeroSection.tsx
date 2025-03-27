@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [rotatingWord, setRotatingWord] = useState("Accountable");
   const [fadeState, setFadeState] = useState("fade-in");
   const rotatingWords = ["Accountable", "Mindful", "Motivated", "Focused", "Consistent", "Productive", "Happy"];
@@ -31,10 +32,7 @@ const HeroSection = () => {
   }, []);
 
   const handleEarlyAccess = () => {
-    toast({
-      title: "Early Access Requested",
-      description: "Thanks for your interest! We'll be in touch soon.",
-    });
+    navigate('/onboarding');
   };
 
   return (
@@ -99,7 +97,6 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Hero Image */}
         <div className="relative flex justify-center">
           <div className="relative w-full max-w-md animate-float">
             <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-brand-light opacity-70"></div>
