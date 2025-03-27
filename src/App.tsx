@@ -16,6 +16,7 @@ import Progress from "./pages/Progress";
 import Account from "./pages/Account";
 import Debug from "./pages/Debug";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/account" element={<Account />} />
             <Route path="/debug" element={<Debug />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

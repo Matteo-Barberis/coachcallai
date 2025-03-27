@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const StickyCta = () => {
   const { toast } = useToast();
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -23,10 +25,7 @@ const StickyCta = () => {
   }, []);
 
   const handleEarlyAccess = () => {
-    toast({
-      title: "Early Access Requested",
-      description: "Thanks for your interest! We'll be in touch soon.",
-    });
+    navigate('/onboarding');
   };
 
   return (
@@ -45,7 +44,7 @@ const StickyCta = () => {
             <div className="w-8 h-8 rounded-full bg-brand-accent border-2 border-white"></div>
           </div>
           <p className="font-medium text-gray-700">
-            Join our family of 1000+ motivated achievers
+            Join our community of goal-oriented people
           </p>
         </div>
         <Button 
