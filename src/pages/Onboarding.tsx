@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,6 +63,25 @@ const Onboarding = () => {
     setIsSubmitting(true);
     
     try {
+      // Verify coach exists before proceeding with signup
+      if (data.coachId) {
+        const { data: coachData, error: coachError } = await supabase
+          .from('assistants')
+          .select('id')
+          .eq('id', data.coachId)
+          .single();
+          
+        if (coachError || !coachData) {
+          toast({
+            title: "Coach selection error",
+            description: "The selected coach is not available. Please try selecting another coach.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Sign up the user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
@@ -105,18 +125,37 @@ const Onboarding = () => {
           })
           .eq('id', authData.user.id);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile update error:", profileError);
+          // Even if the profile update fails, the user account was created
+          toast({
+            title: "Account created with limited information",
+            description: "Your account was created, but we couldn't save all your preferences. You can update them later in your profile.",
+            variant: "warning",
+          });
+        } else {
+          toast({
+            title: "Account created successfully!",
+            description: "Welcome to Coach Call AI. You're all set to start your journey.",
+          });
+        }
 
         // Clear the localStorage data after successful signup
         localStorage.removeItem('onboardingData');
 
-        toast({
-          title: "Account created successfully!",
-          description: "Welcome to Coach Call AI. You're all set to start your journey.",
-        });
-
-        // Redirect to dashboard
-        navigate('/dashboard');
+        // Always redirect to dashboard or sign-in page depending on email verification requirements
+        const { data: authSettings } = await supabase.auth.getSession();
+        if (authSettings?.session) {
+          // User is already authenticated (email verification not required)
+          navigate('/dashboard');
+        } else {
+          // Email verification likely required
+          toast({
+            title: "Account created successfully!",
+            description: "Please check your email for verification before signing in.",
+          });
+          navigate('/auth/sign-in');
+        }
       }
     } catch (error: any) {
       toast({
