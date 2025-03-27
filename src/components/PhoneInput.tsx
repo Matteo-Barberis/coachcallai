@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import {
 interface PhoneInputProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
   error?: string;
   onBlur?: () => void;
 }
@@ -39,7 +41,7 @@ const countryCodes = [
   // Add more as needed
 ];
 
-const PhoneInput = ({ value, onChange, error, onBlur }: PhoneInputProps) => {
+const PhoneInput = ({ value, onChange, placeholder, error, onBlur }: PhoneInputProps) => {
   // Find country code from the full value
   const extractCodeAndNumber = (fullNumber: string) => {
     if (!fullNumber) return { code: '+1', nationalNumber: '' };
@@ -88,13 +90,15 @@ const PhoneInput = ({ value, onChange, error, onBlur }: PhoneInputProps) => {
 
   // Format example based on selected country code
   const getPlaceholder = useMemo(() => {
+    if (placeholder) return placeholder;
+    
     switch(selectedCode) {
       case '+1': return '(555) 123 4567';
       case '+44': return '7911 123456';
       case '+61': return '4 1234 5678';
       default: return '123 456 7890';
     }
-  }, [selectedCode]);
+  }, [selectedCode, placeholder]);
 
   // Handle input blur - let parent know for validation
   const handleBlur = () => {
