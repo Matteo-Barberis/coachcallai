@@ -35,13 +35,6 @@ const Header = () => {
         )}
         
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline" 
-            className="hidden md:inline-flex"
-            onClick={() => window.location.href = "#contact"}
-          >
-            Contact
-          </Button>
           <UserMenu />
         </div>
       </div>
