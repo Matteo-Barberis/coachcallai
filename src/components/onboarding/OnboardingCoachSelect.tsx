@@ -124,9 +124,9 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
       ) : (
         <RadioGroup value={selectedCoach} onValueChange={onSelect} className="space-y-4">
           {coaches.map((coach) => (
-            <label
+            <div
               key={coach.id}
-              htmlFor={coach.id}
+              onClick={() => onSelect(coach.id)}
               className={`block border rounded-lg p-4 transition-all cursor-pointer ${
                 selectedCoach === coach.id
                   ? 'border-brand-primary bg-brand-light/20 shadow-sm'
@@ -134,7 +134,6 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
               }`}
             >
               <div className="flex items-center space-x-4">
-                <RadioGroupItem id={coach.id} value={coach.id} />
                 <div className="h-16 w-16 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
                   <img 
                     src={coach.imageUrl} 
@@ -155,7 +154,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
                   </div>
                 )}
               </div>
-            </label>
+            </div>
           ))}
         </RadioGroup>
       )}
