@@ -65,7 +65,7 @@ const HeroSection = () => {
                 className="text-base md:text-lg py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
                 onClick={handleEarlyAccess}
               >
-                Start Your Free Trial
+                Get Your First AI Call
               </Button>
               <Button 
                 variant="outline" 
