@@ -131,7 +131,8 @@ const Onboarding = () => {
           toast({
             title: "Account created with limited information",
             description: "Your account was created, but we couldn't save all your preferences. You can update them later in your profile.",
-            variant: "warning",
+            // Change from "warning" to "default" since "warning" is not an allowed variant
+            variant: "default",
           });
         } else {
           toast({
