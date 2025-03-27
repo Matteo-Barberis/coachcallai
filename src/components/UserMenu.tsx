@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -11,11 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const UserMenu = () => {
   const { session, signOut } = useSessionContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
@@ -25,11 +25,18 @@ const UserMenu = () => {
     });
   };
 
+  const handleGetStarted = () => {
+    navigate('/onboarding');
+  };
+
   if (!session) {
     return (
       <div className="flex space-x-2">
         <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
           Sign In
+        </Button>
+        <Button className="bg-brand-primary hover:bg-brand-primary/90" onClick={handleGetStarted}>
+          Get Started
         </Button>
       </div>
     );
