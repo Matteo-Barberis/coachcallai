@@ -13,23 +13,24 @@ interface Coach {
   imageUrl: string;
 }
 
+// Updated coaches with proper UUID format values
 const coaches: Coach[] = [
   {
-    id: 'coach1',
+    id: '5c8d3aba-0c2e-4cc5-a114-d4558c8efed2',
     name: 'Alex',
     title: 'Productivity Coach',
     description: 'Helps you build effective routines and stay focused on your most important tasks.',
     imageUrl: '/placeholder.svg'
   },
   {
-    id: 'coach2',
+    id: '45a76abb-e468-4cc4-badb-9567d3b13193',
     name: 'Sam',
     title: 'Mindfulness Coach',
     description: 'Guides you to reduce stress and be more present in your daily life.',
     imageUrl: '/placeholder.svg'
   },
   {
-    id: 'coach3',
+    id: '6d2edf2a-bc0f-4a05-a8c0-3b11c4bfe3ba',
     name: 'Taylor',
     title: 'Fitness Coach',
     description: 'Keeps you accountable for your physical health and exercise goals.',
