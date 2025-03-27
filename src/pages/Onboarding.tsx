@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,26 +73,25 @@ const Onboarding = () => {
         },
       });
 
-      // Check specifically for the email already in use error
+      // Check if this was a repeated signup (email already exists)
+      // Supabase returns a 200 status for duplicate emails but with specific data patterns
+      const isRepeatedSignup = !error && (!authData?.user?.id || authData?.user?.identities?.length === 0);
+      
+      if (isRepeatedSignup) {
+        toast({
+          title: "Email already in use",
+          description: "This email is already registered. Please sign in instead.",
+          variant: "destructive",
+        });
+        
+        // Redirect to sign in page
+        navigate('/auth/sign-in');
+        return;
+      }
+
+      // Handle other errors
       if (error) {
-        // Look for error messages that indicate the email is already in use
-        if (error.message.includes("already registered") || 
-            error.message.includes("User already registered") || 
-            error.message.toLowerCase().includes("email already")) {
-          
-          toast({
-            title: "Email already in use",
-            description: "This email is already registered. Please sign in instead.",
-            variant: "destructive",
-          });
-          
-          // Redirect to sign in page
-          navigate('/auth/sign-in');
-          return;
-        } else {
-          // Handle other errors
-          throw error;
-        }
+        throw error;
       }
 
       // Update the profile with additional information
