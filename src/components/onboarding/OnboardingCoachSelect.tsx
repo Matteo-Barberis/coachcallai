@@ -30,8 +30,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Remove selectedCoach from dependency array to prevent reloading when selection changes
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
@@ -63,9 +63,10 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           
           setCoaches(transformedCoaches);
           
-          // If no coach is selected yet, select the first one by default
-          if (!selectedCoach && transformedCoaches.length > 0) {
+          // If no coach is selected yet and this is the initial load, select the first one by default
+          if (!selectedCoach && isInitialLoad && transformedCoaches.length > 0) {
             onSelect(transformedCoaches[0].id);
+            setIsInitialLoad(false);
           }
         } else {
           // If no coaches are found in the database, set a fallback
@@ -102,8 +103,14 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
     };
 
     fetchCoaches();
-    // Remove selectedCoach from dependency array to prevent unnecessary refetching
-  }, [onSelect]);
+    // Only run this effect once when the component mounts
+  }, []);
+
+  const handleCoachSelect = (coachId: string) => {
+    if (coachId !== selectedCoach) {
+      onSelect(coachId);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -123,7 +130,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           <p>{error}</p>
         </div>
       ) : (
-        <RadioGroup value={selectedCoach} onValueChange={onSelect} className="space-y-4">
+        <RadioGroup value={selectedCoach} onValueChange={handleCoachSelect} className="space-y-4">
           {coaches.map((coach) => (
             <div
               key={coach.id}
