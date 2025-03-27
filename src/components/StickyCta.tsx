@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useSessionContext } from '@/context/SessionContext';
 
 const StickyCta = () => {
   const { toast } = useToast();
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
+  const { session } = useSessionContext();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -24,8 +26,12 @@ const StickyCta = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleEarlyAccess = () => {
-    navigate('/onboarding');
+  const handleButtonClick = () => {
+    if (session) {
+      navigate('/dashboard');
+    } else {
+      navigate('/onboarding');
+    }
   };
 
   return (
@@ -49,9 +55,9 @@ const StickyCta = () => {
         </div>
         <Button 
           className="text-base py-4 px-6 bg-brand-primary hover:bg-brand-primary/90 whitespace-nowrap"
-          onClick={handleEarlyAccess}
+          onClick={handleButtonClick}
         >
-          Get Your First AI Call
+          {session ? "Go to Dashboard" : "Get Your First AI Call"}
         </Button>
       </div>
     </div>
