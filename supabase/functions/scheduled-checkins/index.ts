@@ -105,6 +105,7 @@ serve(async (req) => {
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
         
+        // Enhanced logging for timezone time
         console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${hours}:${minutes} (${localTimeString})`);
         
         // Check if current time falls within any check-in window
@@ -288,7 +289,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_US'
+            code: 'en'
           },
           components: [
             {
