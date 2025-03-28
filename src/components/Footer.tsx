@@ -60,8 +60,8 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">About Us</a></li>
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Careers</a></li>
-              <li><a href="/privacy-policy" className="text-gray-600 hover:text-brand-primary">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brand-primary">Terms of Service</a></li>
+              <li><Link to="/privacy-policy" className="text-gray-600 hover:text-brand-primary">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="text-gray-600 hover:text-brand-primary">Terms of Service</Link></li>
               <li><a href="#contact" className="text-gray-600 hover:text-brand-primary">Contact</a></li>
             </ul>
           </div>
@@ -72,8 +72,8 @@ const Footer = () => {
             © {new Date().getFullYear()} Coach Call AI. All rights reserved.
           </p>
           <div className="flex space-x-6">
-            <a href="/privacy-policy" className="text-gray-500 text-sm hover:text-brand-primary">Privacy Policy</a>
-            <a href="#" className="text-gray-500 text-sm hover:text-brand-primary">Terms of Service</a>
+            <Link to="/privacy-policy" className="text-gray-500 text-sm hover:text-brand-primary">Privacy Policy</Link>
+            <Link to="/terms-of-service" className="text-gray-500 text-sm hover:text-brand-primary">Terms of Service</Link>
             <a href="#" className="text-gray-500 text-sm hover:text-brand-primary">Cookies</a>
           </div>
         </div>
