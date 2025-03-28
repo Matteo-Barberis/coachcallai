@@ -10,9 +10,9 @@ const corsHeaders = {
 
 // Time windows for check-ins (in hours and minutes)
 const checkInWindows = [
-  { type: 'morning', templateId: 'morning_checkin', startHour: 6, startMinute: 45, endHour: 7, endMinute: 15 },
+  { type: 'morning', templateId: 'morning_checkin', startHour: 6, startMinute: 45, endHour: 7, endMinute: 45 },
   { type: 'midday', templateId: 'midday_checkin', startHour: 11, startMinute: 45, endHour: 12, endMinute: 15 },
-  { type: 'evening', templateId: 'evening_checkin', startHour: 19, startMinute: 45, endHour: 20, endMinute: 15 }
+  { type: 'evening', templateId: 'evening_checkin', startHour: 18, startMinute: 30, endHour: 19, endMinute: 45 }
 ];
 
 // Log immediately when the function is loaded
@@ -71,6 +71,7 @@ serve(async (req) => {
     const timezones = uniqueTimezones.map(timezone => ({ timezone }));
 
     console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
+    console.log(`[${new Date().toISOString()}] Timezones found:`, uniqueTimezones);
     
     // Process each timezone
     let messagesSent = 0;
@@ -84,8 +85,11 @@ serve(async (req) => {
         const now = new Date();
         const localOptions = { timeZone: timezone };
         
-        // Parse hours and minutes from local time
+        // Log current time in this timezone
         const localTimeString = now.toLocaleTimeString('en-US', localOptions);
+        console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${localTimeString}`);
+        
+        // Parse hours and minutes from local time
         const timeMatch = localTimeString.match(/(\d+):(\d+):(\d+) (AM|PM)/);
         
         if (!timeMatch) {
