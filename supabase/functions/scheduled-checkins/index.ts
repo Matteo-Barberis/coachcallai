@@ -285,7 +285,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_GB'
+            code: 'en'
           },
           components: [
             {
