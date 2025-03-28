@@ -108,6 +108,20 @@ serve(async (req) => {
       );
     }
 
+    // Check if this is a status update notification (not an actual user message)
+    if (payload.entry && 
+        payload.entry[0]?.changes && 
+        payload.entry[0]?.changes[0]?.value?.statuses) {
+      console.log('Received status update notification, not processing as a message');
+      return new Response(
+        JSON.stringify({ status: 'Status update acknowledged' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200, // Return 200 to acknowledge receipt
+        }
+      );
+    }
+
     // Extract message information
     if (!payload.entry || !payload.entry[0]?.changes || !payload.entry[0]?.changes[0]?.value?.messages) {
       console.log('No message found in payload');
