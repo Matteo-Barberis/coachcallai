@@ -149,7 +149,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, assistant_id')
+      .select('id, full_name, assistant_id, subscription_status')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -160,15 +160,12 @@ serve(async (req) => {
     const userId = profiles?.id;
     const userName = profiles?.full_name || 'User';
     const assistantId = profiles?.assistant_id;
+    const subscriptionStatus = profiles?.subscription_status;
     
-    if (!userId) {
-      console.log(`No user found with phone number: ${from} (with or without + prefix)`);
-      // We still proceed to store the message with a null user_id
-    } else {
-      console.log(`Found user with ID: ${userId} for phone number: ${from}`);
-    }
-
-    // Store the incoming message in the database
+    // Define default message for when user is not found or inactive
+    const defaultMessage = "Sorry, it appears your phone number is either not registered in our system or doesn't have an active subscription. Please visit our website to register or reactivate your subscription.";
+    
+    // Store the incoming message in the database regardless of user status
     const { data: insertData, error: insertError } = await supabaseClient
       .from('whatsapp_messages')
       .insert({
@@ -184,6 +181,76 @@ serve(async (req) => {
       console.log('Successfully saved message to database');
     }
 
+    // Check if user exists and has an active subscription
+    if (!userId || subscriptionStatus !== 'active') {
+      console.log(`User not found or subscription inactive. User ID: ${userId}, Subscription Status: ${subscriptionStatus}`);
+      
+      // Call WhatsApp API to send the default message
+      const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
+      if (!phoneNumberId) {
+        console.error('WHATSAPP_PHONE_NUMBER_ID is not set in environment variables');
+        throw new Error('WHATSAPP_PHONE_NUMBER_ID is not set in environment variables');
+      }
+      
+      const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+      
+      console.log(`Sending default message to ${from} via WhatsApp API`);
+      try {
+        const response = await fetch(whatsappApiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${whatsappApiToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: from,
+            type: 'text',
+            text: {
+              body: defaultMessage
+            }
+          })
+        });
+        
+        const responseData = await response.json();
+        console.log('WhatsApp API response:', JSON.stringify(responseData));
+        
+        if (!response.ok) {
+          console.error('Error sending WhatsApp message:', responseData);
+        } else {
+          console.log('Successfully sent WhatsApp default reply');
+        }
+      } catch (error) {
+        console.error('Error calling WhatsApp API:', error);
+      }
+      
+      // Store the outgoing default message in the database
+      const { error: replyInsertError } = await supabaseClient
+        .from('whatsapp_messages')
+        .insert({
+          user_id: userId || null,
+          content: defaultMessage,
+          type: 'system'
+        });
+
+      if (replyInsertError) {
+        console.error('Error inserting reply message:', replyInsertError);
+      } else {
+        console.log('Successfully saved default reply message to database');
+      }
+      
+      return new Response(
+        JSON.stringify({ status: 'success', message: 'Default message sent' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    }
+
+    // If we get to this point, user exists and has an active subscription
+    
     // Fetch assistant information if we have an assistant_id
     let assistantName = "Coach";
     let assistantPersonality = "";
