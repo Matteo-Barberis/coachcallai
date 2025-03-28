@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -49,32 +50,6 @@ serve(async (req) => {
 
     console.log(`Retrieved ${data?.length || 0} scheduled calls`);
     
-    // Filter out users who don't have an active subscription status
-    const activeUsers = [];
-    if (data && data.length > 0) {
-      for (const call of data) {
-        // Check if the user has an active subscription status
-        const { data: userData, error: userError } = await supabaseClient
-          .from('profiles')
-          .select('subscription_status')
-          .eq('id', call.user_id)
-          .single();
-        
-        if (userError) {
-          console.error(`Error fetching subscription status for user ${call.user_id}:`, userError);
-          continue;
-        }
-        
-        if (userData && userData.subscription_status === 'active') {
-          activeUsers.push(call);
-        } else {
-          console.log(`Skipping call for user ${call.user_id} - subscription not active: ${userData?.subscription_status}`);
-        }
-      }
-    }
-    
-    console.log(`Filtered down to ${activeUsers.length} calls for users with active subscriptions`);
-    
     // Get Vapi API Key from environment
     const vapiApiKey = Deno.env.get('VAPI_API_KEY');
     if (!vapiApiKey) {
@@ -82,12 +57,12 @@ serve(async (req) => {
     }
     
     // For each call, make a request to the Vapi API
-    if (activeUsers.length > 0 && vapiApiKey) {
+    if (data && data.length > 0 && vapiApiKey) {
       console.log('Processing scheduled calls...');
       console.log(`SKIP_VAPI_API_CALLS mode is: ${SKIP_VAPI_API_CALLS ? 'ENABLED' : 'DISABLED'}`);
       
       // Store all promises for the API calls
-      const apiCallPromises = activeUsers.map(async (call) => {
+      const apiCallPromises = data.map(async (call) => {
         try {
           // Extract template name and description if template_id exists
           let templateName = "Check-in call";
@@ -317,7 +292,7 @@ serve(async (req) => {
       console.log('All call processing completed:', JSON.stringify(apiResults));
       
       // Add the API results to the response data, matching by call.id
-      activeUsers.forEach(call => {
+      data.forEach(call => {
         const apiResult = apiResults.find(result => result.callId === call.id);
         call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null;
         call.vapiCallResult = apiResult ? apiResult.vapiResponse : null;
@@ -325,9 +300,9 @@ serve(async (req) => {
       });
     }
     
-    // Return the data with only active users
+    // Return the data
     return new Response(
-      JSON.stringify({ data: activeUsers }),
+      JSON.stringify({ data }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
