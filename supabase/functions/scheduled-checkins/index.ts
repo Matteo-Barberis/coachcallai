@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
@@ -70,7 +69,7 @@ serve(async (req) => {
     const uniqueTimezones = [...new Set(timezoneObjects.map(obj => obj.timezone))];
     const timezones = uniqueTimezones.map(timezone => ({ timezone }));
 
-    console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
+    console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones: ${JSON.stringify(uniqueTimezones)}`);
     
     // Process each timezone
     let messagesSent = 0;
@@ -270,6 +269,8 @@ async function sendWhatsAppTemplateMessage(
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
     
+    console.log(`[${new Date().toISOString()}] Sending WhatsApp template message to ${to} using template ${templateId}`);
+    
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
       headers: {
@@ -284,7 +285,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_US'
+            code: 'en_GB'
           },
           components: [
             {
@@ -302,6 +303,8 @@ async function sendWhatsAppTemplateMessage(
     });
     
     const responseData = await response.json();
+    
+    console.log(`[${new Date().toISOString()}] WhatsApp API response for ${to}:`, JSON.stringify(responseData));
     
     if (!response.ok) {
       console.error('Error sending WhatsApp template message:', responseData);
