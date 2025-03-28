@@ -17,15 +17,15 @@ interface Coach {
 interface OnboardingCoachSelectProps {
   selectedCoach: string;
   onSelect: (coachId: string) => void;
-  onNext: () => void;
   onBack: () => void;
+  onComplete: () => void; // Added the onComplete prop
 }
 
 const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   selectedCoach,
   onSelect,
-  onNext,
-  onBack
+  onBack,
+  onComplete
 }) => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,7 +169,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
         <Button
           className="bg-brand-primary hover:bg-brand-primary/90"
           disabled={!selectedCoach || loading}
-          onClick={onNext}
+          onClick={onComplete}
         >
           Continue
         </Button>
