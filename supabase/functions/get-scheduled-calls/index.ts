@@ -56,6 +56,14 @@ serve(async (req) => {
       console.error('VAPI_API_KEY not found in environment variables');
     }
     
+    // Filter out users without an active subscription status
+    if (data && data.length > 0) {
+      console.log('Filtering scheduled calls for users with active subscription status...');
+      const activeUsers = data.filter(call => call.subscription_status === 'active');
+      console.log(`Filtered from ${data.length} to ${activeUsers.length} active users`);
+      data = activeUsers;
+    }
+    
     // For each call, make a request to the Vapi API
     if (data && data.length > 0 && vapiApiKey) {
       console.log('Processing scheduled calls...');
