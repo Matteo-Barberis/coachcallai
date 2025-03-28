@@ -274,6 +274,9 @@ async function sendWhatsAppTemplateMessage(
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
     
+    // Log the template language being used
+    console.log(`[${new Date().toISOString()}] Sending template ${templateId} with language code 'en'`);
+    
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
       headers: {
@@ -288,7 +291,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_US'
+            code: 'en'  // Changed from 'en_US' to 'en'
           },
           components: [
             {
