@@ -1,18 +1,51 @@
 
-import React from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
+import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
+import { useQuery } from '@tanstack/react-query';
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
+  const navigate = useNavigate();
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
+  }
+
+  // Check if user is still in onboarding
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile', session?.user.id],
+    queryFn: async () => {
+      if (!session?.user.id) return null;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_onboarding')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session,
+  });
+
+  // Redirect to onboarding if is_onboarding is true
+  useEffect(() => {
+    if (!profileLoading && profileData?.is_onboarding === true) {
+      navigate('/onboarding');
+    }
+  }, [profileData, profileLoading, navigate]);
+
+  // Show loading while checking profile status
+  if (loading || profileLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (

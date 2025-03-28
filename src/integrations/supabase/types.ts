@@ -159,6 +159,7 @@ export type Database = {
           focus_areas: Json | null
           full_name: string | null
           id: string
+          is_onboarding: boolean
           objectives: string | null
           phone: string | null
           phone_verification_code: string | null
@@ -176,6 +177,7 @@ export type Database = {
           focus_areas?: Json | null
           full_name?: string | null
           id: string
+          is_onboarding?: boolean
           objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null
@@ -193,6 +195,7 @@ export type Database = {
           focus_areas?: Json | null
           full_name?: string | null
           id?: string
+          is_onboarding?: boolean
           objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null

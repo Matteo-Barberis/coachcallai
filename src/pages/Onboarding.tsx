@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import OnboardingStruggles from '@/components/onboarding/OnboardingStruggles';
 import OnboardingContactInfo from '@/components/onboarding/OnboardingContactInfo';
 import OnboardingCoachSelect from '@/components/onboarding/OnboardingCoachSelect';
-import OnboardingSignup from '@/components/onboarding/OnboardingSignup';
 import { useToast } from '@/components/ui/use-toast';
+import { useSessionContext } from '@/context/SessionContext';
 
 type OnboardingData = {
   focusArea: string;
@@ -13,8 +14,6 @@ type OnboardingData = {
   lastName: string;
   phone: string;
   coachId: string;
-  email: string;
-  password: string;
 };
 
 const Onboarding = () => {
@@ -25,13 +24,13 @@ const Onboarding = () => {
     lastName: '',
     phone: '',
     coachId: '',
-    email: '',
-    password: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session } = useSessionContext();
 
+  // Check if we should load saved data from cookies
   useEffect(() => {
     const savedData = localStorage.getItem('onboardingData');
     if (savedData) {
@@ -39,6 +38,7 @@ const Onboarding = () => {
     }
   }, []);
 
+  // Save data to localStorage as we progress
   useEffect(() => {
     localStorage.setItem('onboardingData', JSON.stringify(data));
   }, [data]);
@@ -48,7 +48,7 @@ const Onboarding = () => {
   };
 
   const nextStep = () => {
-    setStep(prev => Math.min(prev + 1, 4));
+    setStep(prev => Math.min(prev + 1, 3));
   };
 
   const prevStep = () => {
@@ -60,6 +60,16 @@ const Onboarding = () => {
     setIsSubmitting(true);
     
     try {
+      if (!session?.user?.id) {
+        toast({
+          title: "Authentication error",
+          description: "You need to be logged in to complete onboarding.",
+          variant: "destructive",
+        });
+        navigate('/auth/sign-in');
+        return;
+      }
+
       if (data.coachId) {
         const { data: coachData, error: coachError } = await supabase
           .from('assistants')
@@ -78,74 +88,41 @@ const Onboarding = () => {
         }
       }
 
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            full_name: `${data.firstName} ${data.lastName}`,
-          },
-        },
-      });
+      // Update user profile with onboarding data
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          phone: data.phone,
+          full_name: `${data.firstName} ${data.lastName}`,
+          focus_areas: { main: data.focusArea },
+          assistant_id: data.coachId,
+          is_onboarding: false // Mark onboarding as complete
+        })
+        .eq('id', session.user.id);
 
-      const isRepeatedSignup = !error && (!authData?.user?.id || authData?.user?.identities?.length === 0);
-      
-      if (isRepeatedSignup) {
+      if (profileError) {
+        console.error("Profile update error:", profileError);
         toast({
-          title: "Email already in use",
-          description: "This email is already registered. Please sign in instead.",
+          title: "Error saving preferences",
+          description: "We couldn't save all your preferences. Please try again.",
           variant: "destructive",
         });
-        
-        navigate('/auth/sign-in');
-        return;
+      } else {
+        toast({
+          title: "Onboarding completed successfully!",
+          description: "Welcome to Coach Call AI. You're all set to start your journey.",
+        });
       }
 
-      if (error) {
-        throw error;
-      }
-
-      if (authData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            phone: data.phone,
-            focus_areas: { main: data.focusArea },
-            assistant_id: data.coachId,
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.error("Profile update error:", profileError);
-          toast({
-            title: "Account created with limited information",
-            description: "Your account was created, but we couldn't save all your preferences. You can update them later in your profile.",
-            variant: "default",
-          });
-        } else {
-          toast({
-            title: "Account created successfully!",
-            description: "Welcome to Coach Call AI. You're all set to start your journey.",
-          });
-        }
-
-        localStorage.removeItem('onboardingData');
-
-        const { data: authSettings } = await supabase.auth.getSession();
-        if (authSettings?.session) {
-          navigate('/dashboard');
-        } else {
-          toast({
-            title: "Account created successfully!",
-            description: "Please check your email for verification before signing in.",
-          });
-          navigate('/auth/sign-in');
-        }
-      }
+      // Clear onboarding data from localStorage
+      localStorage.removeItem('onboardingData');
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
-        title: "Signup failed",
-        description: error.message || "An error occurred during signup.",
+        title: "Onboarding error",
+        description: error.message || "An error occurred during onboarding.",
         variant: "destructive",
       });
     } finally {
@@ -170,7 +147,7 @@ const Onboarding = () => {
         <div className="w-full max-w-3xl bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-2 bg-gray-100">
             <div className="flex justify-between items-center">
-              {[1, 2, 3, 4].map((stepNumber) => (
+              {[1, 2, 3].map((stepNumber) => (
                 <div 
                   key={stepNumber}
                   className={`flex-1 h-2 rounded-full mx-1 ${
@@ -205,16 +182,6 @@ const Onboarding = () => {
               <OnboardingCoachSelect 
                 selectedCoach={data.coachId}
                 onSelect={(coachId) => updateData({ coachId })}
-                onNext={nextStep}
-                onBack={prevStep}
-              />
-            )}
-            
-            {step === 4 && (
-              <OnboardingSignup 
-                email={data.email}
-                password={data.password}
-                onChange={updateData}
                 onBack={prevStep}
                 onComplete={handleComplete}
               />
