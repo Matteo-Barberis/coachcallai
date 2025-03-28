@@ -1,7 +1,7 @@
 
-// Use only lightweight, pre-compiled dependencies
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
+import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -51,9 +51,10 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all unique timezones from the database
+    // Get all unique timezones from the database - fixing the distinct query
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
     
+    // The distinct method needs to be used differently - it takes a column name in Supabase JS v2
     const { data: timezoneObjects, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
@@ -65,23 +66,20 @@ serve(async (req) => {
       throw new Error(`Failed to fetch timezones: ${timezonesError.message}`);
     }
     
-    // Extract unique timezones from the results - using a simpler approach
-    const uniqueTimezones = [];
-    const timezoneSet = new Set();
-    for (const obj of timezoneObjects) {
-      if (obj.timezone && !timezoneSet.has(obj.timezone)) {
-        timezoneSet.add(obj.timezone);
-        uniqueTimezones.push(obj.timezone);
-      }
-    }
-    
-    console.log(`[${new Date().toISOString()}] Found ${uniqueTimezones.length} unique timezones`);
+    // Extract unique timezones from the results
+    const uniqueTimezones = [...new Set(timezoneObjects.map(obj => obj.timezone))];
+    const timezones = uniqueTimezones.map(timezone => ({ timezone }));
+
+    console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
+    console.log(`[${new Date().toISOString()}] Timezones found:`, uniqueTimezones);
     
     // Process each timezone
     let messagesSent = 0;
     const processingResults = [];
 
-    for (const timezone of uniqueTimezones) {
+    for (const timezoneObj of timezones) {
+      const timezone = timezoneObj.timezone;
+      
       try {
         // Determine current time in this timezone
         const now = new Date();
@@ -107,6 +105,8 @@ serve(async (req) => {
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
         
+        console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${hours}:${minutes} (${localTimeString})`);
+        
         // Check if current time falls within any check-in window
         for (const window of checkInWindows) {
           const isInWindow = isTimeInWindow(hours, minutes, window.startHour, window.startMinute, window.endHour, window.endMinute);
@@ -129,7 +129,7 @@ serve(async (req) => {
             
             console.log(`[${new Date().toISOString()}] Found ${users.length} users in timezone ${timezone}`);
             
-            // Process each user with efficient batch processing
+            // Process each user
             for (const user of users) {
               try {
                 // Get user's latest WhatsApp message
@@ -173,13 +173,11 @@ serve(async (req) => {
                   // Prepare user's name for template
                   const userName = user.full_name || "there";
                   
-                  console.log(`[${new Date().toISOString()}] Sending WhatsApp template message to ${phoneNumber} using template ${window.templateId}`);
-                  
                   // Send WhatsApp template message
                   const result = await sendWhatsAppTemplateMessage(
                     phoneNumber,
                     window.templateId,
-                    userName,
+                    { name: userName },
                     whatsappApiToken,
                     phoneNumberId
                   );
@@ -189,11 +187,6 @@ serve(async (req) => {
                     console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber}`);
                   } else {
                     console.error(`[${new Date().toISOString()}] Failed to send ${window.type} check-in to ${phoneNumber}: ${result.error}`);
-                  }
-                  
-                  // Log API response for debugging
-                  if (result.response) {
-                    console.log(`[${new Date().toISOString()}] WhatsApp API response for ${phoneNumber}: ${result.response}`);
                   }
                   
                   processingResults.push({
@@ -234,7 +227,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         status: 'success',
-        message: `Processed ${uniqueTimezones.length} timezones, sent ${messagesSent} messages`,
+        message: `Processed ${timezones.length} timezones, sent ${messagesSent} messages`,
         executionTime: `${executionTime}s`,
         results: processingResults
       }),
@@ -274,15 +267,12 @@ function isTimeInWindow(hours: number, minutes: number, startHour: number, start
 async function sendWhatsAppTemplateMessage(
   to: string,
   templateId: string,
-  userName: string,
+  components: { name: string },
   whatsappToken: string,
   phoneNumberId: string
-): Promise<{ success: boolean; error?: string; response?: string }> {
+): Promise<{ success: boolean; error?: string }> {
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
-    
-    // Debug log for request payload
-    console.log(`[${new Date().toISOString()}] Sending template "${templateId}" to ${to} with name parameter: "${userName}"`);
     
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
@@ -298,7 +288,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en'
+            code: 'en_US'
           },
           components: [
             {
@@ -306,7 +296,7 @@ async function sendWhatsAppTemplateMessage(
               parameters: [
                 {
                   type: 'text',
-                  text: userName
+                  text: components.name
                 }
               ]
             }
@@ -319,10 +309,10 @@ async function sendWhatsAppTemplateMessage(
     
     if (!response.ok) {
       console.error('Error sending WhatsApp template message:', responseData);
-      return { success: false, error: JSON.stringify(responseData), response: JSON.stringify(responseData) };
+      return { success: false, error: JSON.stringify(responseData) };
     }
     
-    return { success: true, response: JSON.stringify(responseData) };
+    return { success: true };
   } catch (error) {
     console.error('Exception sending WhatsApp template message:', error);
     return { success: false, error: error.message };
