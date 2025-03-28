@@ -219,12 +219,30 @@ serve(async (req) => {
       .map(msg => `${msg.role === 'user' ? userName : assistantName}: ${msg.content}`)
       .join('\n');
 
+    // Define our function for OpenAI to call
+    const functions = [
+      {
+        name: "generateCoachingResponse",
+        description: "Generate a coaching response to the user",
+        parameters: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "The message to send back to the user"
+            },
+          },
+          required: ["message"]
+        }
+      }
+    ];
+
     // Create ChatGPT prompt
     const prompt = `You are a coach responsible of keeping users accountable and motivated on their goals. Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". This is the conversation you are having so far:\n\n${conversationHistoryText}\n\nBased on the history of the conversation and the last user message, I want you to return a WhatsApp message reply that is helpful, motivational, and aligned with coaching the user toward their goals. Keep it conversational and friendly.`;
 
     console.log('Sending prompt to ChatGPT:', prompt);
 
-    // Generate personalized response using ChatGPT
+    // Generate personalized response using ChatGPT with function calling
     let replyMessage = "Thank you for your message! Our AI coach will respond shortly."; // Default fallback
 
     try {
@@ -242,15 +260,39 @@ serve(async (req) => {
               content: prompt 
             }
           ],
+          functions: functions,
+          function_call: { name: "generateCoachingResponse" },
           max_tokens: 500,
         }),
       });
 
       if (openaiResponse.ok) {
         const openaiData = await openaiResponse.json();
-        if (openaiData?.choices?.[0]?.message?.content) {
-          replyMessage = openaiData.choices[0].message.content.trim();
-          console.log('Generated personalized reply:', replyMessage);
+        console.log('OpenAI Response:', JSON.stringify(openaiData));
+        
+        if (openaiData.choices && openaiData.choices.length > 0) {
+          const functionCall = openaiData.choices[0].message.function_call;
+          
+          if (functionCall && functionCall.name === 'generateCoachingResponse') {
+            try {
+              const functionArgs = JSON.parse(functionCall.arguments);
+              if (functionArgs.message) {
+                replyMessage = functionArgs.message;
+                console.log('Generated structured reply:', replyMessage);
+              } else {
+                console.error('Missing message in function arguments');
+              }
+            } catch (parseError) {
+              console.error('Error parsing function arguments:', parseError);
+            }
+          } else {
+            // Fallback for when function call format is not returned
+            const content = openaiData.choices[0].message.content;
+            if (content) {
+              replyMessage = content;
+              console.log('Generated fallback reply:', replyMessage);
+            }
+          }
         } else {
           console.error('Invalid response structure from OpenAI:', openaiData);
         }
