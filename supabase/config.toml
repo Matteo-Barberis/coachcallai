@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.whatsapp-webhook]
 verify_jwt = false
+
+[functions.scheduled-checkins]
+verify_jwt = false
