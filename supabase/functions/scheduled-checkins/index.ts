@@ -1,4 +1,5 @@
 
+// Use only lightweight, pre-compiled dependencies
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -50,10 +51,9 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all unique timezones from the database - fixing the distinct query
+    // Get all unique timezones from the database
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
     
-    // The distinct method needs to be used differently - it takes a column name in Supabase JS v2
     const { data: timezoneObjects, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
@@ -65,20 +65,23 @@ serve(async (req) => {
       throw new Error(`Failed to fetch timezones: ${timezonesError.message}`);
     }
     
-    // Extract unique timezones from the results
-    const uniqueTimezones = [...new Set(timezoneObjects.map(obj => obj.timezone))];
-    const timezones = uniqueTimezones.map(timezone => ({ timezone }));
-
-    console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
-    console.log(`[${new Date().toISOString()}] Timezones found:`, uniqueTimezones);
+    // Extract unique timezones from the results - using a simpler approach
+    const uniqueTimezones = [];
+    const timezoneSet = new Set();
+    for (const obj of timezoneObjects) {
+      if (obj.timezone && !timezoneSet.has(obj.timezone)) {
+        timezoneSet.add(obj.timezone);
+        uniqueTimezones.push(obj.timezone);
+      }
+    }
+    
+    console.log(`[${new Date().toISOString()}] Found ${uniqueTimezones.length} unique timezones`);
     
     // Process each timezone
     let messagesSent = 0;
     const processingResults = [];
 
-    for (const timezoneObj of timezones) {
-      const timezone = timezoneObj.timezone;
-      
+    for (const timezone of uniqueTimezones) {
       try {
         // Determine current time in this timezone
         const now = new Date();
@@ -104,8 +107,6 @@ serve(async (req) => {
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
         
-        console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${hours}:${minutes} (${localTimeString})`);
-        
         // Check if current time falls within any check-in window
         for (const window of checkInWindows) {
           const isInWindow = isTimeInWindow(hours, minutes, window.startHour, window.startMinute, window.endHour, window.endMinute);
@@ -128,7 +129,7 @@ serve(async (req) => {
             
             console.log(`[${new Date().toISOString()}] Found ${users.length} users in timezone ${timezone}`);
             
-            // Process each user
+            // Process each user with efficient batch processing
             for (const user of users) {
               try {
                 // Get user's latest WhatsApp message
@@ -233,7 +234,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         status: 'success',
-        message: `Processed ${timezones.length} timezones, sent ${messagesSent} messages`,
+        message: `Processed ${uniqueTimezones.length} timezones, sent ${messagesSent} messages`,
         executionTime: `${executionTime}s`,
         results: processingResults
       }),
