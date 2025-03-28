@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
@@ -85,7 +86,7 @@ serve(async (req) => {
         const localOptions = { timeZone: timezone };
         
         // Log current time in this timezone
-        const localTimeString = now.toLocaleTimeString('en-US', localOptions);
+        const localTimeString = now.toLocaleTimeString('en', localOptions);
         console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${localTimeString}`);
         
         // Parse hours and minutes from local time
@@ -170,14 +171,10 @@ serve(async (req) => {
                   // Format phone number (remove + prefix if present as WhatsApp API doesn't expect it)
                   const phoneNumber = user.phone.startsWith('+') ? user.phone.substring(1) : user.phone;
                   
-                  // Prepare user's name for template
-                  const userName = user.full_name || "there";
-                  
                   // Send WhatsApp template message
                   const result = await sendWhatsAppTemplateMessage(
                     phoneNumber,
                     window.templateId,
-                    { name: userName },
                     whatsappApiToken,
                     phoneNumberId
                   );
@@ -267,15 +264,11 @@ function isTimeInWindow(hours: number, minutes: number, startHour: number, start
 async function sendWhatsAppTemplateMessage(
   to: string,
   templateId: string,
-  components: { name: string },
   whatsappToken: string,
   phoneNumberId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
-    
-    // Log the components being sent to ensure name is included
-    console.log(`Sending WhatsApp template with components:`, JSON.stringify(components));
     
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
@@ -292,18 +285,7 @@ async function sendWhatsAppTemplateMessage(
           name: templateId,
           language: {
             code: 'en'
-          },
-          components: [
-            {
-              type: 'body',
-              parameters: [
-                {
-                  type: 'text',
-                  text: components.name
-                }
-              ]
-            }
-          ]
+          }
         }
       })
     });
