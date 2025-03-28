@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
@@ -285,7 +286,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_GB'
+            code: 'en'
           },
           components: [
             {
