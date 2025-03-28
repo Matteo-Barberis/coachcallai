@@ -51,16 +51,14 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all unique timezones from the database
+    // Get all unique timezones from the database - fixing the query order
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
     const { data: timezones, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
-      .is('phone_verified', true) // Only include users with verified phone numbers
-      .is('phone', 'not.null') // Only include users with phone numbers
       .not('phone', 'is', null)
-      .order('timezone')
-      .distinct();
+      .eq('phone_verified', true)
+      .distinct('timezone');
 
     if (timezonesError) {
       console.error(`[${new Date().toISOString()}] Error fetching timezones:`, timezonesError);
@@ -112,8 +110,7 @@ serve(async (req) => {
               .from('profiles')
               .select('id, full_name, phone, timezone')
               .eq('timezone', timezone)
-              .is('phone_verified', true)  // Only include users with verified phone numbers
-              .is('phone', 'not.null')     // Only include users with phone numbers
+              .eq('phone_verified', true)
               .not('phone', 'is', null);
             
             if (usersError) {
