@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -207,7 +208,6 @@ const TermsOfService = () => {
           </p>
           <ul className="list-disc pl-6 text-gray-600 mb-4">
             <li>Email: hello@coachcall.ai</li>
-            <li>Address: [Your Company Address]</li>
           </ul>
         </section>
       </main>
