@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,7 +37,7 @@ const HeroSection = () => {
     if (session) {
       navigate('/dashboard');
     } else {
-      navigate('/onboarding');
+      navigate('/auth/sign-up');
     }
   };
 

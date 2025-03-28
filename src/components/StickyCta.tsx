@@ -30,7 +30,7 @@ const StickyCta = () => {
     if (session) {
       navigate('/dashboard');
     } else {
-      navigate('/onboarding');
+      navigate('/auth/sign-up');
     }
   };
 
