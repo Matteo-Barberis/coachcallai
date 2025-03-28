@@ -7,7 +7,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Log immediately when the function is loaded
+console.log("WhatsApp webhook function is starting up...");
+
 serve(async (req) => {
+  // Log all headers immediately when the function is called
+  console.log('Request headers:', JSON.stringify(Object.fromEntries(req.headers.entries())));
+  console.log('WhatsApp webhook handler called with method:', req.method);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
