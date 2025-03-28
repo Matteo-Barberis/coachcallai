@@ -151,11 +151,8 @@ serve(async (req) => {
                 
                 let shouldSendMessage = false;
                 
-                // If user has no messages, they should get a message
-                if (latestMessages.length === 0) {
-                  shouldSendMessage = true;
-                  console.log(`[${new Date().toISOString()}] User ${user.id} has no messages, sending check-in`);
-                } else {
+                // CHANGED: Only send messages if the user has message history
+                if (latestMessages.length > 0) {
                   // Check if latest message is outside 2-hour window but within 48 hours
                   const latestMessageTime = new Date(latestMessages[0].created_at);
                   
@@ -165,6 +162,9 @@ serve(async (req) => {
                   } else {
                     console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was at ${latestMessageTime.toISOString()}, not sending check-in`);
                   }
+                } else {
+                  // User has no message history, don't send a check-in
+                  console.log(`[${new Date().toISOString()}] User ${user.id} has no message history, skipping check-in`);
                 }
                 
                 if (shouldSendMessage) {
