@@ -51,19 +51,24 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all unique timezones from the database - fixing the query order
+    // Get all unique timezones from the database - fixing the distinct query
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
-    const { data: timezones, error: timezonesError } = await supabase
+    
+    // The distinct method needs to be used differently - it takes a column name in Supabase JS v2
+    const { data: timezoneObjects, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
       .not('phone', 'is', null)
-      .eq('phone_verified', true)
-      .distinct('timezone');
+      .eq('phone_verified', true);
 
     if (timezonesError) {
       console.error(`[${new Date().toISOString()}] Error fetching timezones:`, timezonesError);
       throw new Error(`Failed to fetch timezones: ${timezonesError.message}`);
     }
+    
+    // Extract unique timezones from the results
+    const uniqueTimezones = [...new Set(timezoneObjects.map(obj => obj.timezone))];
+    const timezones = uniqueTimezones.map(timezone => ({ timezone }));
 
     console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
     
