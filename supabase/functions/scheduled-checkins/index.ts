@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
-import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -173,11 +172,13 @@ serve(async (req) => {
                   // Prepare user's name for template
                   const userName = user.full_name || "there";
                   
+                  console.log(`[${new Date().toISOString()}] Sending WhatsApp template message to ${phoneNumber} using template ${window.templateId}`);
+                  
                   // Send WhatsApp template message
                   const result = await sendWhatsAppTemplateMessage(
                     phoneNumber,
                     window.templateId,
-                    { name: userName },
+                    userName,
                     whatsappApiToken,
                     phoneNumberId
                   );
@@ -187,6 +188,11 @@ serve(async (req) => {
                     console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber}`);
                   } else {
                     console.error(`[${new Date().toISOString()}] Failed to send ${window.type} check-in to ${phoneNumber}: ${result.error}`);
+                  }
+                  
+                  // Log API response for debugging
+                  if (result.response) {
+                    console.log(`[${new Date().toISOString()}] WhatsApp API response for ${phoneNumber}: ${result.response}`);
                   }
                   
                   processingResults.push({
@@ -267,12 +273,15 @@ function isTimeInWindow(hours: number, minutes: number, startHour: number, start
 async function sendWhatsAppTemplateMessage(
   to: string,
   templateId: string,
-  components: { name: string },
+  userName: string,
   whatsappToken: string,
   phoneNumberId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; response?: string }> {
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+    
+    // Debug log for request payload
+    console.log(`[${new Date().toISOString()}] Sending template "${templateId}" to ${to} with name parameter: "${userName}"`);
     
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
@@ -288,7 +297,7 @@ async function sendWhatsAppTemplateMessage(
         template: {
           name: templateId,
           language: {
-            code: 'en_US'
+            code: 'en'
           },
           components: [
             {
@@ -296,7 +305,7 @@ async function sendWhatsAppTemplateMessage(
               parameters: [
                 {
                   type: 'text',
-                  text: components.name
+                  text: userName
                 }
               ]
             }
@@ -309,10 +318,10 @@ async function sendWhatsAppTemplateMessage(
     
     if (!response.ok) {
       console.error('Error sending WhatsApp template message:', responseData);
-      return { success: false, error: JSON.stringify(responseData) };
+      return { success: false, error: JSON.stringify(responseData), response: JSON.stringify(responseData) };
     }
     
-    return { success: true };
+    return { success: true, response: JSON.stringify(responseData) };
   } catch (error) {
     console.error('Exception sending WhatsApp template message:', error);
     return { success: false, error: error.message };
