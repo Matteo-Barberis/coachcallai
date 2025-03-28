@@ -164,6 +164,8 @@ export type Database = {
           phone_verification_code: string | null
           phone_verification_expires_at: string | null
           phone_verified: boolean | null
+          stripe_customer_id: string | null
+          subscription_status: string | null
           timezone: string
           updated_at: string
         }
@@ -179,6 +181,8 @@ export type Database = {
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
           phone_verified?: boolean | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
           timezone?: string
           updated_at?: string
         }
@@ -194,6 +198,8 @@ export type Database = {
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
           phone_verified?: boolean | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
           timezone?: string
           updated_at?: string
         }

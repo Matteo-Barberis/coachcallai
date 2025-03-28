@@ -54,12 +54,11 @@ serve(async (req) => {
     // Get all unique timezones from the database - fixing the distinct query
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
     
-    // The distinct method needs to be used differently - it takes a column name in Supabase JS v2
+    // Changed: Removed phone_verified check
     const { data: timezoneObjects, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
-      .not('phone', 'is', null)
-      .eq('phone_verified', true);
+      .not('phone', 'is', null);
 
     if (timezonesError) {
       console.error(`[${new Date().toISOString()}] Error fetching timezones:`, timezonesError);
@@ -115,12 +114,11 @@ serve(async (req) => {
           if (isInWindow) {
             console.log(`[${new Date().toISOString()}] Time in ${timezone} falls within ${window.type} check-in window`);
             
-            // Find users with this timezone
+            // Changed: Removed phone_verified check
             const { data: users, error: usersError } = await supabase
               .from('profiles')
               .select('id, full_name, phone, timezone')
               .eq('timezone', timezone)
-              .eq('phone_verified', true)
               .not('phone', 'is', null);
             
             if (usersError) {
