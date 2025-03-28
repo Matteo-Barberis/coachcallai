@@ -14,15 +14,64 @@ serve(async (req) => {
   }
 
   try {
-    // Get the WhatsApp API token from environment variables
+    // Get the WhatsApp API token and verify token from environment variables
     const whatsappApiToken = Deno.env.get('WHATSAPP_API_TOKEN');
+    const whatsappVerifyToken = Deno.env.get('WHATSAPP_VERIFY_TOKEN');
+    
     if (!whatsappApiToken) {
       throw new Error('WHATSAPP_API_TOKEN is not set in environment variables');
     }
+    
+    if (!whatsappVerifyToken) {
+      throw new Error('WHATSAPP_VERIFY_TOKEN is not set in environment variables');
+    }
 
+    // Handle GET request for webhook verification
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      const mode = url.searchParams.get('hub.mode');
+      const token = url.searchParams.get('hub.verify_token');
+      const challenge = url.searchParams.get('hub.challenge');
+
+      console.log('Received verification request:');
+      console.log(`Mode: ${mode}, Token: ${token}, Challenge: ${challenge}`);
+
+      // Check if mode and token are in the query parameters
+      if (mode === 'subscribe' && token === whatsappVerifyToken) {
+        if (!challenge) {
+          throw new Error('hub.challenge is missing from verification request');
+        }
+        
+        console.log(`Verification successful. Returning challenge: ${challenge}`);
+        return new Response(challenge, {
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+          status: 200,
+        });
+      } else {
+        console.error('Failed verification. Token mismatch or invalid mode');
+        return new Response('Verification failed', {
+          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+          status: 403,
+        });
+      }
+    }
+
+    // For POST requests (actual webhook notifications)
     // Parse the incoming webhook payload
-    const payload = await req.json();
-    console.log('Received WhatsApp webhook payload:', JSON.stringify(payload));
+    let payload;
+    try {
+      payload = await req.json();
+      console.log('Received WhatsApp webhook payload:', JSON.stringify(payload));
+    } catch (e) {
+      console.error('Error parsing JSON payload:', e.message);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON payload' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
 
     // Create Supabase client with admin privileges using service role key
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
