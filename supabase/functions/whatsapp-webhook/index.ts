@@ -249,11 +249,11 @@ serve(async (req) => {
       .map(msg => `${msg.role === 'user' ? userName : assistantName}: ${msg.content}`)
       .join('\n');
 
-    // Define our function for OpenAI to call
+    // Define our function for OpenAI to call with updated schema to include achievements
     const functions = [
       {
         name: "generateCoachingResponse",
-        description: "Generate a coaching response to the user",
+        description: "Generate a coaching response to the user and identify any achievements mentioned",
         parameters: {
           type: "object",
           properties: {
@@ -261,19 +261,57 @@ serve(async (req) => {
               type: "string",
               description: "The message to send back to the user"
             },
+            achievements: {
+              type: "array",
+              description: "List of achievements mentioned in the user's LAST message only",
+              items: {
+                type: "object",
+                properties: {
+                  description: {
+                    type: "string",
+                    description: "Description of the achievement"
+                  },
+                  type: {
+                    type: "string",
+                    description: "Type of achievement: 'achievement' (small achievement), 'milestone', or 'breakthrough'",
+                    enum: ["achievement", "milestone", "breakthrough"]
+                  }
+                },
+                required: ["description", "type"]
+              }
+            }
           },
           required: ["message"]
         }
       }
     ];
 
-    // Create ChatGPT prompt
-    const prompt = `You are a coach responsible of keeping users accountable and motivated on their goals. Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". This is the conversation you are having so far:\n\n${conversationHistoryText}\n\nBased on the history of the conversation and the last user message, I want you to return a WhatsApp message reply that is helpful, motivational, and aligned with coaching the user toward their goals. Keep it conversational and friendly.`;
+    // Create ChatGPT prompt with achievement detection instruction
+    const prompt = `You are a coach responsible of keeping users accountable and motivated on their goals. 
+Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} 
+The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". 
+This is the conversation you are having so far:
+
+${conversationHistoryText}
+
+Based on the history of the conversation and the last user message, I want you to:
+1. Return a WhatsApp message reply that is helpful, motivational, and aligned with coaching the user toward their goals.
+2. Identify any achievements the user mentions in their LAST message only (not from previous messages in the conversation history).
+
+VERY IMPORTANT: Only identify achievements that the user EXPLICITLY mentions they have COMPLETED or ACCOMPLISHED in their LAST message. Do not infer achievements from goals or plans.
+
+Types of achievements:
+- "achievement": Small wins or regular progress (e.g., "I went for a run today")
+- "milestone": Significant progress markers (e.g., "I completed my first 5K race")
+- "breakthrough": Major transformative accomplishments (e.g., "I finally qualified for the marathon after years of training")
+
+Keep your reply conversational, friendly and encouraging. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.`;
 
     console.log('Sending prompt to ChatGPT:', prompt);
 
     // Generate personalized response using ChatGPT with function calling
     let replyMessage = "Thank you for your message! Our AI coach will respond shortly."; // Default fallback
+    let achievements = [];
 
     try {
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -312,6 +350,12 @@ serve(async (req) => {
               } else {
                 console.error('Missing message in function arguments');
               }
+              
+              // Extract achievements if available
+              if (functionArgs.achievements && Array.isArray(functionArgs.achievements)) {
+                achievements = functionArgs.achievements;
+                console.log('Detected achievements:', JSON.stringify(achievements));
+              }
             } catch (parseError) {
               console.error('Error parsing function arguments:', parseError);
             }
@@ -331,6 +375,35 @@ serve(async (req) => {
       }
     } catch (openaiError) {
       console.error('Error calling OpenAI API:', openaiError);
+    }
+
+    // Store any detected achievements in the database
+    if (userId && achievements.length > 0) {
+      console.log(`Storing ${achievements.length} achievements for user ${userId}`);
+      
+      const achievementPromises = achievements.map(achievement => {
+        return supabaseClient
+          .from('user_achievements')
+          .insert({
+            user_id: userId,
+            description: achievement.description,
+            type: achievement.type,
+            achievement_date: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
+          });
+      });
+      
+      try {
+        const achievementResults = await Promise.all(achievementPromises);
+        const errors = achievementResults.filter(result => result.error).map(result => result.error);
+        
+        if (errors.length > 0) {
+          console.error('Errors storing some achievements:', errors);
+        } else {
+          console.log('Successfully stored all achievements');
+        }
+      } catch (achievementError) {
+        console.error('Error storing achievements:', achievementError);
+      }
     }
 
     // Call WhatsApp API to send the reply
