@@ -24,6 +24,7 @@ serve(async (req) => {
     // Get the WhatsApp API token and verify token from environment variables
     const whatsappApiToken = Deno.env.get('WHATSAPP_API_TOKEN');
     const whatsappVerifyToken = Deno.env.get('WHATSAPP_VERIFY_TOKEN');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     
     if (!whatsappApiToken) {
       throw new Error('WHATSAPP_API_TOKEN is not set in environment variables');
@@ -31,6 +32,10 @@ serve(async (req) => {
     
     if (!whatsappVerifyToken) {
       throw new Error('WHATSAPP_VERIFY_TOKEN is not set in environment variables');
+    }
+
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY is not set in environment variables');
     }
 
     // Handle GET request for webhook verification
@@ -130,7 +135,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id')
+      .select('id, full_name, assistant_id')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -139,6 +144,8 @@ serve(async (req) => {
     }
 
     const userId = profiles?.id;
+    const userName = profiles?.full_name || 'User';
+    const assistantId = profiles?.assistant_id;
     
     if (!userId) {
       console.log(`No user found with phone number: ${from} (with or without + prefix)`);
@@ -163,9 +170,97 @@ serve(async (req) => {
       console.log('Successfully saved message to database');
     }
 
-    // Send a reply message
-    const defaultReply = "Thank you for your message! Our AI coach will respond shortly.";
+    // Fetch assistant information if we have an assistant_id
+    let assistantName = "Coach";
+    let assistantPersonality = "";
     
+    if (assistantId) {
+      const { data: assistantData, error: assistantError } = await supabaseClient
+        .from('assistants')
+        .select('name, personalities(behavior)')
+        .eq('id', assistantId)
+        .maybeSingle();
+        
+      if (assistantError) {
+        console.error('Error fetching assistant data:', assistantError);
+      } else if (assistantData) {
+        assistantName = assistantData.name || "Coach";
+        assistantPersonality = assistantData.personalities?.behavior || "";
+        console.log(`Using assistant: ${assistantName} with personality: ${assistantPersonality}`);
+      }
+    }
+
+    // Fetch last 20 messages for this user to provide context
+    let conversationHistory = [];
+    if (userId) {
+      const { data: messageHistory, error: messageHistoryError } = await supabaseClient
+        .from('whatsapp_messages')
+        .select('content, type, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+        
+      if (messageHistoryError) {
+        console.error('Error fetching message history:', messageHistoryError);
+      } else if (messageHistory) {
+        // Reverse to get chronological order
+        conversationHistory = messageHistory.reverse().map(msg => {
+          return {
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          };
+        });
+        console.log(`Retrieved ${conversationHistory.length} previous messages for context`);
+      }
+    }
+
+    // Format conversation history for the prompt
+    const conversationHistoryText = conversationHistory
+      .map(msg => `${msg.role === 'user' ? userName : assistantName}: ${msg.content}`)
+      .join('\n');
+
+    // Create ChatGPT prompt
+    const prompt = `You are a coach responsible of keeping users accountable and motivated on their goals. Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". This is the conversation you are having so far:\n\n${conversationHistoryText}\n\nBased on the history of the conversation and the last user message, I want you to return a WhatsApp message reply that is helpful, motivational, and aligned with coaching the user toward their goals. Keep it conversational and friendly.`;
+
+    console.log('Sending prompt to ChatGPT:', prompt);
+
+    // Generate personalized response using ChatGPT
+    let replyMessage = "Thank you for your message! Our AI coach will respond shortly."; // Default fallback
+
+    try {
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'user', 
+              content: prompt 
+            }
+          ],
+          max_tokens: 500,
+        }),
+      });
+
+      if (openaiResponse.ok) {
+        const openaiData = await openaiResponse.json();
+        if (openaiData?.choices?.[0]?.message?.content) {
+          replyMessage = openaiData.choices[0].message.content.trim();
+          console.log('Generated personalized reply:', replyMessage);
+        } else {
+          console.error('Invalid response structure from OpenAI:', openaiData);
+        }
+      } else {
+        console.error('Error from OpenAI API:', await openaiResponse.text());
+      }
+    } catch (openaiError) {
+      console.error('Error calling OpenAI API:', openaiError);
+    }
+
     // Call WhatsApp API to send the reply
     const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
     if (!phoneNumberId) {
@@ -189,7 +284,7 @@ serve(async (req) => {
           to: from,
           type: 'text',
           text: {
-            body: defaultReply
+            body: replyMessage
           }
         })
       });
@@ -211,7 +306,7 @@ serve(async (req) => {
       .from('whatsapp_messages')
       .insert({
         user_id: userId || null,
-        content: defaultReply,
+        content: replyMessage,
         type: 'system' // This is a message from the system
       });
 
