@@ -175,9 +175,10 @@ serve(async (req) => {
     let assistantPersonality = "";
     
     if (assistantId) {
+      // First query: Get the assistant name
       const { data: assistantData, error: assistantError } = await supabaseClient
         .from('assistants')
-        .select('name, personalities(behavior)')
+        .select('name, personality_id')
         .eq('id', assistantId)
         .maybeSingle();
         
@@ -185,7 +186,22 @@ serve(async (req) => {
         console.error('Error fetching assistant data:', assistantError);
       } else if (assistantData) {
         assistantName = assistantData.name || "Coach";
-        assistantPersonality = assistantData.personalities?.behavior || "";
+        
+        // If we have a personality_id, get the personality behavior in a second query
+        if (assistantData.personality_id) {
+          const { data: personalityData, error: personalityError } = await supabaseClient
+            .from('personalities')
+            .select('behavior')
+            .eq('id', assistantData.personality_id)
+            .maybeSingle();
+            
+          if (personalityError) {
+            console.error('Error fetching personality data:', personalityError);
+          } else if (personalityData) {
+            assistantPersonality = personalityData.behavior || "";
+          }
+        }
+        
         console.log(`Using assistant: ${assistantName} with personality: ${assistantPersonality}`);
       }
     }
