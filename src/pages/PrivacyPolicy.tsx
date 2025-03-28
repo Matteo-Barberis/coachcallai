@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -150,7 +149,7 @@ const PrivacyPolicy = () => {
             If you have any questions about this Privacy Policy, please contact us:
           </p>
           <ul className="list-disc pl-6 text-gray-600 mb-4">
-            <li>By email: [Your Company Email]</li>
+            <li>By email: hello@coachcall.ai</li>
             <li>By visiting the contact section on our website</li>
           </ul>
         </section>
