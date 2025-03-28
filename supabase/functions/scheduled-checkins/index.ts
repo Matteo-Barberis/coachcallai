@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
@@ -274,6 +273,9 @@ async function sendWhatsAppTemplateMessage(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+    
+    // Log the components being sent to ensure name is included
+    console.log(`Sending WhatsApp template with components:`, JSON.stringify(components));
     
     const response = await fetch(whatsappApiUrl, {
       method: 'POST',
