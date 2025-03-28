@@ -71,6 +71,7 @@ serve(async (req) => {
     const timezones = uniqueTimezones.map(timezone => ({ timezone }));
 
     console.log(`[${new Date().toISOString()}] Found ${timezones.length} unique timezones`);
+    console.log(`[${new Date().toISOString()}] Timezones found:`, uniqueTimezones);
     
     // Process each timezone
     let messagesSent = 0;
@@ -84,8 +85,11 @@ serve(async (req) => {
         const now = new Date();
         const localOptions = { timeZone: timezone };
         
-        // Parse hours and minutes from local time
+        // Log current time in this timezone
         const localTimeString = now.toLocaleTimeString('en-US', localOptions);
+        console.log(`[${new Date().toISOString()}] Current time in ${timezone}: ${localTimeString}`);
+        
+        // Parse hours and minutes from local time
         const timeMatch = localTimeString.match(/(\d+):(\d+):(\d+) (AM|PM)/);
         
         if (!timeMatch) {
