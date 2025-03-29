@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -76,7 +77,8 @@ const AuthForm = ({ view }: AuthFormProps) => {
           description: "You have successfully signed in.",
         });
         
-        navigate('/');
+        // Changed from '/' to '/dashboard' to redirect to dashboard after sign-in
+        navigate('/dashboard');
       }
     } catch (error: any) {
       setError(error.message || 'An unexpected error occurred');
