@@ -58,6 +58,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersona
   const [loading, setLoading] = useState(true);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [playingCoachId, setPlayingCoachId] = useState<string | null>(null);
+  const [initialSelectionDone, setInitialSelectionDone] = useState(false);
   const { toast } = useToast();
   const { session } = useSessionContext();
   const isMobile = useIsMobile();
@@ -95,57 +96,62 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersona
         
         setCoaches(transformedCoaches);
         
-        // Handle selection for authenticated users
-        if (session?.user.id) {
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('assistant_id')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (profileError && profileError.code !== 'PGRST116') {
-            throw profileError;
-          }
-          
-          if (profileData?.assistant_id) {
-            setSelectedCoach(profileData.assistant_id);
-            // Notify parent about selected coach on initial load
-            const selectedCoachData = transformedCoaches.find(c => c.id === profileData.assistant_id);
-            if (selectedCoachData && onCoachSelect) {
-              onCoachSelect(selectedCoachData.id, selectedCoachData.personality_type || 'friendly');
-            }
-          } else if (transformedCoaches.length > 0) {
-            setSelectedCoach(transformedCoaches[0].id);
-            // Notify parent about default selected coach
-            if (onCoachSelect && transformedCoaches[0].personality_type) {
-              onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
-            }
-          }
-        } 
-        // Handle default selection for non-authenticated users
-        else if (transformedCoaches.length > 0) {
-          let defaultCoach;
-          
-          if (defaultPersonalityType) {
-            // Try to find a coach with the specified personality type
-            defaultCoach = transformedCoaches.find(
-              coach => coach.personality_type === defaultPersonalityType
-            );
+        // Only do this once, not on every re-render
+        if (!initialSelectionDone) {
+          // Handle selection for authenticated users
+          if (session?.user.id) {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('assistant_id')
+              .eq('id', session.user.id)
+              .single();
             
-            // Fallback to first coach if none with specified type found
-            if (!defaultCoach) {
+            if (profileError && profileError.code !== 'PGRST116') {
+              throw profileError;
+            }
+            
+            if (profileData?.assistant_id) {
+              setSelectedCoach(profileData.assistant_id);
+              // Notify parent about selected coach on initial load
+              const selectedCoachData = transformedCoaches.find(c => c.id === profileData.assistant_id);
+              if (selectedCoachData && onCoachSelect) {
+                onCoachSelect(selectedCoachData.id, selectedCoachData.personality_type || 'friendly');
+              }
+            } else if (transformedCoaches.length > 0) {
+              setSelectedCoach(transformedCoaches[0].id);
+              // Notify parent about default selected coach
+              if (onCoachSelect && transformedCoaches[0].personality_type) {
+                onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
+              }
+            }
+          } 
+          // Handle default selection for non-authenticated users
+          else if (transformedCoaches.length > 0) {
+            let defaultCoach;
+            
+            if (defaultPersonalityType) {
+              // Try to find a coach with the specified personality type
+              defaultCoach = transformedCoaches.find(
+                coach => coach.personality_type === defaultPersonalityType
+              );
+              
+              // Fallback to first coach if none with specified type found
+              if (!defaultCoach) {
+                defaultCoach = transformedCoaches[0];
+              }
+            } else {
               defaultCoach = transformedCoaches[0];
             }
-          } else {
-            defaultCoach = transformedCoaches[0];
-          }
-          
-          if (defaultCoach) {
-            setSelectedCoach(defaultCoach.id);
-            if (onCoachSelect) {
-              onCoachSelect(defaultCoach.id, defaultCoach.personality_type || 'friendly');
+            
+            if (defaultCoach) {
+              setSelectedCoach(defaultCoach.id);
+              if (onCoachSelect) {
+                onCoachSelect(defaultCoach.id, defaultCoach.personality_type || 'friendly');
+              }
             }
           }
+          
+          setInitialSelectionDone(true);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -155,7 +161,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersona
     };
 
     fetchData();
-  }, [session, onCoachSelect, defaultPersonalityType]);
+  }, [session, onCoachSelect, initialSelectionDone]); // Removed defaultPersonalityType from dependencies
 
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
