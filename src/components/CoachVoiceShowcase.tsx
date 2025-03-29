@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
 import { useSessionContext } from "@/context/SessionContext";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define coach personalities
 const coachPersonalities = {
@@ -26,12 +27,38 @@ const coachPersonalities = {
 const CoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
   const [activePersonality, setActivePersonality] = useState<string>("empathetic"); // Default to empathetic
+  const [coachName, setCoachName] = useState<string>("Coach"); // Default coach name
   const { session } = useSessionContext();
   
   // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
     setActivePersonality(personalityType);
+    
+    // Fetch the coach's name when a coach is selected
+    fetchCoachName(coachId);
+  };
+  
+  // Function to fetch the coach's name from the database
+  const fetchCoachName = async (coachId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('assistants')
+        .select('name')
+        .eq('id', coachId)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching coach name:", error);
+        return;
+      }
+      
+      if (data) {
+        setCoachName(data.name);
+      }
+    } catch (error) {
+      console.error("Error fetching coach name:", error);
+    }
   };
 
   return (
@@ -79,7 +106,7 @@ const CoachVoiceShowcase = () => {
             <div className="w-full md:w-1/2">
               <Card className="border border-gray-200 bg-gray-50">
                 <CardContent className="p-6">
-                  <h4 className="font-medium text-lg mb-3">Coach Personalities</h4>
+                  <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
                     {/* Show only the selected personality */}
                     <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
