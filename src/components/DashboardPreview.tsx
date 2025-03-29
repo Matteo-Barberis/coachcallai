@@ -30,10 +30,13 @@ const DashboardPreview = () => {
             </div>
           </div>
           <div className="p-4">
-            <img 
-              src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/dashboard-full.png" 
-              alt="Dashboard Preview" 
+            <video 
+              src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//progress.mp4"
               className="w-full rounded shadow-sm"
+              autoPlay
+              loop
+              muted
+              playsInline
             />
           </div>
         </div>
