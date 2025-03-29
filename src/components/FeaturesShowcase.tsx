@@ -1,14 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Clock, Phone, MessageCircle, Trophy, Check } from "lucide-react";
+import { Check, Phone, MessageCircle, Trophy } from "lucide-react";
 
 const FeaturesShowcase = () => {
   const features = [
@@ -57,46 +49,37 @@ const FeaturesShowcase = () => {
           </p>
         </div>
 
-        <Carousel className="w-full max-w-5xl mx-auto">
-          <CarouselContent>
-            {features.map((feature, index) => (
-              <CarouselItem key={index} className="md:basis-1/1">
-                <Card className="border border-gray-200 overflow-hidden h-full">
-                  <CardContent className="p-0">
-                    <div className="grid md:grid-cols-2 h-full">
-                      <div className="p-6 flex flex-col justify-center">
-                        <div className="mb-4">{feature.icon}</div>
-                        <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
-                        <p className="text-gray-600 mb-6">{feature.description}</p>
-                        <ul className="space-y-2">
-                          {feature.points.map((point, i) => (
-                            <li key={i} className="flex items-start">
-                              <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="bg-gray-100 flex items-center justify-center p-6">
-                        {feature.image && (
-                          <img 
-                            src={feature.image} 
-                            alt={feature.title} 
-                            className="rounded-lg shadow-lg max-h-80 object-cover"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <div className="flex justify-center mt-8">
-            <CarouselPrevious className="relative static transform-none mx-2" />
-            <CarouselNext className="relative static transform-none mx-2" />
-          </div>
-        </Carousel>
+        <div className="space-y-20">
+          {features.map((feature, index) => (
+            <div 
+              key={index} 
+              className={`flex flex-col ${index % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-8 items-center`}
+            >
+              <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
+                {feature.image && (
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title} 
+                    className="rounded-lg shadow-lg max-h-80 object-cover"
+                  />
+                )}
+              </div>
+              <div className="w-full md:w-1/2 flex flex-col justify-center">
+                <div className="mb-4">{feature.icon}</div>
+                <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-600 mb-6">{feature.description}</p>
+                <ul className="space-y-2">
+                  {feature.points.map((point, i) => (
+                    <li key={i} className="flex items-start">
+                      <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
