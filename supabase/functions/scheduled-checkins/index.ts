@@ -131,11 +131,12 @@ serve(async (req) => {
             // Process each user
             for (const user of users) {
               try {
-                // Get user's latest WhatsApp message
+                // Get user's latest WhatsApp message - MODIFIED: Only fetch user-type messages
                 const { data: latestMessages, error: messagesError } = await supabase
                   .from('whatsapp_messages')
                   .select('created_at')
                   .eq('user_id', user.id)
+                  .eq('type', 'user') // CHANGE: Only consider messages from the user, not system messages
                   .order('created_at', { ascending: false })
                   .limit(1);
                 
@@ -149,20 +150,20 @@ serve(async (req) => {
                 
                 let shouldSendMessage = false;
                 
-                // CHANGED: Only send messages if the user has message history
+                // CHANGED: If the user has message history, check the time window
                 if (latestMessages.length > 0) {
                   // Check if latest message is outside 2-hour window but within 48 hours
                   const latestMessageTime = new Date(latestMessages[0].created_at);
                   
                   if (latestMessageTime < twoHoursAgo && latestMessageTime > fortyEightHoursAgo) {
                     shouldSendMessage = true;
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was at ${latestMessageTime.toISOString()}, sending check-in`);
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last user message was at ${latestMessageTime.toISOString()}, sending check-in`);
                   } else {
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was at ${latestMessageTime.toISOString()}, not sending check-in`);
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last user message was at ${latestMessageTime.toISOString()}, not sending check-in`);
                   }
                 } else {
-                  // User has no message history, don't send a check-in
-                  console.log(`[${new Date().toISOString()}] User ${user.id} has no message history, skipping check-in`);
+                  // User has no user-type message history, don't send a check-in
+                  console.log(`[${new Date().toISOString()}] User ${user.id} has no user message history, skipping check-in`);
                 }
                 
                 if (shouldSendMessage) {
