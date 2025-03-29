@@ -24,7 +24,7 @@ const ConnectWhatsapp = () => {
             <CardHeader>
               <CardTitle>Connect to WhatsApp</CardTitle>
               <CardDescription>
-                Link your WhatsApp account to receive coaching session reminders
+                Link your WhatsApp account to receive coaching checkins and chat with your coach
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
