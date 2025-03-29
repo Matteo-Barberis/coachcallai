@@ -124,7 +124,7 @@ serve(async (req) => {
                 }
               ]
             },
-            firstMessage: "Hey there! Can you hear me?"
+            firstMessage: "Hey there! How are you?"
           }
         })
       });
