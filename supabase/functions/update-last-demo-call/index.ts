@@ -108,9 +108,11 @@ serve(async (req) => {
           "Authorization": `Bearer ${vapiApiKey}`
         },
         body: JSON.stringify({
-          assistant_id: vapiAssistantId,
-          phone_number: userPhone,
-          assistant_overrides: {
+          assistantId: vapiAssistantId,
+          customer: {
+            number: userPhone
+          },
+          assistantOverrides: {
             model: {
               messages: [
                 {
@@ -119,7 +121,7 @@ serve(async (req) => {
                 }
               ]
             },
-            first_message: "Hey there! Can you hear me?"
+            firstMessage: "Hey there! Can you hear me?"
           }
         })
       });
