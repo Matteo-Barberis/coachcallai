@@ -53,8 +53,17 @@ const FeaturesShowcase = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 items-center`}
+              className={`flex flex-col ${index % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-8 items-center`}
             >
+              <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
+                {feature.image && (
+                  <img 
+                    src={feature.image} 
+                    alt={feature.title} 
+                    className="rounded-lg shadow-lg max-h-80 object-cover"
+                  />
+                )}
+              </div>
               <div className="w-full md:w-1/2 flex flex-col justify-center">
                 <div className="mb-4">{feature.icon}</div>
                 <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
@@ -67,15 +76,6 @@ const FeaturesShowcase = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
-              <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                {feature.image && (
-                  <img 
-                    src={feature.image} 
-                    alt={feature.title} 
-                    className="rounded-lg shadow-lg max-h-80 object-cover"
-                  />
-                )}
               </div>
             </div>
           ))}
