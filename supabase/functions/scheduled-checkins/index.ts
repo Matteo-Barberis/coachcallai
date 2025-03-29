@@ -169,12 +169,16 @@ serve(async (req) => {
                   // Format phone number (remove + prefix if present as WhatsApp API doesn't expect it)
                   const phoneNumber = user.phone.startsWith('+') ? user.phone.substring(1) : user.phone;
                   
-                  // Send WhatsApp template message
+                  // Get the user's first name or full name to use as parameter
+                  const userName = user.full_name ? user.full_name.split(' ')[0] : 'there';
+                  
+                  // Send WhatsApp template message with user's name as parameter
                   const result = await sendWhatsAppTemplateMessage(
                     phoneNumber,
                     window.templateId,
                     whatsappApiToken,
-                    phoneNumberId
+                    phoneNumberId,
+                    userName
                   );
                   
                   if (result.success) {
@@ -263,7 +267,8 @@ async function sendWhatsAppTemplateMessage(
   to: string,
   templateId: string,
   whatsappToken: string,
-  phoneNumberId: string
+  phoneNumberId: string,
+  userName: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
@@ -283,7 +288,18 @@ async function sendWhatsAppTemplateMessage(
           name: templateId,
           language: {
             code: 'en'
-          }
+          },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                {
+                  type: 'text',
+                  text: userName
+                }
+              ]
+            }
+          ]
         }
       })
     });
