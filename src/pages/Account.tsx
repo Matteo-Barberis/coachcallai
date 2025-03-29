@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -106,6 +107,32 @@ const Account = () => {
     return nameValid && phoneValid;
   };
 
+  const checkPhoneNumberExists = async (phoneNumber: string): Promise<boolean> => {
+    // Skip check if the phone number hasn't changed
+    if (phoneNumber === initialPhone) {
+      return false;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', phoneNumber)
+        .neq('id', session!.user.id) // Exclude current user
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking phone number:', error);
+        throw error;
+      }
+      
+      return !!data; // Return true if a record was found (phone is taken)
+    } catch (error) {
+      console.error('Error checking if phone number exists:', error);
+      return false; // Default to not existing on error to avoid blocking form submission
+    }
+  };
+
   const handleSaveProfile = async () => {
     if (!hasChanges) {
       toast({
@@ -122,11 +149,21 @@ const Account = () => {
     setIsSaving(true);
     
     try {
+      // Check if the phone number exists for another user
+      const cleanedPhone = phone.replace(/\s+/g, '');
+      if (cleanedPhone !== initialPhone) {
+        const phoneExists = await checkPhoneNumberExists(cleanedPhone);
+        if (phoneExists) {
+          setPhoneError('This phone number is already in use by another account');
+          setIsSaving(false);
+          return;
+        }
+      }
+      
       const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
       if (phone !== initialPhone) {
-        const cleanedPhone = phone.replace(/\s+/g, '');
         updates.phone = cleanedPhone;
         updates.phone_verified = false;
         updates.phone_verification_code = null;
@@ -145,7 +182,7 @@ const Account = () => {
       if (error) throw error;
       
       if (phone !== initialPhone) {
-        setInitialPhone(phone.replace(/\s+/g, ''));
+        setInitialPhone(cleanedPhone);
       }
       
       if (fullName !== initialFullName) {
