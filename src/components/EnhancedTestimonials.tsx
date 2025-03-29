@@ -112,17 +112,6 @@ const EnhancedTestimonials = () => {
             <CarouselNext className="relative static transform-none mx-2" />
           </div>
         </Carousel>
-
-        <div className="mt-16 text-center">
-          <p className="text-lg font-medium mb-6">Join hundreds of users improving their accountability every day</p>
-          <div className="flex flex-wrap justify-center gap-8">
-            {["90% of users report improved goal completion", "Average 4.8/5 satisfaction rating", "78% increase in daily habit consistency"].map((stat, i) => (
-              <div key={i} className="bg-white px-6 py-3 rounded-lg shadow-sm border border-gray-100">
-                {stat}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );
