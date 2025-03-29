@@ -100,11 +100,24 @@ const Onboarding = () => {
 
       if (profileError) {
         console.error("Profile update error:", profileError);
-        toast({
-          title: "Error saving preferences",
-          description: "We couldn't save all your preferences. Please try again.",
-          variant: "destructive",
-        });
+        
+        // Check for duplicate phone number error
+        if (profileError.code === '23505' && (
+          profileError.message.includes('profiles_phone_key') || 
+          profileError.message.includes('profiles_phone_unique')
+        )) {
+          toast({
+            title: "Phone number already in use",
+            description: "This phone number is already registered with another account. Please use a different phone number.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error saving preferences",
+            description: "We couldn't save all your preferences. Please try again.",
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Onboarding completed successfully!",
