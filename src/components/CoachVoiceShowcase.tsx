@@ -31,6 +31,7 @@ const CoachVoiceShowcase = () => {
   const { session } = useSessionContext();
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   
   // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
@@ -63,39 +64,62 @@ const CoachVoiceShowcase = () => {
     }
   };
 
-  // Function to handle playing the sample coaching call
-  const handlePlaySampleCall = () => {
-    // If audio is already playing, pause it
-    if (isPlaying && audio) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-
-    // Create a new audio element if none exists
-    const sampleAudio = audio || new Audio("/sample-coaching-call.mp3");
-    
-    sampleAudio.onended = () => {
-      setIsPlaying(false);
-    };
-
-    sampleAudio.play().catch(error => {
-      console.error("Error playing audio:", error);
-    });
-
-    setAudio(sampleAudio);
-    setIsPlaying(true);
-  };
-
-  // Cleanup audio when component unmounts
+  // Load the audio file once when component mounts
   useEffect(() => {
+    // Create the audio element only once
+    if (!audio) {
+      const sampleAudio = new Audio();
+      
+      // Set up event listeners
+      sampleAudio.oncanplaythrough = () => {
+        console.log("Audio has loaded and can be played");
+        setAudioLoaded(true);
+      };
+      
+      sampleAudio.onerror = (e) => {
+        console.error("Error loading audio:", e);
+        console.error("Audio error details:", sampleAudio.error);
+        setAudioLoaded(false);
+      };
+      
+      sampleAudio.onended = () => {
+        setIsPlaying(false);
+      };
+      
+      // Set the source
+      sampleAudio.src = "/sample-coaching-call.mp3";
+      
+      // Start loading the audio
+      sampleAudio.load();
+      
+      setAudio(sampleAudio);
+    }
+    
+    // Cleanup audio when component unmounts
     return () => {
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
       }
     };
-  }, [audio]);
+  }, []); // Empty dependency array ensures this runs only once
+
+  // Function to handle playing the sample coaching call
+  const handlePlaySampleCall = () => {
+    if (!audio) return;
+    
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      // Start playing and catch any errors
+      audio.play().then(() => {
+        setIsPlaying(true);
+      }).catch((error) => {
+        console.error("Error playing audio:", error);
+      });
+    }
+  };
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -166,8 +190,9 @@ const CoachVoiceShowcase = () => {
                   <Button 
                     onClick={handlePlaySampleCall}
                     variant="outline" 
-                    size="icon" 
+                    size="sm"
                     className="h-12 w-12 mb-3 sm:mb-0 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light mx-auto sm:mx-0"
+                    disabled={!audioLoaded}
                   >
                     {isPlaying ? (
                       <Pause className="h-6 w-6" />
