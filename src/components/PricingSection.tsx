@@ -148,20 +148,6 @@ const PricingSection = () => {
             </div>
           ))}
         </div>
-
-        <div className="mt-16 text-center">
-          <h3 className="text-xl font-bold mb-2">Not sure which plan is right for you?</h3>
-          <p className="text-gray-600 mb-6">
-            Contact us for a personalized recommendation based on your accountability goals.
-          </p>
-          <Button 
-            variant="outline" 
-            className="border-brand-primary text-brand-primary hover:bg-brand-light"
-            onClick={() => window.location.href = "#contact"}
-          >
-            Contact Sales
-          </Button>
-        </div>
       </div>
     </section>
   );
