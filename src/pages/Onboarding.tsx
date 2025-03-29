@@ -10,8 +10,6 @@ import { useSessionContext } from '@/context/SessionContext';
 
 type OnboardingData = {
   focusArea: string;
-  firstName: string;
-  lastName: string;
   phone: string;
   objectives: string;
   coachId: string;
@@ -21,8 +19,6 @@ const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     focusArea: '',
-    firstName: '',
-    lastName: '',
     phone: '',
     objectives: '',
     coachId: '',
@@ -95,7 +91,6 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           phone: data.phone,
-          full_name: `${data.firstName} ${data.lastName}`,
           focus_areas: { main: data.focusArea },
           assistant_id: data.coachId,
           objectives: data.objectives,
@@ -175,8 +170,6 @@ const Onboarding = () => {
             
             {step === 2 && (
               <OnboardingContactInfo 
-                firstName={data.firstName}
-                lastName={data.lastName}
                 phone={data.phone}
                 objectives={data.objectives}
                 onChange={updateData}

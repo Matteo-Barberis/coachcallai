@@ -7,25 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import PhoneInput from "@/components/PhoneInput";
 
 interface OnboardingContactInfoProps {
-  firstName: string;
-  lastName: string;
   phone: string;
   objectives: string;
-  onChange: (data: { firstName?: string; lastName?: string; phone?: string; objectives?: string }) => void;
+  onChange: (data: { phone?: string; objectives?: string }) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
 const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
-  firstName,
-  lastName,
   phone,
   objectives,
   onChange,
   onNext,
   onBack
 }) => {
-  const isValid = firstName.trim() !== '' && lastName.trim() !== '' && phone.trim() !== '';
+  const isValid = phone.trim() !== '';
 
   return (
     <div className="space-y-6">
@@ -37,27 +33,6 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => onChange({ firstName: e.target.value })}
-              placeholder="John"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => onChange({ lastName: e.target.value })}
-              placeholder="Doe"
-            />
-          </div>
-        </div>
-
         <div className="space-y-2">
           <PhoneInput
             value={phone}
