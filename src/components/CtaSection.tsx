@@ -5,37 +5,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
-const CallExtract = () => {
-  return (
-    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mt-6">
-      <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0 h-8 w-8 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold">
-          C
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium mb-1">Coach AI</p>
-          <div className="bg-gray-50 p-3 rounded-lg text-sm">
-            <p className="mb-2">"I noticed you've been consistent with your morning workout routine for the past 5 days. That's excellent progress! What strategies have been working best for you?"</p>
-            <div className="text-xs text-gray-500">From a real coaching call - Aug 15, 2023</div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex items-start space-x-3 mt-4">
-        <div className="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-bold">
-          U
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium mb-1">User</p>
-          <div className="bg-brand-light bg-opacity-20 p-3 rounded-lg text-sm">
-            <p>"Setting out my workout clothes the night before has made a huge difference. It removes a decision in the morning when my willpower is low."</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const CtaSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -102,12 +71,6 @@ const CtaSection = () => {
               <h3 className="text-lg font-semibold mb-2">Easy Integration</h3>
               <p className="text-gray-600">Connect with WhatsApp in minutes and start receiving accountability calls today.</p>
             </div>
-          </div>
-          
-          {/* Add Call Extract Section */}
-          <div className="bg-gray-50 p-8 border-t border-gray-200">
-            <h3 className="text-center font-semibold text-xl mb-6">Sneak Peek: See What a Real Coach Call Looks Like</h3>
-            <CallExtract />
           </div>
         </div>
       </div>

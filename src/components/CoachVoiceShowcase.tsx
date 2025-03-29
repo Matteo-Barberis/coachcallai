@@ -159,15 +159,15 @@ const CoachVoiceShowcase = () => {
                 </CardContent>
               </Card>
 
-              {/* New section: Sample coaching call */}
+              {/* Sample coaching call section */}
               <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
                 <h4 className="font-medium text-lg mb-4">Hear a Real Coaching Call</h4>
-                <div className="flex items-center space-x-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
                   <Button 
                     onClick={handlePlaySampleCall}
                     variant="outline" 
                     size="icon" 
-                    className="h-12 w-12 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light"
+                    className="h-12 w-12 mb-3 sm:mb-0 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light mx-auto sm:mx-0"
                   >
                     {isPlaying ? (
                       <Pause className="h-6 w-6" />
@@ -176,8 +176,8 @@ const CoachVoiceShowcase = () => {
                     )}
                   </Button>
                   <div>
-                    <p className="font-medium">Sample Accountability Call</p>
-                    <p className="text-sm text-gray-500">Listen to how our AI coaches keep users on track</p>
+                    <p className="font-medium text-center sm:text-left">Sample Accountability Call</p>
+                    <p className="text-sm text-gray-500 text-center sm:text-left">Listen to how our AI coaches keep users on track</p>
                   </div>
                 </div>
                 {isPlaying && (
