@@ -53,9 +53,6 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
             placeholder="What specific goals would you like to achieve with your coach? E.g., improve work-life balance, develop leadership skills, etc."
             className="min-h-[120px]"
           />
-          <p className="text-sm text-gray-500 mt-1">
-            This helps your coach understand how to best support you.
-          </p>
         </div>
       </div>
 
