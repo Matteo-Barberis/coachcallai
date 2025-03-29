@@ -11,27 +11,27 @@ const FeaturesShowcase = () => {
       title: "Scheduled Phone Calls",
       description: "Real phone calls to your device when you need motivation the most",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl p-4 border border-gray-200">
-          <div className="flex items-center mb-4">
-            <div className="h-12 w-12 rounded-full bg-red-500 flex items-center justify-center">
-              <PhoneIncoming className="h-6 w-6 text-white" />
+        <div className="w-full max-w-xs mx-auto bg-black rounded-2xl shadow-xl p-4">
+          <div className="flex flex-col items-center mb-6 mt-4 text-white">
+            <div className="h-20 w-20 rounded-full bg-gray-700 flex items-center justify-center mb-3">
+              <PhoneIncoming className="h-10 w-10 text-white" />
             </div>
-            <div className="ml-4">
-              <h4 className="font-medium text-lg">Incoming Call</h4>
-              <p className="text-sm text-gray-500">Coach Call AI</p>
-            </div>
-            <div className="ml-auto text-sm text-gray-500">Now</div>
+            <h4 className="font-medium text-2xl mb-1">Coach AI</h4>
+            <p className="text-gray-400">Incoming Call</p>
           </div>
-          <p className="text-sm text-gray-600 mb-4">
-            "Time for your scheduled workout. Ready to get started?"
-          </p>
-          <div className="flex justify-between gap-3">
-            <button className="flex-1 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800 font-medium">
-              Remind Later
-            </button>
-            <button className="flex-1 py-2 px-4 bg-green-500 hover:bg-green-600 rounded-full text-white font-medium">
-              Answer
-            </button>
+          <div className="grid grid-cols-2 gap-4 mt-8 mb-4">
+            <div className="flex flex-col items-center">
+              <div className="h-14 w-14 rounded-full bg-red-500 flex items-center justify-center mb-2">
+                <PhoneIncoming className="h-7 w-7 text-white rotate-90" />
+              </div>
+              <p className="text-white text-sm">Decline</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="h-14 w-14 rounded-full bg-green-500 flex items-center justify-center mb-2">
+                <Phone className="h-7 w-7 text-white" />
+              </div>
+              <p className="text-white text-sm">Answer</p>
+            </div>
           </div>
         </div>
       ),
