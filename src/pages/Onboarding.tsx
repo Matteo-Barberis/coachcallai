@@ -87,11 +87,11 @@ const Onboarding = () => {
       }
 
       // Update user profile with onboarding data and explicitly set is_onboarding to false
+      // Removed focus_areas from the update to prevent incorrect data format
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           phone: data.phone,
-          focus_areas: { main: data.focusArea },
           assistant_id: data.coachId,
           objectives: data.objectives,
           is_onboarding: false // Mark onboarding as complete
