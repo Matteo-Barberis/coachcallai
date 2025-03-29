@@ -22,6 +22,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
   const [isCallingDemo, setIsCallingDemo] = useState(false);
+  const [lastDemoCallAt, setLastDemoCallAt] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Redirect to login if not authenticated
@@ -39,7 +40,7 @@ const Dashboard = () => {
         
         const { data, error } = await supabase
           .from('profiles')
-          .select('is_onboarding')
+          .select('is_onboarding, last_demo_call_at')
           .eq('id', session.user.id)
           .single();
 
@@ -56,6 +57,10 @@ const Dashboard = () => {
           if (data.is_onboarding === true) {
             console.log('User is in onboarding, navigating...');
             navigate('/onboarding');
+          }
+          
+          if (data.last_demo_call_at) {
+            setLastDemoCallAt(data.last_demo_call_at);
           }
         }
       } catch (err) {
@@ -86,6 +91,9 @@ const Dashboard = () => {
         throw error;
       }
       
+      // Update the last demo call timestamp
+      setLastDemoCallAt(new Date().toISOString());
+      
       toast({
         title: "Test Call Initiated",
         description: "Your test call has been successfully set up!",
@@ -100,6 +108,33 @@ const Dashboard = () => {
     } finally {
       setIsCallingDemo(false);
     }
+  };
+
+  // Check if 24 hours have passed since the last demo call
+  const isTestCallAvailable = () => {
+    if (!lastDemoCallAt) return true;
+    
+    const lastCallDate = new Date(lastDemoCallAt);
+    const now = new Date();
+    const hoursDifference = (now.getTime() - lastCallDate.getTime()) / (1000 * 60 * 60);
+    
+    return hoursDifference >= 24;
+  };
+  
+  // Get tooltip message based on test call availability
+  const getTestCallTooltip = () => {
+    if (!lastDemoCallAt) return null;
+    
+    if (!isTestCallAvailable()) {
+      const lastCallDate = new Date(lastDemoCallAt);
+      const now = new Date();
+      const hoursPassed = Math.floor((now.getTime() - lastCallDate.getTime()) / (1000 * 60 * 60));
+      const hoursRemaining = 24 - hoursPassed;
+      
+      return `You can try another test call in ${hoursRemaining} hours. Test calls are limited to one every 24 hours.`;
+    }
+    
+    return null;
   };
 
   // Show loading while checking profile status
@@ -117,14 +152,25 @@ const Dashboard = () => {
             <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
               <CoachSelect />
               <div className="flex items-center">
-                <Button 
-                  onClick={handleTestCall}
-                  disabled={isCallingDemo}
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
-                  {isCallingDemo ? "Setting up..." : "Try Test Call"}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        onClick={handleTestCall}
+                        disabled={isCallingDemo || !isTestCallAvailable()}
+                        size="sm"
+                        className={`flex items-center gap-1 ${!isTestCallAvailable() ? 'opacity-70' : ''}`}
+                      >
+                        {isCallingDemo ? "Setting up..." : "Try Test Call"}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!isTestCallAvailable() && (
+                    <TooltipContent>
+                      <p>{getTestCallTooltip()}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
                 
                 <HoverCard>
                   <HoverCardTrigger asChild>
