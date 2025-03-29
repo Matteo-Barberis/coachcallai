@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Volume2 } from 'lucide-react';
+import { Volume2, UserRound } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
@@ -83,22 +83,7 @@ const CoachVoiceShowcase = () => {
                 <div className="flex items-center mb-6">
                   <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
                     <AvatarFallback>
-                      {/* Using a better smiling face icon */}
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        className="h-10 w-10 text-brand-primary"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M8 13a4 4 0 0 0 8 0m-8 0a4 4 0 0 1 8 0" />
-                        <line x1="9" y1="9" x2="9.01" y2="9" />
-                        <line x1="15" y1="9" x2="15.01" y2="9" />
-                      </svg>
+                      <UserRound className="h-10 w-10 text-gray-500" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
