@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check } from "lucide-react";
+import { Check, PlayCircle } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 
 interface Coach {
   id: string;
@@ -12,13 +13,14 @@ interface Coach {
   title: string;
   description: string;
   imageUrl: string;
+  vapi_assistant_id?: string;
 }
 
 interface OnboardingCoachSelectProps {
   selectedCoach: string;
   onSelect: (coachId: string) => void;
   onBack: () => void;
-  onComplete: () => void; // Added the onComplete prop
+  onComplete: () => void;
 }
 
 const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
@@ -30,6 +32,9 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [playingCoachId, setPlayingCoachId] = useState<string | null>(null);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   // Fetch coaches only once when component mounts
   useEffect(() => {
@@ -43,6 +48,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           .select(`
             id, 
             name,
+            vapi_assistant_id,
             personalities (
               name,
               behavior
@@ -58,7 +64,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
             name: assistant.name,
             title: assistant.personalities?.name || 'Coach',
             description: assistant.personalities?.behavior || 'Personal assistant to help you achieve your goals.',
-            imageUrl: '/placeholder.svg'
+            imageUrl: '/placeholder.svg',
+            vapi_assistant_id: assistant.vapi_assistant_id
           }));
           
           setCoaches(transformedCoaches);
@@ -75,21 +82,24 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
               name: 'Alex',
               title: 'Productivity Coach',
               description: 'Helps you build effective routines and stay focused on your most important tasks.',
-              imageUrl: '/placeholder.svg'
+              imageUrl: '/placeholder.svg',
+              vapi_assistant_id: 'prod_assistant_1'
             },
             {
               id: '45a76abb-e468-4cc4-badb-9567d3b13193',
               name: 'Sam',
               title: 'Mindfulness Coach',
               description: 'Guides you to reduce stress and be more present in your daily life.',
-              imageUrl: '/placeholder.svg'
+              imageUrl: '/placeholder.svg',
+              vapi_assistant_id: 'mind_assistant_1'
             },
             {
               id: '6d2edf2a-bc0f-4a05-a8c0-3b11c4bfe3ba',
               name: 'Taylor',
               title: 'Fitness Coach',
               description: 'Keeps you accountable for your physical health and exercise goals.',
-              imageUrl: '/placeholder.svg'
+              imageUrl: '/placeholder.svg',
+              vapi_assistant_id: 'fit_assistant_1'
             }
           ]);
         }
@@ -103,6 +113,59 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
 
     fetchCoaches();
   }, []);
+
+  // Function to play coach's voice
+  const playCoachVoice = (coachId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the coach selection
+    
+    // Stop any currently playing audio
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    const coach = coaches.find(c => c.id === coachId);
+    if (!coach || !coach.vapi_assistant_id) {
+      toast({
+        title: "Audio Not Available",
+        description: "Voice sample for this coach is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create the audio URL based on the vapi_assistant_id
+    const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${coach.vapi_assistant_id}.wav`;
+    
+    const newAudio = new Audio(audioUrl);
+    
+    newAudio.onplay = () => {
+      setPlayingCoachId(coachId);
+    };
+    
+    newAudio.onended = () => {
+      setPlayingCoachId(null);
+    };
+    
+    newAudio.onerror = () => {
+      setPlayingCoachId(null);
+      toast({
+        title: "Audio Error",
+        description: "Couldn't play the coach's voice sample.",
+        variant: "destructive",
+      });
+    };
+    
+    setAudio(newAudio);
+    newAudio.play().catch(error => {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Audio Error",
+        description: "Couldn't play the coach's voice sample.",
+        variant: "destructive",
+      });
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -134,12 +197,19 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
               }`}
             >
               <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
+                <div className="h-16 w-16 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden relative">
                   <img 
                     src={coach.imageUrl} 
                     alt={coach.name} 
                     className="h-full w-full object-cover"
                   />
+                  <button 
+                    className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity ${playingCoachId === coach.id ? 'opacity-90' : 'opacity-0 hover:opacity-70'}`}
+                    onClick={(e) => playCoachVoice(coach.id, e)}
+                    aria-label={`Play ${coach.name}'s voice`}
+                  >
+                    <PlayCircle className={`w-8 h-8 text-white ${playingCoachId === coach.id ? 'animate-pulse' : ''}`} />
+                  </button>
                 </div>
                 <div className="flex-1">
                   <Label htmlFor={coach.id} className="font-medium text-lg text-gray-900 mb-1 block">
