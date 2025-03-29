@@ -14,8 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error("Missing environment variables for Supabase");
+    }
     
     // Create a Supabase client with the service role key
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -27,15 +31,21 @@ serve(async (req) => {
       throw new Error("User ID is required");
     }
 
+    console.log(`Updating last_demo_call_at for user: ${user_id}`);
+
     // Update the last_demo_call_at timestamp for the user
-    const { error } = await supabase
+    const { error, data } = await supabase
       .from('profiles')
       .update({ last_demo_call_at: new Date().toISOString() })
-      .eq('id', user_id);
+      .eq('id', user_id)
+      .select();
 
     if (error) {
+      console.error("Supabase error:", error);
       throw error;
     }
+
+    console.log("Update successful:", data);
 
     // Return a success response
     return new Response(

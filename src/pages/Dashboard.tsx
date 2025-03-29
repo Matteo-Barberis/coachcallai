@@ -72,9 +72,13 @@ const Dashboard = () => {
     try {
       setIsCallingDemo(true);
       
+      console.log("Initiating demo call for user:", session.user.id);
+      
       const response = await supabase.functions.invoke('update-last-demo-call', {
         body: { user_id: session.user.id }
       });
+      
+      console.log("Edge function response:", response);
       
       if (response.error) {
         throw new Error(response.error.message || 'Failed to initiate demo call');
