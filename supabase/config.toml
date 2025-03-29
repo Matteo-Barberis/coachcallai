@@ -19,6 +19,6 @@ verify_jwt = false
 [functions.update-last-demo-call]
 verify_jwt = false
 
-[global.db.extensions]
+[db.extensions]
 pg_cron = true
 pg_net = true
