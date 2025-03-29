@@ -15,7 +15,13 @@ type Assistant = {
   personality_name: string;
   personality_behavior: string;
   vapi_assistant_id: string;
+  // Adding coach personality type mapping
+  personality_type?: 'empathetic' | 'results' | 'friendly';
 };
+
+interface CoachSelectProps {
+  onCoachSelect?: (coachId: string, personalityType: string) => void;
+}
 
 const groupCoachesByPersonality = (coaches: Assistant[]) => {
   const groupedCoaches: Record<string, Assistant[]> = {};
@@ -30,7 +36,22 @@ const groupCoachesByPersonality = (coaches: Assistant[]) => {
   return groupedCoaches;
 };
 
-const CoachSelect = () => {
+// Map coach names to personality types
+const getPersonalityType = (coachName: string): string => {
+  // This mapping is simplified for demo purposes
+  // Real implementation would need proper mapping based on database info
+  const lowerName = coachName.toLowerCase();
+  
+  if (lowerName.includes('elara')) {
+    return 'empathetic';
+  } else if (lowerName.includes('cole')) {
+    return 'results';
+  } else {
+    return 'friendly'; // Default to friendly for other coaches like Harry
+  }
+};
+
+const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
   const [coaches, setCoaches] = useState<Assistant[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +87,9 @@ const CoachSelect = () => {
           personality_id: item.personality_id,
           vapi_assistant_id: item.vapi_assistant_id,
           personality_name: item.personalities.name,
-          personality_behavior: item.personalities.behavior
+          personality_behavior: item.personalities.behavior,
+          // Add personality type based on name
+          personality_type: getPersonalityType(item.name) as 'empathetic' | 'results' | 'friendly'
         }));
         
         setCoaches(transformedCoaches);
@@ -84,8 +107,17 @@ const CoachSelect = () => {
           
           if (profileData?.assistant_id) {
             setSelectedCoach(profileData.assistant_id);
+            // Notify parent about selected coach on initial load
+            const selectedCoachData = transformedCoaches.find(c => c.id === profileData.assistant_id);
+            if (selectedCoachData && onCoachSelect) {
+              onCoachSelect(selectedCoachData.id, selectedCoachData.personality_type || 'friendly');
+            }
           } else if (transformedCoaches.length > 0) {
             setSelectedCoach(transformedCoaches[0].id);
+            // Notify parent about default selected coach
+            if (onCoachSelect && transformedCoaches[0].personality_type) {
+              onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
+            }
           }
         }
       } catch (error) {
@@ -96,7 +128,7 @@ const CoachSelect = () => {
     };
 
     fetchData();
-  }, [session]);
+  }, [session, onCoachSelect]);
 
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
@@ -107,6 +139,11 @@ const CoachSelect = () => {
       title: "Coach Selected",
       description: `You've selected ${coach?.name} as your coach.`,
     });
+    
+    // Notify parent component about the selected coach and its personality type
+    if (coach && onCoachSelect) {
+      onCoachSelect(coach.id, coach.personality_type || 'friendly');
+    }
     
     if (session?.user.id) {
       try {

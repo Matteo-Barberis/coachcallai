@@ -1,16 +1,36 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Volume2, Pause } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
 
+// Define coach personalities
+const coachPersonalities = {
+  "empathetic": {
+    name: "Empathetic Supporter",
+    description: "Focuses on emotional well-being and positive reinforcement. This coach listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals."
+  },
+  "results": {
+    name: "Results-Driven Motivator",
+    description: "Direct, focused on metrics and clear outcomes. This coach delivers honest feedback, challenges you to push beyond comfort zones, and emphasizes accountability to achieve measurable results."
+  },
+  "friendly": {
+    name: "Friendly Encourager",
+    description: "Provides positive, uplifting feedback and motivational support. This coach celebrates your wins, offers encouraging words during setbacks, and maintains an optimistic outlook to keep you inspired."
+  }
+};
+
 const CoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
+  const [activePersonality, setActivePersonality] = useState<string | null>(null);
   
-  // This component leverages the existing CoachSelect component
-  // which already has audio playback functionality
+  // This function will be passed to CoachSelect to update the active coach and personality
+  const handleCoachSelect = (coachId: string, personalityType: string) => {
+    setActiveCoach(coachId);
+    setActivePersonality(personalityType);
+  };
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -43,7 +63,7 @@ const CoachVoiceShowcase = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <CoachSelect />
+                  <CoachSelect onCoachSelect={handleCoachSelect} />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice
                   </p>
@@ -56,26 +76,27 @@ const CoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">Coach Personalities</h4>
                   <div className="space-y-4">
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-semibold text-brand-primary">Empathetic Supporter</h5>
-                      <p className="text-gray-600 mt-1">
-                        Focuses on emotional well-being and positive reinforcement. This coach listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-semibold text-brand-primary">Results-Driven Motivator</h5>
-                      <p className="text-gray-600 mt-1">
-                        Direct, focused on metrics and clear outcomes. This coach delivers honest feedback, challenges you to push beyond comfort zones, and emphasizes accountability to achieve measurable results.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-semibold text-brand-primary">Analytical Strategist</h5>
-                      <p className="text-gray-600 mt-1">
-                        Logical, systematic approach to problem-solving. This coach helps break down complex goals into manageable steps, identifies patterns in your behavior, and develops tailored strategies for success.
-                      </p>
-                    </div>
+                    {!activePersonality ? (
+                      // Show all personality types when no coach is selected
+                      Object.values(coachPersonalities).map((personality) => (
+                        <div key={personality.name} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <h5 className="font-semibold text-brand-primary">{personality.name}</h5>
+                          <p className="text-gray-600 mt-1">
+                            {personality.description}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      // Show only the selected coach's personality
+                      <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
+                        <h5 className="font-semibold text-brand-primary">
+                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
+                        </h5>
+                        <p className="text-gray-600 mt-1">
+                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
