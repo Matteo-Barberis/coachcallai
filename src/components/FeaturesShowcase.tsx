@@ -11,23 +11,23 @@ const FeaturesShowcase = () => {
       title: "Scheduled Phone Calls",
       description: "Real phone calls to your device when you need motivation the most",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-brand-dark rounded-2xl shadow-xl p-4">
-          <div className="flex flex-col items-center mb-6 mt-4 text-white">
-            <h4 className="font-medium text-2xl mb-1">Coach AI</h4>
-            <p className="text-gray-400">Incoming Call</p>
+        <div className="w-full max-w-xs mx-auto bg-brand-dark rounded-2xl shadow-xl p-3" style={{ transform: "scale(0.75)" }}>
+          <div className="flex flex-col items-center mb-4 mt-2 text-white">
+            <h4 className="font-medium text-xl mb-1">Coach AI</h4>
+            <p className="text-gray-400 text-sm">Incoming Call</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-8 mb-4">
+          <div className="grid grid-cols-2 gap-4 mt-6 mb-2">
             <div className="flex flex-col items-center">
-              <div className="h-14 w-14 rounded-full bg-red-500 flex items-center justify-center mb-2">
-                <PhoneIncoming className="h-7 w-7 text-white rotate-90" />
+              <div className="h-12 w-12 rounded-full bg-red-500 flex items-center justify-center mb-2">
+                <PhoneIncoming className="h-6 w-6 text-white rotate-90" />
               </div>
-              <p className="text-white text-sm">Decline</p>
+              <p className="text-white text-xs">Decline</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-14 w-14 rounded-full bg-green-500 flex items-center justify-center mb-2">
-                <Phone className="h-7 w-7 text-white" />
+              <div className="h-12 w-12 rounded-full bg-green-500 flex items-center justify-center mb-2">
+                <Phone className="h-6 w-6 text-white" />
               </div>
-              <p className="text-white text-sm">Answer</p>
+              <p className="text-white text-xs">Answer</p>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@ const FeaturesShowcase = () => {
       title: "WhatsApp Integration",
       description: "Daily check-ins and conversations with your AI coach via WhatsApp",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden" style={{ transform: "scale(0.85)", maxHeight: "320px" }}>
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden" style={{ transform: "scale(0.7)", maxHeight: "280px" }}>
           {/* WhatsApp header - scaled down */}
           <div className="bg-brand-primary px-4 py-2 flex items-center">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-3">
@@ -106,74 +106,74 @@ const FeaturesShowcase = () => {
       title: "Achievement Tracking",
       description: "Every accomplishment automatically recorded to visualize your progress",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden" style={{ transform: "scale(0.75)" }}>
           {/* Header */}
-          <div className="p-4 border-b">
-            <h3 className="font-medium text-lg flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-amber-500" /> 
+          <div className="p-3 border-b">
+            <h3 className="font-medium text-base flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-amber-500" /> 
               Your Progress Journey
             </h3>
             <p className="text-xs text-gray-500">Track your achievements and milestones</p>
           </div>
           
           {/* Achievements Timeline */}
-          <div className="p-4 max-h-60 overflow-y-auto">
+          <div className="p-3 max-h-48 overflow-y-auto">
             <div className="relative ml-3">
               {/* Vertical line */}
               <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-gray-200"></div>
               
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {/* Breakthrough */}
-                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                <div className="relative pl-6 hover:translate-x-1 transition-all">
                   {/* Timeline dot */}
-                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-purple-400 bg-purple-50">
-                    <Star className="h-3.5 w-3.5 text-purple-500" />
+                  <div className="absolute left-0 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full border border-purple-400 bg-purple-50">
+                    <Star className="h-3 w-3 text-purple-500" />
                   </div>
                   <div className="group">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-500">Aug 19, 2023</p>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-800 border border-purple-200">
+                      <p className="text-xs text-gray-500">Aug 19</p>
+                      <span className="inline-flex px-1.5 py-0.5 rounded-full text-[10px] bg-purple-100 text-purple-800 border border-purple-200">
                         Breakthrough
                       </span>
                     </div>
-                    <h4 className="text-base font-medium">Connected childhood pattern to current anxiety</h4>
-                    <p className="text-sm text-gray-600">Identified how past experiences shape current responses</p>
+                    <h4 className="text-sm font-medium">Connected childhood pattern to current anxiety</h4>
+                    <p className="text-xs text-gray-600">Identified how past experiences shape current responses</p>
                   </div>
                 </div>
                 
                 {/* Milestone */}
-                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                <div className="relative pl-6 hover:translate-x-1 transition-all">
                   {/* Timeline dot */}
-                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-orange-400 bg-orange-50">
-                    <Calendar className="h-3.5 w-3.5 text-orange-500" />
+                  <div className="absolute left-0 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full border border-orange-400 bg-orange-50">
+                    <Calendar className="h-3 w-3 text-orange-500" />
                   </div>
                   <div className="group">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-500">Aug 12, 2023</p>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-orange-100 text-orange-800 border border-orange-200">
+                      <p className="text-xs text-gray-500">Aug 12</p>
+                      <span className="inline-flex px-1.5 py-0.5 rounded-full text-[10px] bg-orange-100 text-orange-800 border border-orange-200">
                         Milestone
                       </span>
                     </div>
-                    <h4 className="text-base font-medium">Completed first phase of anxiety management</h4>
-                    <p className="text-sm text-gray-600">Successfully finished all modules in phase one</p>
+                    <h4 className="text-sm font-medium">Completed first phase of anxiety management</h4>
+                    <p className="text-xs text-gray-600">Successfully finished all modules in phase one</p>
                   </div>
                 </div>
                 
                 {/* Achievement */}
-                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                <div className="relative pl-6 hover:translate-x-1 transition-all">
                   {/* Timeline dot */}
-                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-green-400 bg-green-50">
-                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  <div className="absolute left-0 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full border border-green-400 bg-green-50">
+                    <Check className="h-3 w-3 text-green-500" />
                   </div>
                   <div className="group">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-500">Aug 5, 2023</p>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 border border-green-200">
+                      <p className="text-xs text-gray-500">Aug 5</p>
+                      <span className="inline-flex px-1.5 py-0.5 rounded-full text-[10px] bg-green-100 text-green-800 border border-green-200">
                         Achievement
                       </span>
                     </div>
-                    <h4 className="text-base font-medium">Started daily mindfulness practice</h4>
-                    <p className="text-sm text-gray-600">Committed to 5 minutes of mindfulness each morning</p>
+                    <h4 className="text-sm font-medium">Started daily mindfulness practice</h4>
+                    <p className="text-xs text-gray-600">Committed to 5 minutes of mindfulness each morning</p>
                   </div>
                 </div>
               </div>
@@ -204,7 +204,7 @@ const FeaturesShowcase = () => {
             <div key={index} className="flex flex-col gap-8">
               {/* Mobile Layout: Image on top */}
               {isMobile && (
-                <div className="w-full bg-gray-50 rounded-lg p-6 flex items-center justify-center h-[320px]">
+                <div className="w-full bg-gray-50 rounded-lg p-6 flex items-center justify-center h-[260px]">
                   {feature.customImage}
                 </div>
               )}
@@ -225,9 +225,9 @@ const FeaturesShowcase = () => {
                   </ul>
                 </div>
                 
-                {/* Desktop Layout: Image to the side - now with fixed height */}
+                {/* Desktop Layout: Image to the side - now with smaller height */}
                 {!isMobile && (
-                  <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center h-[320px]">
+                  <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center h-[260px]">
                     {feature.customImage}
                   </div>
                 )}
