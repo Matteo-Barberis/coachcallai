@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -107,36 +106,6 @@ const Account = () => {
     return nameValid && phoneValid;
   };
 
-  const checkPhoneNumberExists = async (phoneNumber: string): Promise<boolean> => {
-    // Skip check if the phone number hasn't changed
-    if (phoneNumber === initialPhone) {
-      return false;
-    }
-
-    try {
-      console.log('Checking if phone number exists:', phoneNumber);
-      console.log('Current user ID:', session?.user.id);
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', phoneNumber)
-        .neq('id', session!.user.id) // Exclude current user
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error checking phone number:', error);
-        throw error;
-      }
-      
-      console.log('Phone check result:', data);
-      return !!data; // Return true if a record was found (phone is taken)
-    } catch (error) {
-      console.error('Error checking if phone number exists:', error);
-      return false; // Default to not existing on error to avoid blocking form submission
-    }
-  };
-
   const handleSaveProfile = async () => {
     if (!hasChanges) {
       toast({
@@ -153,29 +122,11 @@ const Account = () => {
     setIsSaving(true);
     
     try {
-      // Clean the phone number
-      const cleanedPhone = phone.replace(/\s+/g, '');
-      
-      // Only check for duplicates if the phone number has changed
-      if (cleanedPhone !== initialPhone) {
-        console.log('Phone number changed, checking for duplicates...');
-        
-        // Check if phone number exists before attempting to save
-        const phoneExists = await checkPhoneNumberExists(cleanedPhone);
-        
-        // If the phone exists for another user, stop here and show an error
-        if (phoneExists) {
-          setPhoneError('This phone number is already in use by another account');
-          setIsSaving(false);
-          return; // Very important - this stops the function and prevents the save
-        }
-      }
-      
-      // If we reach here, either the phone is unique or hasn't changed
       const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
-      if (cleanedPhone !== initialPhone) {
+      if (phone !== initialPhone) {
+        const cleanedPhone = phone.replace(/\s+/g, '');
         updates.phone = cleanedPhone;
         updates.phone_verified = false;
         updates.phone_verification_code = null;
@@ -186,35 +137,25 @@ const Account = () => {
         updates.full_name = fullName;
       }
       
-      // Only proceed with the update if we have changes to make
-      if (Object.keys(updates).length > 0) {
-        console.log('Saving updates:', updates);
-        
-        const { error } = await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', session!.user.id);
-        
-        if (error) throw error;
-        
-        if (cleanedPhone !== initialPhone) {
-          setInitialPhone(cleanedPhone);
-        }
-        
-        if (fullName !== initialFullName) {
-          setInitialFullName(fullName);
-        }
-        
-        toast({
-          title: "Profile updated",
-          description: "Your profile has been successfully updated.",
-        });
-      } else {
-        toast({
-          title: "No changes",
-          description: "No changes were made to your profile.",
-        });
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', session!.user.id);
+      
+      if (error) throw error;
+      
+      if (phone !== initialPhone) {
+        setInitialPhone(phone.replace(/\s+/g, ''));
       }
+      
+      if (fullName !== initialFullName) {
+        setInitialFullName(fullName);
+      }
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
