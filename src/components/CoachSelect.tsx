@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,7 +15,6 @@ type Assistant = {
   vapi_assistant_id: string;
 };
 
-// Group coaches by personality
 const groupCoachesByPersonality = (coaches: Assistant[]) => {
   const groupedCoaches: Record<string, Assistant[]> = {};
   
@@ -39,13 +37,11 @@ const CoachSelect = () => {
   const { toast } = useToast();
   const { session } = useSessionContext();
 
-  // Fetch user's stored coach preference and all coaches
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         
-        // Fetch all coaches
         const { data: coachesData, error: coachesError } = await supabase
           .from('assistants')
           .select(`
@@ -61,7 +57,6 @@ const CoachSelect = () => {
         
         if (coachesError) throw coachesError;
         
-        // Transform coaches data
         const transformedCoaches = coachesData.map(item => ({
           id: item.id,
           name: item.name,
@@ -73,7 +68,6 @@ const CoachSelect = () => {
         
         setCoaches(transformedCoaches);
         
-        // If user is logged in, fetch their profile to get selected coach
         if (session?.user.id) {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -88,7 +82,6 @@ const CoachSelect = () => {
           if (profileData?.assistant_id) {
             setSelectedCoach(profileData.assistant_id);
           } else if (transformedCoaches.length > 0) {
-            // Default to first coach if user has no selection
             setSelectedCoach(transformedCoaches[0].id);
           }
         }
@@ -102,19 +95,16 @@ const CoachSelect = () => {
     fetchData();
   }, [session]);
 
-  // Save user's coach selection
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
     
     const coach = coaches.find(c => c.id === coachId);
     
-    // Show toast notification
     toast({
       title: "Coach Selected",
       description: `You've selected ${coach?.name} as your coach.`,
     });
     
-    // Save selection to user profile if logged in
     if (session?.user.id) {
       try {
         const { error } = await supabase
@@ -134,14 +124,12 @@ const CoachSelect = () => {
     }
   };
 
-  // Play coach audio
   const playCoachAudio = (coachId: string) => {
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
     }
 
-    // Find the coach to get the vapi_assistant_id
     const coach = coaches.find(c => c.id === coachId);
     
     if (!coach) {
@@ -149,7 +137,6 @@ const CoachSelect = () => {
       return;
     }
     
-    // Use vapi_assistant_id for the audio file name
     const vapiAssistantId = coach.vapi_assistant_id;
     const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${vapiAssistantId}.wav`;
     
@@ -203,7 +190,7 @@ const CoachSelect = () => {
       {coaches.length > 0 ? (
         <div className="flex items-center">
           <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
-            <SelectTrigger className="w-[180px] h-9">
+            <SelectTrigger className="w-[140px] h-9">
               <SelectValue placeholder="Select a coach" />
             </SelectTrigger>
             <SelectContent>
