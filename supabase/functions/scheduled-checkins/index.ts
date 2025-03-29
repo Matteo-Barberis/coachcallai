@@ -15,6 +15,13 @@ const checkInWindows = [
   { type: 'evening', templateId: 'evening_checkin_personal', startHour: 19, startMinute: 30, endHour: 20, endMinute: 45 }
 ];
 
+// Template message content mapping
+const templateMessages = {
+  'morning_checkin_personal': 'Good morning! Ready to tackle your goals today? Let me know how I can support you.',
+  'midday_checkin_personal': 'Hey, it\'s midday already! How\'s your day going so far? Need any help staying on track?',
+  'evening_checkin_personal': 'Good evening! How did your day go?'
+};
+
 // Log immediately when the function is loaded
 console.log("Scheduled WhatsApp check-ins function is starting up...");
 
@@ -185,6 +192,24 @@ serve(async (req) => {
                   if (result.success) {
                     messagesSent++;
                     console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber}`);
+                    
+                    // NEW: Store the sent template message in the database as a system message
+                    const templateContent = templateMessages[window.templateId];
+                    if (templateContent) {
+                      const { error: storeMessageError } = await supabase
+                        .from('whatsapp_messages')
+                        .insert({
+                          user_id: user.id,
+                          content: templateContent,
+                          type: 'system'
+                        });
+                        
+                      if (storeMessageError) {
+                        console.error(`[${new Date().toISOString()}] Error storing template message for user ${user.id}:`, storeMessageError);
+                      } else {
+                        console.log(`[${new Date().toISOString()}] Successfully stored template message in database for user ${user.id}`);
+                      }
+                    }
                   } else {
                     console.error(`[${new Date().toISOString()}] Failed to send ${window.type} check-in to ${phoneNumber}: ${result.error}`);
                   }
