@@ -83,7 +83,22 @@ const CoachVoiceShowcase = () => {
                 <div className="flex items-center mb-6">
                   <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
                     <AvatarFallback>
-                      <Smile className="h-10 w-10 text-brand-primary" />
+                      {/* Using a custom SVG for a friendly, open-mouth smile */}
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="h-10 w-10 text-brand-primary"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                        <path d="M9 9h.01" />
+                        <path d="M15 9h.01" />
+                      </svg>
                     </AvatarFallback>
                   </Avatar>
                   <div>
