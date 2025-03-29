@@ -114,7 +114,7 @@ const Dashboard = () => {
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">Connect to WhatsApp</h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  Link your WhatsApp account to receive coaching session reminders and quick updates.
+                  Link your WhatsApp account to receive coaching checkins and chat with your coach.
                 </p>
                 <Button className="bg-[#25D366] hover:bg-[#128C7E]" asChild>
                   <Link to="/connect-whatsapp" className="flex items-center gap-2">
