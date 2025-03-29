@@ -5,6 +5,7 @@ import { Volume2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
+import { useSessionContext } from "@/context/SessionContext";
 
 // Define coach personalities
 const coachPersonalities = {
@@ -24,7 +25,8 @@ const coachPersonalities = {
 
 const CoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
-  const [activePersonality, setActivePersonality] = useState<string | null>(null);
+  const [activePersonality, setActivePersonality] = useState<string>("empathetic"); // Default to empathetic
+  const { session } = useSessionContext();
   
   // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
@@ -63,7 +65,10 @@ const CoachVoiceShowcase = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <CoachSelect onCoachSelect={handleCoachSelect} />
+                  <CoachSelect 
+                    onCoachSelect={handleCoachSelect} 
+                    defaultPersonalityType={!session ? "empathetic" : undefined}
+                  />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice
                   </p>
@@ -76,27 +81,15 @@ const CoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">Coach Personalities</h4>
                   <div className="space-y-4">
-                    {!activePersonality ? (
-                      // Show all personality types when no coach is selected
-                      Object.values(coachPersonalities).map((personality) => (
-                        <div key={personality.name} className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h5 className="font-semibold text-brand-primary">{personality.name}</h5>
-                          <p className="text-gray-600 mt-1">
-                            {personality.description}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      // Show only the selected coach's personality
-                      <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                        <h5 className="font-semibold text-brand-primary">
-                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
-                        </h5>
-                        <p className="text-gray-600 mt-1">
-                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
-                        </p>
-                      </div>
-                    )}
+                    {/* Show only the selected personality */}
+                    <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
+                      <h5 className="font-semibold text-brand-primary">
+                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
+                      </h5>
+                      <p className="text-gray-600 mt-1">
+                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

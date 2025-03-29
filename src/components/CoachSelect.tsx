@@ -21,6 +21,7 @@ type Assistant = {
 
 interface CoachSelectProps {
   onCoachSelect?: (coachId: string, personalityType: string) => void;
+  defaultPersonalityType?: string; // New prop for default personality type
 }
 
 const groupCoachesByPersonality = (coaches: Assistant[]) => {
@@ -51,7 +52,7 @@ const getPersonalityType = (coachName: string): string => {
   }
 };
 
-const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
+const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersonalityType }) => {
   const [coaches, setCoaches] = useState<Assistant[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,6 +95,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
         
         setCoaches(transformedCoaches);
         
+        // Handle selection for authenticated users
         if (session?.user.id) {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -119,6 +121,31 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
               onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
             }
           }
+        } 
+        // Handle default selection for non-authenticated users
+        else if (transformedCoaches.length > 0) {
+          let defaultCoach;
+          
+          if (defaultPersonalityType) {
+            // Try to find a coach with the specified personality type
+            defaultCoach = transformedCoaches.find(
+              coach => coach.personality_type === defaultPersonalityType
+            );
+            
+            // Fallback to first coach if none with specified type found
+            if (!defaultCoach) {
+              defaultCoach = transformedCoaches[0];
+            }
+          } else {
+            defaultCoach = transformedCoaches[0];
+          }
+          
+          if (defaultCoach) {
+            setSelectedCoach(defaultCoach.id);
+            if (onCoachSelect) {
+              onCoachSelect(defaultCoach.id, defaultCoach.personality_type || 'friendly');
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -128,7 +155,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
     };
 
     fetchData();
-  }, [session, onCoachSelect]);
+  }, [session, onCoachSelect, defaultPersonalityType]);
 
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
