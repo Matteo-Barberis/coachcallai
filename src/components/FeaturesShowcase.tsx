@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Phone, MessageCircle, Trophy, PhoneIncoming } from "lucide-react";
+import { Check, Phone, MessageCircle, Trophy, PhoneIncoming, Award, Medal } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const FeaturesShowcase = () => {
@@ -105,7 +105,72 @@ const FeaturesShowcase = () => {
       icon: <Trophy className="h-10 w-10 text-brand-primary" />,
       title: "Achievement Tracking",
       description: "Every accomplishment automatically recorded to visualize your progress",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/achievements-board.png",
+      customImage: (
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Achievement board header */}
+          <div className="bg-gradient-to-r from-brand-primary to-purple-600 px-4 py-3">
+            <h4 className="font-medium text-white text-center">Achievement Board</h4>
+          </div>
+          
+          {/* Achievement timeline */}
+          <div className="bg-gray-50 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h5 className="font-medium text-gray-700">Your Progress</h5>
+              <span className="text-xs bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1">This Week</span>
+            </div>
+            
+            {/* Achievement items */}
+            <div className="space-y-4">
+              {/* Achievement 1 */}
+              <div className="bg-white rounded-lg p-3 shadow-sm border-l-4 border-green-500">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                    <Trophy className="h-4 w-4 text-green-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Workout Streak</p>
+                    <p className="text-xs text-gray-500 mt-1">Completed 5 workouts in a row</p>
+                    <p className="text-[10px] text-gray-400 mt-2">Today, 2:30 PM</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Achievement 2 */}
+              <div className="bg-white rounded-lg p-3 shadow-sm border-l-4 border-blue-500">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    <Medal className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Nutrition Goal</p>
+                    <p className="text-xs text-gray-500 mt-1">Hit protein target for 7 days</p>
+                    <p className="text-[10px] text-gray-400 mt-2">Yesterday, 9:15 AM</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Achievement 3 */}
+              <div className="bg-white rounded-lg p-3 shadow-sm border-l-4 border-amber-500">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                    <Award className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Personal Record</p>
+                    <p className="text-xs text-gray-500 mt-1">Added 10kg to your squat max</p>
+                    <p className="text-[10px] text-gray-400 mt-2">Monday, 6:45 PM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* View more button */}
+            <button className="w-full mt-3 text-xs text-center py-2 text-brand-primary font-medium hover:bg-brand-primary/5 rounded-lg transition-colors">
+              View All Achievements
+            </button>
+          </div>
+        </div>
+      ),
       points: [
         "Automatic milestone recording from conversations",
         "Visual progress timeline to celebrate wins",
