@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -24,6 +23,7 @@ const UserMenu = () => {
       title: "Signed out",
       description: "You have been successfully signed out.",
     });
+    navigate('/');
   };
 
   const handleGetStarted = () => {
