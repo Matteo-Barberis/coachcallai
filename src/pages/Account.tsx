@@ -151,8 +151,10 @@ const Account = () => {
     try {
       // Check if the phone number exists for another user
       const cleanedPhone = phone.replace(/\s+/g, '');
+      
       if (cleanedPhone !== initialPhone) {
         const phoneExists = await checkPhoneNumberExists(cleanedPhone);
+        
         if (phoneExists) {
           setPhoneError('This phone number is already in use by another account');
           setIsSaving(false);
@@ -163,7 +165,7 @@ const Account = () => {
       const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
-      if (phone !== initialPhone) {
+      if (cleanedPhone !== initialPhone) {
         updates.phone = cleanedPhone;
         updates.phone_verified = false;
         updates.phone_verification_code = null;
@@ -174,25 +176,33 @@ const Account = () => {
         updates.full_name = fullName;
       }
       
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', session!.user.id);
-      
-      if (error) throw error;
-      
-      if (phone !== initialPhone) {
-        setInitialPhone(cleanedPhone);
+      // Only proceed with the update if we have changes to make
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', session!.user.id);
+        
+        if (error) throw error;
+        
+        if (cleanedPhone !== initialPhone) {
+          setInitialPhone(cleanedPhone);
+        }
+        
+        if (fullName !== initialFullName) {
+          setInitialFullName(fullName);
+        }
+        
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been successfully updated.",
+        });
+      } else {
+        toast({
+          title: "No changes",
+          description: "No changes were made to your profile.",
+        });
       }
-      
-      if (fullName !== initialFullName) {
-        setInitialFullName(fullName);
-      }
-      
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
-      });
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
