@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -5,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSessionContext } from "@/context/SessionContext";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Assistant = {
   id: string;
@@ -36,6 +38,7 @@ const CoachSelect = () => {
   const [playingCoachId, setPlayingCoachId] = useState<string | null>(null);
   const { toast } = useToast();
   const { session } = useSessionContext();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,7 +193,7 @@ const CoachSelect = () => {
       {coaches.length > 0 ? (
         <div className="flex items-center">
           <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
-            <SelectTrigger className="w-[140px] h-9">
+            <SelectTrigger className={`${isMobile ? "w-[110px]" : "w-[140px]"} h-9`}>
               <SelectValue placeholder="Select a coach" />
             </SelectTrigger>
             <SelectContent>
