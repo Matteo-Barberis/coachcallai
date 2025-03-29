@@ -58,7 +58,7 @@ const CtaSection = () => {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold mb-2">Proven Results</h3>
-              <p className="text-gray-600">Our accountability system has helped thousands reach their goals faster.</p>
+              <p className="text-gray-600">Our AI coach will help you stay focused and achieve your goals more effectively.</p>
             </div>
             
             <div className="text-center">
