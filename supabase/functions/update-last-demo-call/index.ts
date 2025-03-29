@@ -119,7 +119,7 @@ serve(async (req) => {
               model: "gpt-4o",
               messages: [
                 {
-                  content: "You are an AI coach, you are calling a user just to confirm that you can call them successfully and they can receive calls, and to inform them that this is just a test call and it won't last more than 30 seconds, and that if they want to schedule a proper call with you to do it from the dashboard",
+                  content: "You are a motivational / accountability coach, you are calling a user just to confirm that you can call them successfully and they can receive calls, and to inform them that this is just a test call and it won't last more than 30 seconds, and that if they want to schedule a proper call with you to do it from the dashboard",
                   role: "system"
                 }
               ]
