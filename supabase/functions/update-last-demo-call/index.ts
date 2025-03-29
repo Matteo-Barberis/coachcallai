@@ -108,10 +108,15 @@ serve(async (req) => {
           "Authorization": `Bearer ${vapiApiKey}`
         },
         body: JSON.stringify({
-          assistant_id: vapiAssistantId,
-          phone_number: userPhone,
-          assistant_overrides: {
+          assistantId: vapiAssistantId,
+          phoneNumberId: "879b5957-ead7-443a-9cb1-bd94e4160327",
+          customer: {
+            number: userPhone
+          },
+          assistantOverrides: {
             model: {
+              provider: "openai",
+              model: "gpt-4o",
               messages: [
                 {
                   content: "You are an AI coach, you are calling a user just to confirm that you can call them successfully and they can receive calls, and to inform them that this is just a test call and it won't last more than 30 seconds, and that if they want to schedule a proper call with you to do it from the dashboard",
@@ -119,7 +124,7 @@ serve(async (req) => {
                 }
               ]
             },
-            first_message: "Hey there! Can you hear me?"
+            firstMessage: "Hey there! Can you hear me?"
           }
         })
       });
