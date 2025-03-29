@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -25,12 +24,10 @@ const Dashboard = () => {
   const [lastDemoCallAt, setLastDemoCallAt] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Redirect to login if not authenticated
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
   }
 
-  // Check if user is still in onboarding
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (!session?.user.id) return;
@@ -91,7 +88,6 @@ const Dashboard = () => {
         throw error;
       }
       
-      // Update the last demo call timestamp
       setLastDemoCallAt(new Date().toISOString());
       
       toast({
@@ -110,7 +106,6 @@ const Dashboard = () => {
     }
   };
 
-  // Check if 24 hours have passed since the last demo call
   const isTestCallAvailable = () => {
     if (!lastDemoCallAt) return true;
     
@@ -121,7 +116,6 @@ const Dashboard = () => {
     return hoursDifference >= 24;
   };
   
-  // Get tooltip message based on test call availability
   const getTestCallTooltip = () => {
     if (!lastDemoCallAt) return null;
     
@@ -137,7 +131,6 @@ const Dashboard = () => {
     return null;
   };
 
-  // Show loading while checking profile status
   if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -191,12 +184,7 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <p className="text-gray-600 mb-6">
-            Welcome to your Coach Call AI dashboard! This is where you'll manage your coaching sessions and review analytics.
-          </p>
-          
           <div className="mt-6 space-y-4">
-            <h2 className="text-xl font-semibold">Get Started</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">Set Your Objectives</h3>
