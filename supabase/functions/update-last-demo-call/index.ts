@@ -124,7 +124,8 @@ serve(async (req) => {
                 }
               ]
             },
-            firstMessage: "Hey there! How are you?"
+            maxDurationSeconds: 30,
+            firstMessage: "Hi there! This is your motivational coach checking in with a quick test call. How are you feeling today?"
           }
         })
       });
