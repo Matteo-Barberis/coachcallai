@@ -24,8 +24,8 @@ const Index = () => {
         <FeaturesShowcase />
         <HowItWorks />
         <DashboardPreview />
-        <CoachVoiceShowcase />
         <UseCaseShowcase />
+        <CoachVoiceShowcase />
         <EnhancedTestimonials />
         <PricingSection />
         <FaqSection />
