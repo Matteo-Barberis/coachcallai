@@ -55,7 +55,7 @@ const StickyCta = () => {
               <AvatarFallback>J</AvatarFallback>
             </Avatar>
             <Avatar className="border-2 border-white w-8 h-8">
-              <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//matteo.png" alt="Matteo" />
+              <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//matteo.jpg" alt="Matteo" />
               <AvatarFallback>M</AvatarFallback>
             </Avatar>
           </div>
