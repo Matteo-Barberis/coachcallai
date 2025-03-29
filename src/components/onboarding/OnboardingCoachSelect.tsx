@@ -204,7 +204,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
                     className="h-full w-full object-cover"
                   />
                   <button 
-                    className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity ${playingCoachId === coach.id ? 'opacity-90' : 'opacity-0 hover:opacity-70'}`}
+                    className={`absolute inset-0 flex items-center justify-center bg-black/30 ${playingCoachId === coach.id ? 'opacity-90' : 'opacity-60'}`}
                     onClick={(e) => playCoachVoice(coach.id, e)}
                     aria-label={`Play ${coach.name}'s voice`}
                   >
