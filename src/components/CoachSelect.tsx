@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -199,7 +200,6 @@ const CoachSelect = () => {
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium mr-1">Coach:</span>
       {coaches.length > 0 ? (
         <div className="flex items-center">
           <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
