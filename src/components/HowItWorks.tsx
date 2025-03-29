@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HowItWorks = () => {
+  const navigate = useNavigate();
   const steps = [
     {
       number: "01",
@@ -69,7 +71,9 @@ const HowItWorks = () => {
               <h3 className="text-2xl font-bold mb-2">Ready to stay accountable?</h3>
               <p className="text-white/80">Start your journey to consistent achievement today.</p>
             </div>
-            <button className="px-8 py-3 bg-white text-brand-primary rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+            <button 
+              onClick={() => navigate('/auth/sign-up')}
+              className="px-8 py-3 bg-white text-brand-primary rounded-lg hover:bg-opacity-90 transition-colors font-medium">
               Get Started Now
             </button>
           </div>

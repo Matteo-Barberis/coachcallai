@@ -3,16 +3,19 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const PricingSection = () => {
   const [isAnnual, setIsAnnual] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubscribe = (plan: string) => {
     toast({
       title: `${plan} Plan Selected`,
       description: "Thanks for your interest! Early access sign-up confirmed.",
     });
+    navigate('/auth/sign-up');
   };
 
   const plans = [
@@ -143,7 +146,7 @@ const PricingSection = () => {
                 }`}
                 onClick={() => handleSubscribe(plan.name)}
               >
-                {plan.popular ? 'Start 14-Day Free Trial' : 'Get Started'}
+                Get Started
               </Button>
             </div>
           ))}
