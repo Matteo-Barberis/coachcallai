@@ -13,6 +13,7 @@ type OnboardingData = {
   firstName: string;
   lastName: string;
   phone: string;
+  objectives: string;
   coachId: string;
 };
 
@@ -23,6 +24,7 @@ const Onboarding = () => {
     firstName: '',
     lastName: '',
     phone: '',
+    objectives: '',
     coachId: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,6 +98,7 @@ const Onboarding = () => {
           full_name: `${data.firstName} ${data.lastName}`,
           focus_areas: { main: data.focusArea },
           assistant_id: data.coachId,
+          objectives: data.objectives,
           is_onboarding: false // Mark onboarding as complete
         })
         .eq('id', session.user.id);
@@ -175,6 +178,7 @@ const Onboarding = () => {
                 firstName={data.firstName}
                 lastName={data.lastName}
                 phone={data.phone}
+                objectives={data.objectives}
                 onChange={updateData}
                 onNext={nextStep}
                 onBack={prevStep}

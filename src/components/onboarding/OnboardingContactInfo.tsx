@@ -3,13 +3,15 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import PhoneInput from "@/components/PhoneInput";
 
 interface OnboardingContactInfoProps {
   firstName: string;
   lastName: string;
   phone: string;
-  onChange: (data: { firstName?: string; lastName?: string; phone?: string }) => void;
+  objectives: string;
+  onChange: (data: { firstName?: string; lastName?: string; phone?: string; objectives?: string }) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -18,6 +20,7 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
   firstName,
   lastName,
   phone,
+  objectives,
   onChange,
   onNext,
   onBack
@@ -27,9 +30,9 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Your Contact Information</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Your Coaching Setup</h1>
         <p className="text-gray-600">
-          We'll use this information to personalize your experience and for your coach to contact you.
+          Tell us how to reach you and what you're looking to achieve with coaching.
         </p>
       </div>
 
@@ -63,6 +66,20 @@ const OnboardingContactInfo: React.FC<OnboardingContactInfoProps> = ({
           />
           <p className="text-sm text-gray-500 mt-1">
             Your coach will call you at this number to check in on your progress.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="objectives">Your Coaching Objectives</Label>
+          <Textarea
+            id="objectives"
+            value={objectives || ''}
+            onChange={(e) => onChange({ objectives: e.target.value })}
+            placeholder="What specific goals would you like to achieve with your coach? E.g., improve work-life balance, develop leadership skills, etc."
+            className="min-h-[120px]"
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            This helps your coach understand how to best support you.
           </p>
         </div>
       </div>
