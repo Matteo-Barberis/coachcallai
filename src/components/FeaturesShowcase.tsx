@@ -42,7 +42,59 @@ const FeaturesShowcase = () => {
       icon: <MessageCircle className="h-10 w-10 text-brand-primary" />,
       title: "WhatsApp Integration",
       description: "Daily check-ins and conversations with your AI coach via WhatsApp",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/whatsapp-preview.png",
+      customImage: (
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* WhatsApp header */}
+          <div className="bg-brand-primary px-4 py-3 flex items-center">
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-3">
+              <MessageCircle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h4 className="font-medium text-white">Coach AI</h4>
+              <p className="text-xs text-white/70">online</p>
+            </div>
+          </div>
+          
+          {/* Chat area */}
+          <div className="bg-gray-50 p-3 space-y-3">
+            {/* Time header */}
+            <div className="flex justify-center">
+              <span className="text-xs bg-white rounded-full px-3 py-1 text-gray-500 shadow-sm">Today, 8:24 AM</span>
+            </div>
+            
+            {/* AI message */}
+            <div className="flex">
+              <div className="bg-white rounded-lg p-3 max-w-[75%] shadow-sm">
+                <p className="text-sm">Good morning! How are you feeling about your workout goal today?</p>
+                <p className="text-[10px] text-gray-400 text-right mt-1">8:24 AM</p>
+              </div>
+            </div>
+            
+            {/* User message */}
+            <div className="flex justify-end">
+              <div className="bg-brand-light rounded-lg p-3 max-w-[75%] shadow-sm">
+                <p className="text-sm">A bit tired but I'm still planning to go to the gym this afternoon!</p>
+                <p className="text-[10px] text-gray-400 text-right mt-1">8:30 AM</p>
+              </div>
+            </div>
+            
+            {/* AI message */}
+            <div className="flex">
+              <div className="bg-white rounded-lg p-3 max-w-[75%] shadow-sm">
+                <p className="text-sm">That's the spirit! I'll check in with you at 3PM to make sure you're on track. Remember why you started!</p>
+                <p className="text-[10px] text-gray-400 text-right mt-1">8:31 AM</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Input area */}
+          <div className="px-3 py-2 bg-white border-t border-gray-200 flex items-center">
+            <div className="bg-gray-100 rounded-full flex-1 py-2 px-4 text-sm text-gray-500">
+              Type a message
+            </div>
+          </div>
+        </div>
+      ),
       points: [
         "3 daily check-ins to keep you accountable",
         "Text your coach anytime for guidance",
