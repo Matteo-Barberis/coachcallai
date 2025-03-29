@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -7,8 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
 import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
-// Define coach personalities
 const coachPersonalities = {
   "empathetic": {
     name: "Empathetic Supporter",
@@ -32,17 +31,15 @@ const CoachVoiceShowcase = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const navigate = useNavigate();
   
-  // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
     setActivePersonality(personalityType);
     
-    // Fetch the coach's name when a coach is selected
     fetchCoachName(coachId);
   };
-  
-  // Function to fetch the coach's name from the database
+
   const fetchCoachName = async (coachId: string) => {
     try {
       const { data, error } = await supabase
@@ -64,13 +61,10 @@ const CoachVoiceShowcase = () => {
     }
   };
 
-  // Load the audio file once when component mounts
   useEffect(() => {
-    // Create the audio element only once
     if (!audio) {
       const sampleAudio = new Audio();
       
-      // Set up event listeners
       sampleAudio.oncanplaythrough = () => {
         console.log("Audio has loaded and can be played");
         setAudioLoaded(true);
@@ -86,25 +80,21 @@ const CoachVoiceShowcase = () => {
         setIsPlaying(false);
       };
       
-      // Set the source
       sampleAudio.src = "/sample-coaching-call.mp3";
       
-      // Start loading the audio
       sampleAudio.load();
       
       setAudio(sampleAudio);
     }
     
-    // Cleanup audio when component unmounts
     return () => {
       if (audio) {
         audio.pause();
         audio.currentTime = 0;
       }
     };
-  }, []); // Empty dependency array ensures this runs only once
+  }, []);
 
-  // Function to handle playing the sample coaching call
   const handlePlaySampleCall = () => {
     if (!audio) return;
     
@@ -112,13 +102,16 @@ const CoachVoiceShowcase = () => {
       audio.pause();
       setIsPlaying(false);
     } else {
-      // Start playing and catch any errors
       audio.play().then(() => {
         setIsPlaying(true);
       }).catch((error) => {
         console.error("Error playing audio:", error);
       });
     }
+  };
+
+  const handleSignupNavigation = () => {
+    navigate('/auth/sign-up');
   };
 
   return (
@@ -156,7 +149,7 @@ const CoachVoiceShowcase = () => {
                   <CoachSelect 
                     onCoachSelect={handleCoachSelect} 
                     defaultPersonalityType={!session ? "empathetic" : undefined}
-                    suppressToast={true} // Add prop to suppress toast notifications
+                    suppressToast={true}
                   />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice
@@ -170,7 +163,6 @@ const CoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
-                    {/* Show only the selected personality */}
                     <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
                       <h5 className="font-semibold text-brand-primary">
                         {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
@@ -183,7 +175,6 @@ const CoachVoiceShowcase = () => {
                 </CardContent>
               </Card>
 
-              {/* Sample coaching call section */}
               <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
                 <h4 className="font-medium text-lg mb-4">Hear a Real Coaching Call</h4>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">

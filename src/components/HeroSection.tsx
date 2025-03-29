@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
 const HeroSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
+  const location = useLocation();
   const [rotatingWord, setRotatingWord] = useState("Accountable");
   const [fadeState, setFadeState] = useState("fade-in");
   const rotatingWords = ["Accountable", "Mindful", "Motivated", "Focused", "Consistent", "Productive", "Happy"];
@@ -34,10 +36,16 @@ const HeroSection = () => {
   }, []);
 
   const handleButtonClick = () => {
-    if (session) {
-      navigate('/dashboard');
-    } else {
+    // On home page (path is "/") always navigate to sign-up
+    if (location.pathname === "/") {
       navigate('/auth/sign-up');
+    } else {
+      // On other pages, maintain existing behavior
+      if (session) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/sign-up');
+      }
     }
   };
 
@@ -69,7 +77,7 @@ const HeroSection = () => {
                 className="text-base md:text-lg py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
                 onClick={handleButtonClick}
               >
-                {session ? "Go to Dashboard" : "Get Your First AI Call"}
+                {location.pathname === "/" ? "Get Your First AI Call" : (session ? "Go to Dashboard" : "Get Your First AI Call")}
               </Button>
               <Button 
                 variant="outline" 

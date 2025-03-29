@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -11,6 +11,7 @@ const StickyCta = () => {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
   const { session } = useSessionContext();
+  const location = useLocation();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -28,10 +29,16 @@ const StickyCta = () => {
   }, []);
 
   const handleButtonClick = () => {
-    if (session) {
-      navigate('/dashboard');
-    } else {
+    // On home page (path is "/") always navigate to sign-up
+    if (location.pathname === "/") {
       navigate('/auth/sign-up');
+    } else {
+      // On other pages, maintain existing behavior
+      if (session) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/sign-up');
+      }
     }
   };
 
@@ -67,7 +74,7 @@ const StickyCta = () => {
           className="text-base py-4 px-6 bg-brand-primary hover:bg-brand-primary/90 whitespace-nowrap"
           onClick={handleButtonClick}
         >
-          {session ? "Go to Dashboard" : "Get Your First AI Call"}
+          {location.pathname === "/" ? "Get Your First AI Call" : (session ? "Go to Dashboard" : "Get Your First AI Call")}
         </Button>
       </div>
     </div>

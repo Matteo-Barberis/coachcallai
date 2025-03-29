@@ -3,18 +3,26 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
 const CtaSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
+  const location = useLocation();
 
   const handleButtonClick = () => {
-    if (session) {
-      navigate('/dashboard');
-    } else {
+    // On home page (path is "/") always navigate to sign-up
+    if (location.pathname === "/") {
       navigate('/auth/sign-up');
+    } else {
+      // On other pages, maintain existing behavior
+      if (session) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/sign-up');
+      }
     }
   };
 

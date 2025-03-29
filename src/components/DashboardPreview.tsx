@@ -1,8 +1,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from "react-router-dom";
 
 const DashboardPreview = () => {
+  const navigate = useNavigate();
+  
+  const handleSignupNavigation = () => {
+    navigate('/auth/sign-up');
+  };
+
   return (
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -37,7 +44,7 @@ const DashboardPreview = () => {
           </p>
           <Button 
             className="text-base py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
-            onClick={() => window.location.href = "/onboarding"}
+            onClick={handleSignupNavigation}
           >
             Experience Your Progress Dashboard
           </Button>
