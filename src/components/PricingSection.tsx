@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
@@ -73,7 +72,7 @@ const PricingSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Simple, Transparent Pricing</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choose the plan that fits your accountability needs. All plans include a 14-day free trial.
+            
           </p>
           
           <div className="flex items-center justify-center mt-8 bg-gray-100 p-1 rounded-full w-72 mx-auto">
