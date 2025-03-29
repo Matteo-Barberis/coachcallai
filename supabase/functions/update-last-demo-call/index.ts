@@ -109,6 +109,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           assistantId: vapiAssistantId,
+          phoneNumberId: "879b5957-ead7-443a-9cb1-bd94e4160327",
           customer: {
             number: userPhone
           },
