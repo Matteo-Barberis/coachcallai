@@ -5,14 +5,23 @@ import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
+  const [isCallingDemo, setIsCallingDemo] = useState(false);
   const { toast } = useToast();
 
   // Redirect to login if not authenticated
@@ -63,6 +72,36 @@ const Dashboard = () => {
     }
   }, [session, navigate, toast]);
 
+  const handleTestCall = async () => {
+    if (!session?.user.id) return;
+    
+    setIsCallingDemo(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('update-last-demo-call', {
+        body: { userId: session.user.id }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Test Call Initiated",
+        description: "Your test call has been successfully set up!",
+      });
+    } catch (error) {
+      console.error('Error initiating test call:', error);
+      toast({
+        title: "Error",
+        description: "Could not initiate test call. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCallingDemo(false);
+    }
+  };
+
   // Show loading while checking profile status
   if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -73,9 +112,37 @@ const Dashboard = () => {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
-            <CoachSelect />
+            <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
+              <CoachSelect />
+              <div className="flex items-center">
+                <Button 
+                  onClick={handleTestCall}
+                  disabled={isCallingDemo}
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  {isCallingDemo ? "Setting up..." : "Try Test Call"}
+                </Button>
+                
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <HelpCircle className="h-4 w-4" />
+                      <span className="sr-only">Info about test calls</span>
+                    </Button>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-80">
+                    <p className="text-sm">
+                      This is a test call to verify everything is working correctly. 
+                      The call won't last longer than 30 seconds. For a proper coaching 
+                      session, please schedule a call from the Schedule section.
+                    </p>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            </div>
           </div>
           
           <p className="text-gray-600 mb-6">
