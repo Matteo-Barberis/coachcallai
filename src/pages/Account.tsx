@@ -114,6 +114,9 @@ const Account = () => {
     }
 
     try {
+      console.log('Checking if phone number exists:', phoneNumber);
+      console.log('Current user ID:', session?.user.id);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
@@ -126,6 +129,7 @@ const Account = () => {
         throw error;
       }
       
+      console.log('Phone check result:', data);
       return !!data; // Return true if a record was found (phone is taken)
     } catch (error) {
       console.error('Error checking if phone number exists:', error);
@@ -149,19 +153,25 @@ const Account = () => {
     setIsSaving(true);
     
     try {
-      // Check if the phone number exists for another user
+      // Clean the phone number
       const cleanedPhone = phone.replace(/\s+/g, '');
       
+      // Only check for duplicates if the phone number has changed
       if (cleanedPhone !== initialPhone) {
+        console.log('Phone number changed, checking for duplicates...');
+        
+        // Check if phone number exists before attempting to save
         const phoneExists = await checkPhoneNumberExists(cleanedPhone);
         
+        // If the phone exists for another user, stop here and show an error
         if (phoneExists) {
           setPhoneError('This phone number is already in use by another account');
           setIsSaving(false);
-          return;
+          return; // Very important - this stops the function and prevents the save
         }
       }
       
+      // If we reach here, either the phone is unique or hasn't changed
       const updates: { phone?: string, phone_verified?: boolean, phone_verification_code?: null, 
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
@@ -178,6 +188,8 @@ const Account = () => {
       
       // Only proceed with the update if we have changes to make
       if (Object.keys(updates).length > 0) {
+        console.log('Saving updates:', updates);
+        
         const { error } = await supabase
           .from('profiles')
           .update(updates)
