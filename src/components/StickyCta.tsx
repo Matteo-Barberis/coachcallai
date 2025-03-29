@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const StickyCta = () => {
   const { toast } = useToast();
@@ -45,9 +46,18 @@ const StickyCta = () => {
       <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center">
         <div className="flex items-center mb-3 sm:mb-0">
           <div className="flex -space-x-2 mr-3">
-            <div className="w-8 h-8 rounded-full bg-brand-primary border-2 border-white"></div>
-            <div className="w-8 h-8 rounded-full bg-brand-secondary border-2 border-white"></div>
-            <div className="w-8 h-8 rounded-full bg-brand-accent border-2 border-white"></div>
+            <Avatar className="border-2 border-white w-8 h-8">
+              <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//liv.png" alt="Liv" />
+              <AvatarFallback>L</AvatarFallback>
+            </Avatar>
+            <Avatar className="border-2 border-white w-8 h-8">
+              <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//jed.png" alt="Jed" />
+              <AvatarFallback>J</AvatarFallback>
+            </Avatar>
+            <Avatar className="border-2 border-white w-8 h-8">
+              <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//matteo.png" alt="Matteo" />
+              <AvatarFallback>M</AvatarFallback>
+            </Avatar>
           </div>
           <p className="font-medium text-gray-700">
             Join our community of goal-oriented people
