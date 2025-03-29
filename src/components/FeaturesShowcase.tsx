@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Phone, MessageCircle, Trophy } from "lucide-react";
+import { Check, Phone, MessageCircle, Trophy, PhoneIncoming } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const FeaturesShowcase = () => {
@@ -10,7 +10,31 @@ const FeaturesShowcase = () => {
       icon: <Phone className="h-10 w-10 text-brand-primary" />,
       title: "Scheduled Phone Calls",
       description: "Real phone calls to your device when you need motivation the most",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/dashboard-calls.png",
+      customImage: (
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl p-4 border border-gray-200">
+          <div className="flex items-center mb-4">
+            <div className="h-12 w-12 rounded-full bg-red-500 flex items-center justify-center">
+              <PhoneIncoming className="h-6 w-6 text-white" />
+            </div>
+            <div className="ml-4">
+              <h4 className="font-medium text-lg">Incoming Call</h4>
+              <p className="text-sm text-gray-500">Coach Call AI</p>
+            </div>
+            <div className="ml-auto text-sm text-gray-500">Now</div>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            "Time for your scheduled workout. Ready to get started?"
+          </p>
+          <div className="flex justify-between gap-3">
+            <button className="flex-1 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800 font-medium">
+              Remind Later
+            </button>
+            <button className="flex-1 py-2 px-4 bg-green-500 hover:bg-green-600 rounded-full text-white font-medium">
+              Answer
+            </button>
+          </div>
+        </div>
+      ),
       points: [
         "Schedule calls at your preferred times",
         "Get motivated exactly when you need it",
@@ -57,13 +81,15 @@ const FeaturesShowcase = () => {
               {/* Mobile Layout: Image on top */}
               {isMobile && (
                 <div className="w-full bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                  {feature.image && (
+                  {feature.customImage ? (
+                    feature.customImage
+                  ) : feature.image ? (
                     <img 
                       src={feature.image} 
                       alt={feature.title} 
                       className="rounded-lg shadow-lg max-h-80 object-cover"
                     />
-                  )}
+                  ) : null}
                 </div>
               )}
               
@@ -86,13 +112,15 @@ const FeaturesShowcase = () => {
                 {/* Desktop Layout: Image to the side */}
                 {!isMobile && (
                   <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                    {feature.image && (
+                    {feature.customImage ? (
+                      feature.customImage
+                    ) : feature.image ? (
                       <img 
                         src={feature.image} 
                         alt={feature.title} 
                         className="rounded-lg shadow-lg max-h-80 object-cover"
                       />
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>
