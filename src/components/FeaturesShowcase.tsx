@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Phone, MessageCircle, Trophy, PhoneIncoming } from "lucide-react";
+import { Check, Phone, MessageCircle, Trophy, PhoneIncoming, Star, Calendar } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const FeaturesShowcase = () => {
@@ -105,7 +105,82 @@ const FeaturesShowcase = () => {
       icon: <Trophy className="h-10 w-10 text-brand-primary" />,
       title: "Achievement Tracking",
       description: "Every accomplishment automatically recorded to visualize your progress",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/achievements-board.png",
+      customImage: (
+        <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="p-4 border-b">
+            <h3 className="font-medium text-lg flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" /> 
+              Your Progress Journey
+            </h3>
+            <p className="text-xs text-gray-500">Track your achievements and milestones</p>
+          </div>
+          
+          {/* Achievements Timeline */}
+          <div className="p-4 max-h-60 overflow-y-auto">
+            <div className="relative ml-3">
+              {/* Vertical line */}
+              <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+              
+              <div className="space-y-5">
+                {/* Breakthrough */}
+                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                  {/* Timeline dot */}
+                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-purple-400 bg-purple-50">
+                    <Star className="h-3.5 w-3.5 text-purple-500" />
+                  </div>
+                  <div className="group">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">Aug 19, 2023</p>
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-purple-100 text-purple-800 border border-purple-200">
+                        Breakthrough
+                      </span>
+                    </div>
+                    <h4 className="text-base font-medium">Connected childhood pattern to current anxiety</h4>
+                    <p className="text-sm text-gray-600">Identified how past experiences shape current responses</p>
+                  </div>
+                </div>
+                
+                {/* Milestone */}
+                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                  {/* Timeline dot */}
+                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-orange-400 bg-orange-50">
+                    <Calendar className="h-3.5 w-3.5 text-orange-500" />
+                  </div>
+                  <div className="group">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">Aug 12, 2023</p>
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-orange-100 text-orange-800 border border-orange-200">
+                        Milestone
+                      </span>
+                    </div>
+                    <h4 className="text-base font-medium">Completed first phase of anxiety management</h4>
+                    <p className="text-sm text-gray-600">Successfully finished all modules in phase one</p>
+                  </div>
+                </div>
+                
+                {/* Achievement */}
+                <div className="relative pl-8 hover:translate-x-1 transition-all">
+                  {/* Timeline dot */}
+                  <div className="absolute left-0 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full border border-green-400 bg-green-50">
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  </div>
+                  <div className="group">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">Aug 5, 2023</p>
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 border border-green-200">
+                        Achievement
+                      </span>
+                    </div>
+                    <h4 className="text-base font-medium">Started daily mindfulness practice</h4>
+                    <p className="text-sm text-gray-600">Committed to 5 minutes of mindfulness each morning</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
       points: [
         "Automatic milestone recording from conversations",
         "Visual progress timeline to celebrate wins",
@@ -130,15 +205,7 @@ const FeaturesShowcase = () => {
               {/* Mobile Layout: Image on top */}
               {isMobile && (
                 <div className="w-full bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                  {feature.customImage ? (
-                    feature.customImage
-                  ) : feature.image ? (
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title} 
-                      className="rounded-lg shadow-lg max-h-80 object-cover"
-                    />
-                  ) : null}
+                  {feature.customImage}
                 </div>
               )}
               
@@ -161,15 +228,7 @@ const FeaturesShowcase = () => {
                 {/* Desktop Layout: Image to the side */}
                 {!isMobile && (
                   <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                    {feature.customImage ? (
-                      feature.customImage
-                    ) : feature.image ? (
-                      <img 
-                        src={feature.image} 
-                        alt={feature.title} 
-                        className="rounded-lg shadow-lg max-h-80 object-cover"
-                      />
-                    ) : null}
+                    {feature.customImage}
                   </div>
                 )}
               </div>
