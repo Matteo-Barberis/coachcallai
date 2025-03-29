@@ -51,7 +51,7 @@ export type Database = {
           processed_by_ai: boolean | null
           processed_keywords: boolean | null
           response: Json | null
-          scheduled_call_id: string
+          scheduled_call_id: string | null
           status: string | null
           vapi_call_id: string | null
         }
@@ -64,7 +64,7 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_keywords?: boolean | null
           response?: Json | null
-          scheduled_call_id: string
+          scheduled_call_id?: string | null
           status?: string | null
           vapi_call_id?: string | null
         }
@@ -77,7 +77,7 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_keywords?: boolean | null
           response?: Json | null
-          scheduled_call_id?: string
+          scheduled_call_id?: string | null
           status?: string | null
           vapi_call_id?: string | null
         }

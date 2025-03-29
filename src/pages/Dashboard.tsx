@@ -34,6 +34,8 @@ const Dashboard = () => {
       return data;
     },
     enabled: !!session,
+    staleTime: 0, // Force a new fetch on every render
+    refetchOnWindowFocus: true // Refetch when window regains focus
   });
 
   // Redirect to onboarding if is_onboarding is true

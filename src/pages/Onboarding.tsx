@@ -7,6 +7,7 @@ import OnboardingContactInfo from '@/components/onboarding/OnboardingContactInfo
 import OnboardingCoachSelect from '@/components/onboarding/OnboardingCoachSelect';
 import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@/context/SessionContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 type OnboardingData = {
   focusArea: string;
@@ -29,6 +30,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useSessionContext();
+  const queryClient = useQueryClient();
 
   // Check if we should load saved data from cookies
   useEffect(() => {
@@ -108,6 +110,9 @@ const Onboarding = () => {
           variant: "destructive",
         });
       } else {
+        // Invalidate the profile query cache to force a fresh fetch
+        queryClient.invalidateQueries({ queryKey: ['profile', session.user.id] });
+        
         toast({
           title: "Onboarding completed successfully!",
           description: "Welcome to Coach Call AI. You're all set to start your journey.",
