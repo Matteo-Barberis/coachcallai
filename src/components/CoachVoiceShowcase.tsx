@@ -54,21 +54,29 @@ const CoachVoiceShowcase = () => {
             <div className="w-full md:w-1/2">
               <Card className="border border-gray-200 bg-gray-50">
                 <CardContent className="p-6">
-                  <h4 className="font-medium text-lg mb-3">Example Coach Conversation</h4>
-                  <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-                    <p className="text-gray-600 mb-3">
-                      <span className="font-medium">Coach:</span> "Hey there! I noticed you've been working on your morning routine goal. How's that going today? Did you manage to wake up at 6am as planned?"
-                    </p>
-                    <p className="text-gray-600 mb-3">
-                      <span className="font-medium">You:</span> "I did! It was tough but I made it."
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Coach:</span> "That's fantastic! I'll add this to your achievements. That's 3 days in a row now - you're building a solid streak!"
-                    </p>
+                  <h4 className="font-medium text-lg mb-3">Coach Personalities</h4>
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <h5 className="font-semibold text-brand-primary">Empathetic Supporter</h5>
+                      <p className="text-gray-600 mt-1">
+                        Focuses on emotional well-being and positive reinforcement. This coach listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <h5 className="font-semibold text-brand-primary">Results-Driven Motivator</h5>
+                      <p className="text-gray-600 mt-1">
+                        Direct, focused on metrics and clear outcomes. This coach delivers honest feedback, challenges you to push beyond comfort zones, and emphasizes accountability to achieve measurable results.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <h5 className="font-semibold text-brand-primary">Analytical Strategist</h5>
+                      <p className="text-gray-600 mt-1">
+                        Logical, systematic approach to problem-solving. This coach helps break down complex goals into manageable steps, identifies patterns in your behavior, and develops tailored strategies for success.
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-500 italic">
-                    Your coach will have conversations like this via WhatsApp and phone calls
-                  </p>
                 </CardContent>
               </Card>
             </div>
