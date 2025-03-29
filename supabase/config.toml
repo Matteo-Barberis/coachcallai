@@ -15,4 +15,3 @@ verify_jwt = false
 
 [functions.scheduled-checkins]
 verify_jwt = false
-schedule = "@hourly"

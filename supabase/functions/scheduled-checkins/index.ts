@@ -10,7 +10,7 @@ const corsHeaders = {
 
 // Time windows for check-ins (in hours and minutes)
 const checkInWindows = [
-  { type: 'morning', templateId: 'morning_checkin_personal', startHour: 7, startMinute: 45, endHour: 8, endMinute: 45 },
+  { type: 'morning', templateId: 'morning_checkin_personal', startHour: 6, startMinute: 45, endHour: 8, endMinute: 45 },
   { type: 'midday', templateId: 'midday_checkin_personal', startHour: 12, startMinute: 45, endHour: 13, endMinute: 15 },
   { type: 'evening', templateId: 'evening_checkin_personal', startHour: 19, startMinute: 30, endHour: 20, endMinute: 45 }
 ];
