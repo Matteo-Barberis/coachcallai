@@ -7,7 +7,6 @@ import OnboardingContactInfo from '@/components/onboarding/OnboardingContactInfo
 import OnboardingCoachSelect from '@/components/onboarding/OnboardingCoachSelect';
 import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@/context/SessionContext';
-import { useQueryClient } from '@tanstack/react-query';
 
 type OnboardingData = {
   focusArea: string;
@@ -30,7 +29,6 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useSessionContext();
-  const queryClient = useQueryClient();
 
   // Check if we should load saved data from cookies
   useEffect(() => {
@@ -90,7 +88,7 @@ const Onboarding = () => {
         }
       }
 
-      // Update user profile with onboarding data
+      // Update user profile with onboarding data and explicitly set is_onboarding to false
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -110,20 +108,20 @@ const Onboarding = () => {
           variant: "destructive",
         });
       } else {
-        // Invalidate the profile query cache to force a fresh fetch
-        queryClient.invalidateQueries({ queryKey: ['profile', session.user.id] });
-        
         toast({
           title: "Onboarding completed successfully!",
           description: "Welcome to Coach Call AI. You're all set to start your journey.",
         });
+        
+        // Clear onboarding data from localStorage
+        localStorage.removeItem('onboardingData');
+        
+        // Wait a brief moment to ensure database writes are completed
+        setTimeout(() => {
+          // Redirect to dashboard directly
+          navigate('/dashboard');
+        }, 100);
       }
-
-      // Clear onboarding data from localStorage
-      localStorage.removeItem('onboardingData');
-      
-      // Redirect to dashboard
-      navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: "Onboarding error",

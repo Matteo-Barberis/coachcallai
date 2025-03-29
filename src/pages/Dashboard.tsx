@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,11 +7,13 @@ import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
-import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
   const navigate = useNavigate();
+  const [isCheckingProfile, setIsCheckingProfile] = useState(true);
+  const { toast } = useToast();
 
   // Redirect to login if not authenticated
   if (!loading && !session) {
@@ -19,34 +21,50 @@ const Dashboard = () => {
   }
 
   // Check if user is still in onboarding
-  const { data: profileData, isLoading: profileLoading } = useQuery({
-    queryKey: ['profile', session?.user.id],
-    queryFn: async () => {
-      if (!session?.user.id) return null;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_onboarding')
-        .eq('id', session.user.id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!session,
-    staleTime: 0, // Force a new fetch on every render
-    refetchOnWindowFocus: true // Refetch when window regains focus
-  });
-
-  // Redirect to onboarding if is_onboarding is true
   useEffect(() => {
-    if (!profileLoading && profileData?.is_onboarding === true) {
-      navigate('/onboarding');
+    const checkOnboardingStatus = async () => {
+      if (!session?.user.id) return;
+      
+      try {
+        console.log('Checking onboarding status...');
+        
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_onboarding')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          toast({
+            title: 'Error',
+            description: 'Could not fetch your profile data.',
+            variant: 'destructive',
+          });
+        } else {
+          console.log('Profile data:', data);
+          
+          if (data.is_onboarding === true) {
+            console.log('User is in onboarding, navigating...');
+            navigate('/onboarding');
+          }
+        }
+      } catch (err) {
+        console.error('Unexpected error:', err);
+      } finally {
+        setIsCheckingProfile(false);
+      }
+    };
+
+    if (session?.user.id) {
+      checkOnboardingStatus();
+    } else {
+      setIsCheckingProfile(false);
     }
-  }, [profileData, profileLoading, navigate]);
+  }, [session, navigate, toast]);
 
   // Show loading while checking profile status
-  if (loading || profileLoading) {
+  if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
