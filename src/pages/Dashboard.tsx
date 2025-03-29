@@ -5,16 +5,14 @@ import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, Phone } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2 } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import { useToast } from '@/components/ui/use-toast';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
   const { session, loading } = useSessionContext();
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
-  const [isCallingDemo, setIsCallingDemo] = useState(false);
   const { toast } = useToast();
 
   // Redirect to login if not authenticated
@@ -65,41 +63,6 @@ const Dashboard = () => {
     }
   }, [session, navigate, toast]);
 
-  // Function to trigger the demo call
-  const handleDemoCall = async () => {
-    if (!session?.user.id) return;
-    
-    try {
-      setIsCallingDemo(true);
-      
-      console.log("Initiating demo call for user:", session.user.id);
-      
-      const response = await supabase.functions.invoke('update-last-demo-call', {
-        body: { user_id: session.user.id }
-      });
-      
-      console.log("Edge function response:", response);
-      
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to initiate demo call');
-      }
-      
-      toast({
-        title: 'Demo Call Initiated',
-        description: 'You should receive a test call within 30 seconds.',
-      });
-    } catch (error) {
-      console.error('Error initiating demo call:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to initiate the demo call. Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsCallingDemo(false);
-    }
-  };
-
   // Show loading while checking profile status
   if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -113,29 +76,6 @@ const Dashboard = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
             <CoachSelect />
-          </div>
-          
-          <div className="mt-2 mb-6">
-            <TooltipProvider>
-              <div className="flex items-center">
-                <Button 
-                  onClick={handleDemoCall}
-                  disabled={isCallingDemo}
-                  className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90"
-                >
-                  <Phone className="h-4 w-4" /> 
-                  {isCallingDemo ? 'Initiating Test Call...' : 'Try Test Call'}
-                </Button>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 ml-2 text-gray-500 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p>This will initiate a test call that lasts no more than 30 seconds to verify your integration is working correctly.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
           </div>
           
           <p className="text-gray-600 mb-6">
