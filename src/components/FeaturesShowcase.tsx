@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Check, Phone, MessageCircle, Trophy } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const FeaturesShowcase = () => {
+  const isMobile = useIsMobile();
   const features = [
     {
       icon: <Phone className="h-10 w-10 text-brand-primary" />,
@@ -51,30 +53,47 @@ const FeaturesShowcase = () => {
 
         <div className="space-y-20">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 items-center`}
-            >
-              <div className="w-full md:w-1/2 flex flex-col justify-center">
-                <div className="mb-4">{feature.icon}</div>
-                <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-600 mb-6">{feature.description}</p>
-                <ul className="space-y-2">
-                  {feature.points.map((point, i) => (
-                    <li key={i} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
-                {feature.image && (
-                  <img 
-                    src={feature.image} 
-                    alt={feature.title} 
-                    className="rounded-lg shadow-lg max-h-80 object-cover"
-                  />
+            <div key={index} className="flex flex-col gap-8">
+              {/* Mobile Layout: Image on top */}
+              {isMobile && (
+                <div className="w-full bg-gray-50 rounded-lg p-6 flex items-center justify-center">
+                  {feature.image && (
+                    <img 
+                      src={feature.image} 
+                      alt={feature.title} 
+                      className="rounded-lg shadow-lg max-h-80 object-cover"
+                    />
+                  )}
+                </div>
+              )}
+              
+              {/* Content area (always present) */}
+              <div className={`flex flex-col ${!isMobile && (index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse')} gap-8 items-center`}>
+                <div className="w-full md:w-1/2 flex flex-col justify-center">
+                  <div className="mb-4">{feature.icon}</div>
+                  <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 mb-6">{feature.description}</p>
+                  <ul className="space-y-2">
+                    {feature.points.map((point, i) => (
+                      <li key={i} className="flex items-start">
+                        <Check className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {/* Desktop Layout: Image to the side */}
+                {!isMobile && (
+                  <div className="w-full md:w-1/2 bg-gray-50 rounded-lg p-6 flex items-center justify-center">
+                    {feature.image && (
+                      <img 
+                        src={feature.image} 
+                        alt={feature.title} 
+                        className="rounded-lg shadow-lg max-h-80 object-cover"
+                      />
+                    )}
+                  </div>
                 )}
               </div>
             </div>
