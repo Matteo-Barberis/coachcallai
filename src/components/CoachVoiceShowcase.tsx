@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Volume2 } from 'lucide-react';
+import { Volume2, UserRound } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
@@ -81,9 +81,10 @@ const CoachVoiceShowcase = () => {
               
               <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
                 <div className="flex items-center mb-6">
-                  <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary">
-                    <AvatarImage src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//liv.png" alt="Coach" />
-                    <AvatarFallback>AI</AvatarFallback>
+                  <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
+                    <AvatarFallback>
+                      <UserRound className="h-10 w-10 text-gray-500" />
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <h4 className="font-bold text-lg">Select a Coach</h4>
