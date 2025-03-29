@@ -96,6 +96,7 @@ const CoachVoiceShowcase = () => {
                   <CoachSelect 
                     onCoachSelect={handleCoachSelect} 
                     defaultPersonalityType={!session ? "empathetic" : undefined}
+                    suppressToast={true} // Add prop to suppress toast notifications
                   />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice

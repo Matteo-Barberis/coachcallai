@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,6 +21,7 @@ type Assistant = {
 interface CoachSelectProps {
   onCoachSelect?: (coachId: string, personalityType: string) => void;
   defaultPersonalityType?: string; // New prop for default personality type
+  suppressToast?: boolean; // New prop to suppress toast notifications
 }
 
 const groupCoachesByPersonality = (coaches: Assistant[]) => {
@@ -52,7 +52,11 @@ const getPersonalityType = (coachName: string): string => {
   }
 };
 
-const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersonalityType }) => {
+const CoachSelect: React.FC<CoachSelectProps> = ({ 
+  onCoachSelect, 
+  defaultPersonalityType,
+  suppressToast = false // Default to false to maintain backward compatibility
+}) => {
   const [coaches, setCoaches] = useState<Assistant[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -168,10 +172,13 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersona
     
     const coach = coaches.find(c => c.id === coachId);
     
-    toast({
-      title: "Coach Selected",
-      description: `You've selected ${coach?.name} as your coach.`,
-    });
+    // Only show toast if not suppressed
+    if (!suppressToast) {
+      toast({
+        title: "Coach Selected",
+        description: `You've selected ${coach?.name} as your coach.`,
+      });
+    }
     
     // Notify parent component about the selected coach and its personality type
     if (coach && onCoachSelect) {
@@ -188,11 +195,14 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect, defaultPersona
         if (error) throw error;
       } catch (error) {
         console.error('Error saving coach selection:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save your coach selection. Please try again.",
-          variant: "destructive",
-        });
+        // Only show error toast if not suppressed
+        if (!suppressToast) {
+          toast({
+            title: "Error",
+            description: "Failed to save your coach selection. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     }
   };
