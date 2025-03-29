@@ -189,11 +189,11 @@ const CoachSelect = () => {
   const groupedCoaches = groupCoachesByPersonality(coaches);
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center">
       {coaches.length > 0 ? (
         <div className="flex items-center">
           <Select value={selectedCoach || undefined} onValueChange={handleCoachChange}>
-            <SelectTrigger className={`${isMobile ? "w-[110px]" : "w-[140px]"} h-9`}>
+            <SelectTrigger className={`${isMobile ? "w-[100px]" : "w-[140px]"} h-9`}>
               <SelectValue placeholder="Select a coach" />
             </SelectTrigger>
             <SelectContent>
@@ -215,7 +215,7 @@ const CoachSelect = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="ml-2 h-8 w-8" 
+              className="ml-1 h-8 w-8" 
               onClick={() => playCoachAudio(selectedCoach)}
               aria-label="Play coach voice sample"
             >

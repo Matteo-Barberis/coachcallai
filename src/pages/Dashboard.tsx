@@ -142,7 +142,7 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center flex-wrap gap-2">
               <CoachSelect />
               <div className="flex items-center">
                 <Tooltip>
