@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -144,10 +143,12 @@ const Account = () => {
         .eq('id', session!.user.id);
       
       if (error) {
-        // Handle unique constraint violation
-        if (error.code === '23505' && error.message.includes('profiles_phone_key')) {
+        if (error.code === '23505' && (
+            error.message.includes('profiles_phone_key') || 
+            error.message.includes('profiles_phone_unique')
+        )) {
           setPhoneError('This phone number is already registered with another account');
-          throw new Error('Phone number already in use');
+          throw new Error('This phone number is already registered with another account');
         }
         
         throw error;
