@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Check, Phone, MessageCircle, Trophy, PhoneIncoming } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,7 +11,7 @@ const FeaturesShowcase = () => {
       title: "Scheduled Phone Calls",
       description: "Real phone calls to your device when you need motivation the most",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-black rounded-2xl shadow-xl p-4">
+        <div className="w-full max-w-xs mx-auto bg-brand-dark rounded-2xl shadow-xl p-4">
           <div className="flex flex-col items-center mb-6 mt-4 text-white">
             <h4 className="font-medium text-2xl mb-1">Coach AI</h4>
             <p className="text-gray-400">Incoming Call</p>
