@@ -55,14 +55,14 @@ const AuthForm = ({ view }: AuthFormProps) => {
 
         if (error) throw error;
 
-        // Success - redirect to sign-in page with success message
+        // Success - redirect directly to dashboard instead of the sign-in page
         toast({
           title: "Account created successfully!",
-          description: "Please check your email for verification and then sign in.",
+          description: "You have been automatically signed in.",
         });
         
-        // Redirect to sign-in page instead of attempting auto-login
-        navigate('/auth/sign-in');
+        // Redirect to dashboard instead of sign-in page
+        navigate('/dashboard');
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({
