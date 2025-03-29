@@ -1,28 +1,20 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useSessionContext } from '@/context/SessionContext';
 
 const CtaSection = () => {
-  const [email, setEmail] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { session } = useSessionContext();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (email) {
-      toast({
-        title: "Early Access Requested",
-        description: "Thanks for your interest! We'll be in touch soon.",
-      });
-      setEmail('');
+  const handleButtonClick = () => {
+    if (session) {
+      navigate('/dashboard');
     } else {
-      toast({
-        title: "Email Required",
-        description: "Please enter your email address to join the waitlist.",
-        variant: "destructive",
-      });
+      navigate('/auth/sign-up');
     }
   };
 
@@ -36,25 +28,14 @@ const CtaSection = () => {
               Join the hundreds of people already achieving their goals with Coach Call AI.
             </p>
             
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email address"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/60 px-4 py-6"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+            <div className="flex justify-center">
               <Button 
-                type="submit" 
+                onClick={handleButtonClick}
                 className="bg-white text-brand-primary hover:bg-white/90 font-semibold py-6 px-8"
               >
-                Join Early Access
+                Get Your First AI Call
               </Button>
-            </form>
-            
-            <p className="mt-4 text-sm text-white/80">
-              14-day free trial. No credit card required.
-            </p>
+            </div>
           </div>
 
           <div className="bg-white p-10 md:p-16 grid md:grid-cols-3 gap-10">
