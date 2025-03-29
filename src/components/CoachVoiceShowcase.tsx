@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Volume2, UserRound } from 'lucide-react';
+import { Volume2, Smile } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
@@ -83,7 +83,7 @@ const CoachVoiceShowcase = () => {
                 <div className="flex items-center mb-6">
                   <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
                     <AvatarFallback>
-                      <UserRound className="h-10 w-10 text-gray-500" />
+                      <Smile className="h-10 w-10 text-brand-primary" />
                     </AvatarFallback>
                   </Avatar>
                   <div>
