@@ -160,7 +160,6 @@ export type Database = {
           full_name: string | null
           id: string
           is_onboarding: boolean
-          last_demo_call_at: string | null
           objectives: string | null
           phone: string | null
           phone_verification_code: string | null
@@ -179,7 +178,6 @@ export type Database = {
           full_name?: string | null
           id: string
           is_onboarding?: boolean
-          last_demo_call_at?: string | null
           objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null
@@ -198,7 +196,6 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_onboarding?: boolean
-          last_demo_call_at?: string | null
           objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null
