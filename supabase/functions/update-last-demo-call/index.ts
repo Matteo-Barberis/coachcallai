@@ -21,6 +21,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const vapiApiKey = Deno.env.get("VAPI_API_KEY") || "";
     
     // Create Supabase client with admin privileges
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -38,27 +39,117 @@ serve(async (req) => {
     
     console.log(`Updating last_demo_call_at for user: ${userId}`);
     
+    // Fetch user profile to get phone number and assistant_id
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select(`
+        phone,
+        assistant_id,
+        assistants!inner (
+          vapi_assistant_id
+        )
+      `)
+      .eq('id', userId)
+      .single();
+      
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return new Response(
+        JSON.stringify({ error: profileError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Check if profile has phone number and assistant ID
+    if (!profileData.phone) {
+      console.error("User has no phone number");
+      return new Response(
+        JSON.stringify({ error: "User has no phone number" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!profileData.assistant_id || !profileData.assistants.vapi_assistant_id) {
+      console.error("User has no selected coach or coach has no Vapi assistant ID");
+      return new Response(
+        JSON.stringify({ error: "No coach selected or coach has no Vapi assistant ID" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const vapiAssistantId = profileData.assistants.vapi_assistant_id;
+    const userPhone = profileData.phone;
+    
     // Update the last_demo_call_at field to the current timestamp
-    const { data, error } = await supabase
+    const { data: updateData, error: updateError } = await supabase
       .from('profiles')
       .update({ last_demo_call_at: new Date().toISOString() })
       .eq('id', userId)
       .select();
       
-    if (error) {
-      console.error("Error updating profile:", error);
+    if (updateError) {
+      console.error("Error updating profile:", updateError);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ error: updateError.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
-    console.log("Updated successfully:", data);
+    console.log("Updated successfully:", updateData);
     
-    return new Response(
-      JSON.stringify({ success: true, data }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // Make a request to Vapi API to initiate a call
+    console.log(`Initiating test call to ${userPhone} with assistant ID ${vapiAssistantId}`);
+    
+    try {
+      const vapiResponse = await fetch("https://api.vapi.ai/call", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${vapiApiKey}`
+        },
+        body: JSON.stringify({
+          assistant_id: vapiAssistantId,
+          phone_number: userPhone,
+          assistant_overrides: {
+            model: {
+              messages: [
+                {
+                  content: "You are an AI coach, you are calling a user just to confirm that you can call them successfully and they can receive calls, and to inform them that this is just a test call and it won't last more than 30 seconds, and that if they want to schedule a proper call with you to do it from the dashboard",
+                  role: "system"
+                }
+              ]
+            },
+            first_message: "Hey there! Can you hear me?"
+          }
+        })
+      });
+      
+      const vapiData = await vapiResponse.json();
+      
+      if (!vapiResponse.ok) {
+        console.error("Error from Vapi API:", vapiData);
+        // We still return success to the client as the database was updated
+        return new Response(
+          JSON.stringify({ success: true, data: updateData, vapiError: vapiData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      console.log("Vapi call initiated successfully:", vapiData);
+      
+      return new Response(
+        JSON.stringify({ success: true, data: updateData, vapiCall: vapiData }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+      
+    } catch (vapiError) {
+      console.error("Error calling Vapi API:", vapiError);
+      // We still return success to the client as the database was updated
+      return new Response(
+        JSON.stringify({ success: true, data: updateData, vapiError: vapiError.message }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
   } catch (error) {
     console.error("Unexpected error:", error);
