@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Volume2, UserRound } from 'lucide-react';
+import { Volume2, UserRound, Play, Pause } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
@@ -29,6 +29,8 @@ const CoachVoiceShowcase = () => {
   const [activePersonality, setActivePersonality] = useState<string>("empathetic"); // Default to empathetic
   const [coachName, setCoachName] = useState<string>("Coach"); // Default coach name
   const { session } = useSessionContext();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   
   // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
@@ -60,6 +62,40 @@ const CoachVoiceShowcase = () => {
       console.error("Error fetching coach name:", error);
     }
   };
+
+  // Function to handle playing the sample coaching call
+  const handlePlaySampleCall = () => {
+    // If audio is already playing, pause it
+    if (isPlaying && audio) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    // Create a new audio element if none exists
+    const sampleAudio = audio || new Audio("/sample-coaching-call.mp3");
+    
+    sampleAudio.onended = () => {
+      setIsPlaying(false);
+    };
+
+    sampleAudio.play().catch(error => {
+      console.error("Error playing audio:", error);
+    });
+
+    setAudio(sampleAudio);
+    setIsPlaying(true);
+  };
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, [audio]);
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -122,6 +158,36 @@ const CoachVoiceShowcase = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* New section: Sample coaching call */}
+              <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+                <h4 className="font-medium text-lg mb-4">Hear a Real Coaching Call</h4>
+                <div className="flex items-center space-x-4">
+                  <Button 
+                    onClick={handlePlaySampleCall}
+                    variant="outline" 
+                    size="icon" 
+                    className="h-12 w-12 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-6 w-6" />
+                    ) : (
+                      <Play className="h-6 w-6" />
+                    )}
+                  </Button>
+                  <div>
+                    <p className="font-medium">Sample Accountability Call</p>
+                    <p className="text-sm text-gray-500">Listen to how our AI coaches keep users on track</p>
+                  </div>
+                </div>
+                {isPlaying && (
+                  <div className="mt-4">
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-brand-primary animate-progress"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
