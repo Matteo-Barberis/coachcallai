@@ -5,16 +5,17 @@ import { Volume2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
+import { useSessionContext } from "@/context/SessionContext";
 
 // Define coach personalities
 const coachPersonalities = {
   "empathetic": {
     name: "Empathetic Supporter",
-    description: "Focuses on emotional well-being and positive reinforcement. This coach listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals."
+    description: "Focuses on understanding feelings and offering compassionate guidance. This coach listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals."
   },
   "results": {
     name: "Results-Driven Motivator",
-    description: "Direct, focused on metrics and clear outcomes. This coach delivers honest feedback, challenges you to push beyond comfort zones, and emphasizes accountability to achieve measurable results."
+    description: "Delivers direct, honest feedback and pushes for accountability. This coach challenges you to push beyond comfort zones and emphasizes accountability to achieve measurable results."
   },
   "friendly": {
     name: "Friendly Encourager",
@@ -23,8 +24,9 @@ const coachPersonalities = {
 };
 
 const CoachVoiceShowcase = () => {
+  const { session } = useSessionContext();
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
-  const [activePersonality, setActivePersonality] = useState<string | null>(null);
+  const [activePersonality, setActivePersonality] = useState<string | null>("empathetic"); // Default to Elara's personality type
   
   // This function will be passed to CoachSelect to update the active coach and personality
   const handleCoachSelect = (coachId: string, personalityType: string) => {
@@ -76,27 +78,15 @@ const CoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">Coach Personalities</h4>
                   <div className="space-y-4">
-                    {!activePersonality ? (
-                      // Show all personality types when no coach is selected
-                      Object.values(coachPersonalities).map((personality) => (
-                        <div key={personality.name} className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h5 className="font-semibold text-brand-primary">{personality.name}</h5>
-                          <p className="text-gray-600 mt-1">
-                            {personality.description}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      // Show only the selected coach's personality
-                      <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                        <h5 className="font-semibold text-brand-primary">
-                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
-                        </h5>
-                        <p className="text-gray-600 mt-1">
-                          {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
-                        </p>
-                      </div>
-                    )}
+                    {/* Show only the active personality */}
+                    <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
+                      <h5 className="font-semibold text-brand-primary">
+                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
+                      </h5>
+                      <p className="text-gray-600 mt-1">
+                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
