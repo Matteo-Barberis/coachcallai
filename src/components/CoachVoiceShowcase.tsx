@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -115,7 +116,7 @@ const CoachVoiceShowcase = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gray-50">
+    <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Meet Your Personal AI Coach</h2>
@@ -124,7 +125,7 @@ const CoachVoiceShowcase = () => {
           </p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+        <div className="bg-gray-50 rounded-xl shadow-lg p-8 border border-gray-200">
           <div className="flex flex-col md:flex-row items-center md:space-x-8">
             <div className="w-full md:w-1/2 mb-8 md:mb-0">
               <h3 className="text-2xl font-semibold mb-4">Find Your Perfect Coach Match</h3>
@@ -132,7 +133,7 @@ const CoachVoiceShowcase = () => {
                 Your AI coach will call and message you with a voice that feels natural and motivating. Select different coaches to hear their voices and find one that inspires you.
               </p>
               
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+              <div className="bg-white p-6 rounded-lg border border-gray-100">
                 <div className="flex items-center mb-6">
                   <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
                     <AvatarFallback>
@@ -159,11 +160,11 @@ const CoachVoiceShowcase = () => {
             </div>
             
             <div className="w-full md:w-1/2">
-              <Card className="border border-gray-200 bg-gray-50">
+              <Card className="border border-gray-200 bg-white">
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
-                    <div className="bg-white rounded-lg p-4 border border-gray-200 animate-fadeIn">
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
                       <h5 className="font-semibold text-brand-primary">
                         {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
                       </h5>
@@ -175,7 +176,7 @@ const CoachVoiceShowcase = () => {
                 </CardContent>
               </Card>
 
-              <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+              <div className="mt-6 bg-gray-50 rounded-lg border border-gray-200 p-6">
                 <h4 className="font-medium text-lg mb-4">Hear a Real Coaching Call</h4>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
                   <Button 

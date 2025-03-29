@@ -44,7 +44,7 @@ const UseCaseShowcase = () => {
   ];
 
   return (
-    <section className="py-20 px-4 bg-white">
+    <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">How People Use Coach Call AI</h2>
@@ -62,7 +62,7 @@ const UseCaseShowcase = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">{useCase.description}</p>
-                <div className="text-sm font-medium bg-gray-100 text-gray-700 py-1 px-3 rounded-full inline-block">
+                <div className="text-sm font-medium bg-white text-gray-700 py-1 px-3 rounded-full inline-block">
                   {useCase.persona}
                 </div>
               </CardContent>
