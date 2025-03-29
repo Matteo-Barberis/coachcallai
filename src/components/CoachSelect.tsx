@@ -94,9 +94,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
         
         setCoaches(transformedCoaches);
         
-        // Default coach selection logic
         if (session?.user.id) {
-          // If logged in, try to get the user's selected coach
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('assistant_id')
@@ -117,21 +115,6 @@ const CoachSelect: React.FC<CoachSelectProps> = ({ onCoachSelect }) => {
           } else if (transformedCoaches.length > 0) {
             setSelectedCoach(transformedCoaches[0].id);
             // Notify parent about default selected coach
-            if (onCoachSelect && transformedCoaches[0].personality_type) {
-              onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
-            }
-          }
-        } else {
-          // If not logged in, select Elara by default (assuming Elara is the empathetic coach)
-          const empatheticCoach = transformedCoaches.find(c => c.personality_type === 'empathetic');
-          if (empatheticCoach) {
-            setSelectedCoach(empatheticCoach.id);
-            if (onCoachSelect) {
-              onCoachSelect(empatheticCoach.id, 'empathetic');
-            }
-          } else if (transformedCoaches.length > 0) {
-            // Fallback to first coach if Elara is not found
-            setSelectedCoach(transformedCoaches[0].id);
             if (onCoachSelect && transformedCoaches[0].personality_type) {
               onCoachSelect(transformedCoaches[0].id, transformedCoaches[0].personality_type);
             }
