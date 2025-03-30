@@ -14,10 +14,10 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      Sentry.onLoad(function() {
-        Sentry.init({
-            // You can add any additional configuration here
-          });
+      Sentry.init({
+        dsn: "https://YOUR_PUBLIC_DSN@sentry.io/4509064152547408",
+        integrations: [new Sentry.BrowserTracing()],
+        tracesSampleRate: 1.0,
       });
     </script>
     
