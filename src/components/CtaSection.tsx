@@ -31,7 +31,7 @@ const CtaSection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="rounded-3xl overflow-hidden shadow-2xl">
           <div className="animated-gradient-bg p-10 md:p-16 text-white text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Accountability?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Imagine Achieving Every Goal You Set</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               Join the hundreds of people already achieving their goals with Coach Call AI.
             </p>
