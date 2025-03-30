@@ -64,20 +64,6 @@ const HowItWorks = () => {
             ))}
           </div>
         </div>
-
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-2xl font-bold mb-2">Ready to stay accountable?</h3>
-              <p className="text-white/80">Start your journey to consistent achievement today.</p>
-            </div>
-            <button 
-              onClick={() => navigate('/auth/sign-up')}
-              className="px-8 py-3 bg-white text-brand-primary rounded-lg hover:bg-opacity-90 transition-colors font-medium">
-              Get Started Now
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   );
