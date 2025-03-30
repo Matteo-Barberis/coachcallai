@@ -10,14 +10,14 @@
     
     <!-- Sentry Script -->
     <script
-      src="https://js-de.sentry-cdn.com/6829141770c24cff44317b16956ff23d.min.js"
+      src='https://js-de.sentry-cdn.com/2dd2e28ec9676ca15f01beaaf21d8b51.min.js'
       crossorigin="anonymous"
     ></script>
     <script>
-      Sentry.init({
-        dsn: "https://YOUR_PUBLIC_DSN@sentry.io/4509064152547408",
-        integrations: [new Sentry.BrowserTracing()],
-        tracesSampleRate: 1.0,
+      Sentry.onLoad(function() {
+        Sentry.init({
+            // You can add any additional configuration here
+          });
       });
     </script>
     
