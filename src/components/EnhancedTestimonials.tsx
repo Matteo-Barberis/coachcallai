@@ -29,28 +29,12 @@ const EnhancedTestimonials = () => {
       achievement: "Launched 2 products ahead of schedule"
     },
     {
-      name: "Jessica Williams",
-      role: "Grad Student",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/woman-2.jpg",
-      content: "I was skeptical at first, but the phone calls from Coach Call AI actually feel like talking to a real coach. It's helped me stay on track with my thesis when I would have otherwise fallen behind.",
-      rating: 4,
-      achievement: "Completed thesis 2 weeks early"
-    },
-    {
       name: "David Lee",
       role: "Software Developer",
       image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-2.jpg",
       content: "The consistency of the WhatsApp check-ins has helped me maintain my coding practice every day. I've built more projects in the last month than in the previous six months.",
       rating: 5,
       achievement: "Completed 30-day coding challenge"
-    },
-    {
-      name: "Emma Rodriguez",
-      role: "Marketing Manager",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/woman-3.jpg",
-      content: "Having a coach call me before important meetings helps me prepare and stay focused. The achievement tracking has been incredibly motivating as I can see my progress visually.",
-      rating: 5,
-      achievement: "Increased team productivity by 27%"
     }
   ];
 
