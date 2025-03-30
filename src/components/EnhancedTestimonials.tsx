@@ -21,20 +21,20 @@ const EnhancedTestimonials = () => {
       achievement: "Lost 15lbs in 3 months"
     },
     {
-      name: "Matteo Barberis",
-      role: "Entrepreneur",
-      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-1.jpg",
-      content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
-      rating: 5,
-      achievement: "Launched 2 products ahead of schedule"
-    },
-    {
       name: "Jed Merrington",
       role: "Software Developer",
       image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-2.jpg",
       content: "The consistency of the WhatsApp check-ins has helped me maintain my coding practice every day. I've built more projects in the last month than in the previous six months.",
       rating: 5,
       achievement: "Completed 30-day coding challenge"
+    },
+    {
+      name: "Matteo Barberis",
+      role: "Entrepreneur",
+      image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-1.jpg",
+      content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
+      rating: 5,
+      achievement: "Launched 2 products ahead of schedule"
     }
   ];
 

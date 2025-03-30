@@ -12,18 +12,18 @@ const TestimonialsSection = () => {
       achievement: "Lost 15lbs in 3 months"
     },
     {
-      name: "Matteo Barberis",
-      role: "Entrepreneur",
-      content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
-      rating: 5,
-      achievement: "Launched 2 products ahead of schedule"
-    },
-    {
       name: "Jessica Williams",
       role: "Grad Student",
       content: "I was skeptical at first, but the phone calls from Coach Call AI actually feel like talking to a real coach. It's helped me stay on track with my thesis when I would have otherwise fallen behind.",
       rating: 4,
       achievement: "Completed thesis 2 weeks early"
+    },
+    {
+      name: "Matteo Barberis",
+      role: "Entrepreneur",
+      content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
+      rating: 5,
+      achievement: "Launched 2 products ahead of schedule"
     }
   ];
 
