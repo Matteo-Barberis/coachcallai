@@ -64,54 +64,56 @@ const EnhancedTestimonials = () => {
           </p>
         </div>
 
-        <Carousel className="w-full max-w-5xl mx-auto">
-          <CarouselContent>
-            {testimonials.map((testimonial, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 p-2">
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col h-full">
-                  <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`w-4 h-4 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                      />
-                    ))}
-                  </div>
-                  
-                  <p className="text-gray-700 italic mb-6 flex-grow">"{testimonial.content}"</p>
-                  
-                  <div>
-                    <div className="flex items-center mb-3">
-                      <Avatar className="h-10 w-10 mr-3">
-                        {testimonial.image ? (
-                          <AvatarImage src={testimonial.image} alt={testimonial.name} />
-                        ) : (
-                          <AvatarFallback className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
-                            {testimonial.name.charAt(0)}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <h4 className="font-semibold">{testimonial.name}</h4>
-                        <p className="text-sm text-gray-500">{testimonial.role}</p>
-                      </div>
+        <div className="w-full">
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-0">
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="pl-4 pr-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100 flex flex-col h-full">
+                    <div className="flex mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`w-4 h-4 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                        />
+                      ))}
                     </div>
                     
-                    <div className="pt-3 border-t border-gray-100">
-                      <div className="bg-brand-light text-brand-primary text-sm px-3 py-1 rounded-full inline-block">
-                        Achievement: {testimonial.achievement}
+                    <p className="text-gray-700 italic mb-6 flex-grow">"{testimonial.content}"</p>
+                    
+                    <div>
+                      <div className="flex items-center mb-3">
+                        <Avatar className="h-10 w-10 mr-3">
+                          {testimonial.image ? (
+                            <AvatarImage src={testimonial.image} alt={testimonial.name} />
+                          ) : (
+                            <AvatarFallback className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
+                              {testimonial.name.charAt(0)}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div>
+                          <h4 className="font-semibold">{testimonial.name}</h4>
+                          <p className="text-sm text-gray-500">{testimonial.role}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-3 border-t border-gray-100">
+                        <div className="bg-brand-light text-brand-primary text-sm px-3 py-1 rounded-full inline-block">
+                          Achievement: {testimonial.achievement}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <div className="flex justify-center mt-8">
-            <CarouselPrevious className="relative static transform-none mx-2" />
-            <CarouselNext className="relative static transform-none mx-2" />
-          </div>
-        </Carousel>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center mt-8">
+              <CarouselPrevious className="relative static transform-none mx-2" />
+              <CarouselNext className="relative static transform-none mx-2" />
+            </div>
+          </Carousel>
+        </div>
       </div>
     </section>
   );
