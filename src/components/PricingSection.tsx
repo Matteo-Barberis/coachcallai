@@ -5,9 +5,10 @@ import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const PricingSection = () => {
-  const [selectedPlan, setSelectedPlan] = useState("pro");
+  const [selectedPlan, setSelectedPlan] = useState("medium");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -79,7 +80,7 @@ const PricingSection = () => {
             
           </p>
           
-          <Tabs defaultValue="pro" value={selectedPlan} onValueChange={setSelectedPlan} className="w-full max-w-md mx-auto mt-8">
+          <Tabs defaultValue="medium" value={selectedPlan} onValueChange={setSelectedPlan} className="w-full max-w-md mx-auto mt-8">
             <TabsList className="grid grid-cols-3 w-full">
               <TabsTrigger value="starter">Starter</TabsTrigger>
               <TabsTrigger value="medium">Medium</TabsTrigger>
@@ -98,9 +99,11 @@ const PricingSection = () => {
                   : `${plan.colorClass}`
               } bg-white flex flex-col h-full`}
             >
-              {key === selectedPlan && (
-                <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2 bg-brand-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                  Selected
+              {plan.popular && (
+                <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
+                  <Badge variant="default" className="bg-brand-primary text-white px-4 py-1">
+                    Most Popular
+                  </Badge>
                 </div>
               )}
               
