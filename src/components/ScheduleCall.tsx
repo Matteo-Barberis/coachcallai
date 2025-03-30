@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -134,7 +133,6 @@ const timeZoneOptions = [
   { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)', timeZone: 'Pacific/Auckland' },
 ];
 
-// Function to find a timezone option by value
 const findTimeZoneOption = (value: string) => {
   return timeZoneOptions.find(tz => tz.value === value);
 };
@@ -294,14 +292,12 @@ const ScheduleCall = () => {
         }
         
         if (data && data.timezone) {
-          // Check if the timezone from DB matches any option in our list
           if (findTimeZoneOption(data.timezone)) {
             setTimeZone(data.timezone);
             form.setValue('timeZone', data.timezone);
             console.log(`Found and set timezone from DB: ${data.timezone}`);
           } else {
             console.error(`Timezone from DB not found in options: ${data.timezone}`);
-            // Default to GMT if we can't match
             setTimeZone('GMT');
             form.setValue('timeZone', 'GMT');
           }
@@ -331,6 +327,12 @@ const ScheduleCall = () => {
     const interval = setInterval(updateTimes, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (weekdaySchedules.length === 0 && templates.length > 0) {
+      addWeekdaySchedule();
+    }
+  }, [templates, weekdaySchedules.length]);
 
   const addWeekdaySchedule = () => {
     const newId = `weekday-${Date.now()}`;
@@ -441,7 +443,6 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // Save the timezone value to the database
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ timezone: data.timeZone })
@@ -673,12 +674,6 @@ const ScheduleCall = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (weekdaySchedules.length === 0) {
-      addWeekdaySchedule();
-    }
-  }, [templates]);
 
   return (
     <Form {...form}>
