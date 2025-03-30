@@ -81,7 +81,8 @@ const CoachVoiceShowcase = () => {
         setIsPlaying(false);
       };
       
-      sampleAudio.src = "/sample-coaching-call.mp3";
+      // Update the audio source to the specific Supabase storage URL
+      sampleAudio.src = "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/call_sample.mp3";
       
       sampleAudio.load();
       
