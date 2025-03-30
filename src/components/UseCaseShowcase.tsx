@@ -2,8 +2,17 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sun, Moon, Calendar, Dumbbell, Clock } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const UseCaseShowcase = () => {
+  const isMobile = useIsMobile();
   const useCases = [
     {
       icon: <Sun className="h-8 w-8 text-orange-500" />,
@@ -43,6 +52,22 @@ const UseCaseShowcase = () => {
     }
   ];
 
+  // Render a card (used for both mobile and desktop)
+  const renderCard = (useCase, index) => (
+    <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow duration-300 h-full">
+      <CardHeader className="pb-2">
+        <div className="mb-3">{useCase.icon}</div>
+        <CardTitle className="text-xl">{useCase.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-600 mb-4">{useCase.description}</p>
+        <div className="text-sm font-medium bg-white text-gray-700 py-1 px-3 rounded-full inline-block">
+          {useCase.persona}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -53,22 +78,27 @@ const UseCaseShowcase = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {useCases.map((useCase, index) => (
-            <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow duration-300">
-              <CardHeader className="pb-2">
-                <div className="mb-3">{useCase.icon}</div>
-                <CardTitle className="text-xl">{useCase.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">{useCase.description}</p>
-                <div className="text-sm font-medium bg-white text-gray-700 py-1 px-3 rounded-full inline-block">
-                  {useCase.persona}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {isMobile ? (
+          // Mobile Layout: Carousel
+          <Carousel className="w-full max-w-md mx-auto">
+            <CarouselContent>
+              {useCases.map((useCase, index) => (
+                <CarouselItem key={index} className="pl-2 pr-2">
+                  {renderCard(useCase, index)}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center mt-8">
+              <CarouselPrevious className="relative static transform-none mx-2" />
+              <CarouselNext className="relative static transform-none mx-2" />
+            </div>
+          </Carousel>
+        ) : (
+          // Desktop Layout: Grid
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {useCases.map((useCase, index) => renderCard(useCase, index))}
+          </div>
+        )}
       </div>
     </section>
   );
