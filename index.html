@@ -55,5 +55,16 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Wait for the page to fully load and then call an undefined function
+      // to trigger a Sentry error as the very last thing our website does
+      window.addEventListener('load', function() {
+        // Using setTimeout to ensure this runs after everything else
+        setTimeout(function() {
+          // This will cause an error that Sentry should catch
+          myUndefinedFunction();
+        }, 2000); // 2 second delay to ensure it's the last thing that happens
+      });
+    </script>
   </body>
 </html>
