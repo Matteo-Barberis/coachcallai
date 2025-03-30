@@ -8,13 +8,13 @@ const HowItWorks = () => {
   const steps = [
     {
       number: "01",
-      title: "Connect Your WhatsApp",
-      description: "Link your WhatsApp account to Coach Call AI with a simple QR code scan. No additional apps needed."
+      title: "Set Your Goals",
+      description: "Define what you want to achieve, how often you want check-ins, and when you prefer phone calls."
     },
     {
       number: "02",
-      title: "Set Your Goals",
-      description: "Define what you want to achieve, how often you want check-ins, and when you prefer phone calls."
+      title: "Connect Your WhatsApp",
+      description: "Link your WhatsApp account to Coach Call AI with a simple QR code scan. No additional apps needed."
     },
     {
       number: "03",
