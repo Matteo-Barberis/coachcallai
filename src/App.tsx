@@ -14,7 +14,6 @@ import Objectives from "./pages/Objectives";
 import ConnectWhatsapp from "./pages/ConnectWhatsapp";
 import Progress from "./pages/Progress";
 import Account from "./pages/Account";
-import Debug from "./pages/Debug";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Onboarding from "./pages/Onboarding";
@@ -37,7 +36,6 @@ const App = () => (
             <Route path="/connect-whatsapp" element={<ConnectWhatsapp />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/account" element={<Account />} />
-            <Route path="/debug" element={<Debug />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/onboarding" element={<Onboarding />} />
