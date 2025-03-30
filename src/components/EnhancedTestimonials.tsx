@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const EnhancedTestimonials = () => {
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Olivia Nichols",
       role: "Fitness Enthusiast",
       image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/woman-1.jpg",
       content: "Coach Call AI has been a game-changer for my fitness routine. The WhatsApp check-ins are friendly but firm, and the phone calls always come right when I'm about to skip a workout!",
@@ -21,7 +21,7 @@ const EnhancedTestimonials = () => {
       achievement: "Lost 15lbs in 3 months"
     },
     {
-      name: "Michael Chen",
+      name: "Matteo Barberis",
       role: "Entrepreneur",
       image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-1.jpg",
       content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
@@ -29,7 +29,7 @@ const EnhancedTestimonials = () => {
       achievement: "Launched 2 products ahead of schedule"
     },
     {
-      name: "David Lee",
+      name: "Jed Merrington",
       role: "Software Developer",
       image: "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images/man-2.jpg",
       content: "The consistency of the WhatsApp check-ins has helped me maintain my coding practice every day. I've built more projects in the last month than in the previous six months.",

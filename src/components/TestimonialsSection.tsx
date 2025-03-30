@@ -5,14 +5,14 @@ import { Star } from 'lucide-react';
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Olivia Nichols",
       role: "Fitness Enthusiast",
       content: "Coach Call AI has been a game-changer for my fitness routine. The WhatsApp check-ins are friendly but firm, and the phone calls always come right when I'm about to skip a workout!",
       rating: 5,
       achievement: "Lost 15lbs in 3 months"
     },
     {
-      name: "Michael Chen",
+      name: "Matteo Barberis",
       role: "Entrepreneur",
       content: "As someone who struggles with procrastination, having an AI coach call me to check on my business goals has been revolutionary. It's like having an accountability partner without the awkwardness.",
       rating: 5,
