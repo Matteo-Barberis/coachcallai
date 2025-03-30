@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sun, Moon, Calendar, Dumbbell, GraduationCap, User } from "lucide-react";
+import { Sun, Moon, Calendar, Dumbbell, GraduationCap, User, Clock, Smartphone, Droplet } from "lucide-react";
 
 const UseCaseShowcase = () => {
   const useCases = [
@@ -12,16 +12,16 @@ const UseCaseShowcase = () => {
       persona: "Early Risers & Productivity Seekers"
     },
     {
+      icon: <Sun className="h-8 w-8 text-orange-500" />,
+      title: "Wake-Up Call",
+      description: "Replace boring alarms with a motivational coach call that energizes you and helps you start your day with purpose.",
+      persona: "Heavy Sleepers & Busy Professionals"
+    },
+    {
       icon: <Dumbbell className="h-8 w-8 text-red-500" />,
       title: "Fitness Accountability",
       description: "Schedule calls before workouts and get WhatsApp check-ins to track your exercise consistency and progress.",
       persona: "Fitness Enthusiasts"
-    },
-    {
-      icon: <GraduationCap className="h-8 w-8 text-blue-500" />,
-      title: "Study Consistency",
-      description: "Set regular study sessions with accountability calls and progress tracking for academic goals.",
-      persona: "Students & Lifelong Learners"
     },
     {
       icon: <Calendar className="h-8 w-8 text-purple-500" />,
@@ -30,16 +30,34 @@ const UseCaseShowcase = () => {
       persona: "Professionals & Freelancers"
     },
     {
-      icon: <User className="h-8 w-8 text-green-500" />,
-      title: "Habit Building",
-      description: "Create lasting habits with consistent daily WhatsApp reinforcement and celebration of streaks.",
-      persona: "Self-Improvers"
+      icon: <Clock className="h-8 w-8 text-blue-500" />,
+      title: "Meditation Time",
+      description: "Receive a gentle reminder call when it's time for your daily meditation practice, helping you maintain consistency.",
+      persona: "Mindfulness Practitioners"
     },
     {
       icon: <Moon className="h-8 w-8 text-indigo-500" />,
       title: "Evening Reflection",
       description: "End your day with an evening call to reflect on accomplishments and prepare for tomorrow.",
-      persona: "Mindfulness Practitioners"
+      persona: "Self-Improvement Enthusiasts"
+    },
+    {
+      icon: <Droplet className="h-8 w-8 text-cyan-500" />,
+      title: "Water Break",
+      description: "Get regular reminders throughout the day to stay hydrated with personalized water intake goals.",
+      persona: "Health-Conscious Individuals"
+    },
+    {
+      icon: <Smartphone className="h-8 w-8 text-gray-500" />,
+      title: "Screen Time Limit",
+      description: "Receive calls when you've been on your devices too long to encourage breaks and digital wellness.",
+      persona: "Digital Minimalists"
+    },
+    {
+      icon: <User className="h-8 w-8 text-green-500" />,
+      title: "Habit Building",
+      description: "Create lasting habits with consistent daily WhatsApp reinforcement and celebration of streaks.",
+      persona: "Self-Improvers"
     }
   ];
 
