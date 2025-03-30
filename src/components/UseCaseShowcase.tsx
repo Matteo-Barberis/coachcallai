@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sun, Moon, Calendar, Dumbbell, GraduationCap, User, Clock, Smartphone, Droplet } from "lucide-react";
+import { Sun, Moon, Calendar, Dumbbell, Clock } from "lucide-react";
 
 const UseCaseShowcase = () => {
   const useCases = [
@@ -40,24 +40,6 @@ const UseCaseShowcase = () => {
       title: "Evening Reflection",
       description: "End your day with an evening call to reflect on accomplishments and prepare for tomorrow.",
       persona: "Self-Improvement Enthusiasts"
-    },
-    {
-      icon: <Droplet className="h-8 w-8 text-cyan-500" />,
-      title: "Water Break",
-      description: "Get regular reminders throughout the day to stay hydrated with personalized water intake goals.",
-      persona: "Health-Conscious Individuals"
-    },
-    {
-      icon: <Smartphone className="h-8 w-8 text-gray-500" />,
-      title: "Screen Time Limit",
-      description: "Receive calls when you've been on your devices too long to encourage breaks and digital wellness.",
-      persona: "Digital Minimalists"
-    },
-    {
-      icon: <User className="h-8 w-8 text-green-500" />,
-      title: "Habit Building",
-      description: "Create lasting habits with consistent daily WhatsApp reinforcement and celebration of streaks.",
-      persona: "Self-Improvers"
     }
   ];
 
