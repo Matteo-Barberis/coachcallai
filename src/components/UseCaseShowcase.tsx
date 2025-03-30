@@ -79,20 +79,22 @@ const UseCaseShowcase = () => {
         </div>
         
         {isMobile ? (
-          // Mobile Layout: Carousel
-          <Carousel className="w-full max-w-md mx-auto">
-            <CarouselContent>
-              {useCases.map((useCase, index) => (
-                <CarouselItem key={index} className="pl-2 pr-2">
-                  {renderCard(useCase, index)}
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-center mt-8">
-              <CarouselPrevious className="relative static transform-none mx-2" />
-              <CarouselNext className="relative static transform-none mx-2" />
-            </div>
-          </Carousel>
+          // Mobile Layout: Carousel with fixed width issues
+          <div className="w-full">
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-0">
+                {useCases.map((useCase, index) => (
+                  <CarouselItem key={index} className="pl-4 pr-4 w-full">
+                    {renderCard(useCase, index)}
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="flex justify-center mt-8">
+                <CarouselPrevious className="relative static transform-none mx-2" />
+                <CarouselNext className="relative static transform-none mx-2" />
+              </div>
+            </Carousel>
+          </div>
         ) : (
           // Desktop Layout: Grid
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
