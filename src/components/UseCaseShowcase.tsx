@@ -6,16 +6,16 @@ import { Sun, Moon, Calendar, Dumbbell, Clock } from "lucide-react";
 const UseCaseShowcase = () => {
   const useCases = [
     {
-      icon: <Sun className="h-8 w-8 text-yellow-500" />,
-      title: "Morning Motivation",
-      description: "Start your day with a wake-up call and morning check-in to set intentions and energy for the day ahead.",
-      persona: "Early Risers & Productivity Seekers"
-    },
-    {
       icon: <Sun className="h-8 w-8 text-orange-500" />,
       title: "Wake-Up Call",
       description: "Replace boring alarms with a motivational coach call that energizes you and helps you start your day with purpose.",
       persona: "Heavy Sleepers & Busy Professionals"
+    },
+    {
+      icon: <Sun className="h-8 w-8 text-yellow-500" />,
+      title: "Morning Motivation",
+      description: "Start your day with a wake-up call and morning check-in to set intentions and energy for the day ahead.",
+      persona: "Early Risers & Productivity Seekers"
     },
     {
       icon: <Dumbbell className="h-8 w-8 text-red-500" />,
