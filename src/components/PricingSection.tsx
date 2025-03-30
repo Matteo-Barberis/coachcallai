@@ -6,11 +6,13 @@ import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("medium");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSubscribe = (plan: string) => {
     toast({
@@ -69,8 +71,6 @@ const PricingSection = () => {
     }
   };
 
-  const selectedPlanData = plans[selectedPlan as keyof typeof plans];
-
   return (
     <section id="pricing" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -80,26 +80,24 @@ const PricingSection = () => {
             
           </p>
           
-          <Tabs defaultValue="medium" value={selectedPlan} onValueChange={setSelectedPlan} className="w-full max-w-md mx-auto mt-8">
-            <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="starter">Starter</TabsTrigger>
-              <TabsTrigger value="medium">Medium</TabsTrigger>
-              <TabsTrigger value="pro">Pro</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {isMobile && (
+            <Tabs defaultValue="medium" value={selectedPlan} onValueChange={setSelectedPlan} className="w-full max-w-md mx-auto mt-8">
+              <TabsList className="grid grid-cols-3 w-full">
+                <TabsTrigger value="starter">Starter</TabsTrigger>
+                <TabsTrigger value="medium">Medium</TabsTrigger>
+                <TabsTrigger value="pro">Pro</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {Object.entries(plans).map(([key, plan]) => (
+        {isMobile ? (
+          // Mobile view - Show only the selected plan
+          <div className="flex justify-center">
             <div
-              key={key}
-              className={`rounded-2xl shadow-md p-8 border-2 ${
-                key === selectedPlan 
-                  ? 'relative border-brand-primary ring-4 ring-brand-primary ring-opacity-20' 
-                  : `${plan.colorClass}`
-              } bg-white flex flex-col h-full`}
+              className={`rounded-2xl shadow-md p-8 border-2 border-brand-primary ring-4 ring-brand-primary ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
             >
-              {plan.popular && (
+              {plans[selectedPlan as keyof typeof plans].popular && (
                 <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
                   <Badge variant="default" className="bg-brand-primary text-white px-4 py-1">
                     Most Popular
@@ -107,16 +105,16 @@ const PricingSection = () => {
                 </div>
               )}
               
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-gray-600 mb-6">{plan.description}</p>
+              <h3 className="text-2xl font-bold mb-2">{plans[selectedPlan as keyof typeof plans].name}</h3>
+              <p className="text-gray-600 mb-6">{plans[selectedPlan as keyof typeof plans].description}</p>
               
               <div className="mb-6">
-                <span className="text-4xl font-bold">${plan.price}</span>
+                <span className="text-4xl font-bold">${plans[selectedPlan as keyof typeof plans].price}</span>
                 <span className="text-gray-500">/month</span>
               </div>
               
               <ul className="space-y-3 mb-8 flex-grow">
-                {plan.features.map((feature, i) => (
+                {plans[selectedPlan as keyof typeof plans].features.map((feature, i) => (
                   <li key={i} className="flex items-start">
                     <div className="mr-3 mt-1 text-brand-primary">
                       <Check className="w-5 h-5" />
@@ -127,18 +125,66 @@ const PricingSection = () => {
               </ul>
               
               <Button
-                className={`w-full py-6 ${
-                  key === selectedPlan 
-                    ? 'bg-brand-primary hover:bg-brand-primary/90' 
-                    : 'bg-white border-2 border-brand-primary text-brand-primary hover:bg-brand-light'
-                }`}
-                onClick={() => handleSubscribe(plan.name)}
+                className="w-full py-6 bg-brand-primary hover:bg-brand-primary/90"
+                onClick={() => handleSubscribe(plans[selectedPlan as keyof typeof plans].name)}
               >
                 Get Started
               </Button>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          // Desktop view - Show all plans
+          <div className="grid md:grid-cols-3 gap-8">
+            {Object.entries(plans).map(([key, plan]) => (
+              <div
+                key={key}
+                className={`rounded-2xl shadow-md p-8 border-2 ${
+                  key === selectedPlan 
+                    ? 'relative border-brand-primary ring-4 ring-brand-primary ring-opacity-20' 
+                    : `${plan.colorClass}`
+                } bg-white flex flex-col h-full`}
+              >
+                {plan.popular && (
+                  <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
+                    <Badge variant="default" className="bg-brand-primary text-white px-4 py-1">
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+                
+                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                <p className="text-gray-600 mb-6">{plan.description}</p>
+                
+                <div className="mb-6">
+                  <span className="text-4xl font-bold">${plan.price}</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                
+                <ul className="space-y-3 mb-8 flex-grow">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start">
+                      <div className="mr-3 mt-1 text-brand-primary">
+                        <Check className="w-5 h-5" />
+                      </div>
+                      <span className="text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Button
+                  className={`w-full py-6 ${
+                    key === selectedPlan 
+                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
+                      : 'bg-white border-2 border-brand-primary text-brand-primary hover:bg-brand-light'
+                  }`}
+                  onClick={() => handleSubscribe(plan.name)}
+                >
+                  Get Started
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
