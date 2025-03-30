@@ -7,22 +7,18 @@ const HowItWorks = () => {
   const navigate = useNavigate();
   const steps = [
     {
-      number: "01",
       title: "Set Your Goals",
       description: "Define what you want to achieve, how often you want check-ins, and when you prefer phone calls."
     },
     {
-      number: "02",
       title: "Connect Your WhatsApp",
       description: "Link your WhatsApp account to Coach Call AI with a simple QR code scan. No additional apps needed."
     },
     {
-      number: "03",
       title: "Regular Check-ins",
       description: "Your AI coach will message you through WhatsApp to check on your progress and provide encouragement."
     },
     {
-      number: "04",
       title: "Accountability Calls",
       description: "Receive phone calls at critical moments to ensure you stay on track with your commitments."
     }
@@ -46,9 +42,6 @@ const HowItWorks = () => {
             {steps.map((step, index) => (
               <div key={index} className="relative z-10">
                 <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100 h-full flex flex-col">
-                  <div className="w-12 h-12 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold mb-6">
-                    {step.number}
-                  </div>
                   <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
                   <p className="text-gray-600 mb-4 flex-grow">{step.description}</p>
                   
