@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -920,3 +921,105 @@ const ScheduleCall = () => {
                   <FormField
                     control={form.control}
                     name={`specificDateSchedules.${index}.templateId`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1 min-w-[180px]">
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setSpecificDateScheduleTemplate(index, value === "none" ? null : value);
+                          }}
+                          defaultValue={schedule.templateId || (templates.length > 0 ? templates[0].id : "none")}
+                          value={field.value || "none"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className={templates.length === 0 ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Select a template" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {templates.length === 0 ? (
+                              <SelectItem disabled value="none">No templates available</SelectItem>
+                            ) : (
+                              templates.map(template => (
+                                <SelectItem key={template.id} value={template.id}>
+                                  {template.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => removeSpecificDateSchedule(index)}
+                  className="flex-shrink-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addWeekdaySchedule}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add weekday
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addSpecificDateSchedule}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add specific date
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <FormLabel className="text-base">Templates</FormLabel>
+            <FormDescription>
+              Choose from these predefined templates for your coaching sessions. Each template is designed for a specific purpose.
+            </FormDescription>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {templates.map((template) => (
+              <div key={template.id} className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <h3 className="font-medium text-lg">{template.name}</h3>
+                <p className="text-sm text-gray-600 mt-2">{template.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Saving..." : "Schedule Calls"}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+export default ScheduleCall;
