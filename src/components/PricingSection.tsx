@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const PricingSection = () => {
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState("pro");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -17,11 +19,11 @@ const PricingSection = () => {
     navigate('/auth/sign-up');
   };
 
-  const plans = [
-    {
+  const plans = {
+    starter: {
       name: "Starter",
       description: "Perfect for individuals starting their accountability journey",
-      price: isAnnual ? 19 : 29,
+      price: 19,
       features: [
         "Weekly WhatsApp check-ins",
         "2 phone calls per week",
@@ -32,10 +34,10 @@ const PricingSection = () => {
       popular: false,
       colorClass: "border-gray-200 hover:border-brand-primary"
     },
-    {
-      name: "Pro",
+    medium: {
+      name: "Medium",
       description: "For those committed to consistent accountability",
-      price: isAnnual ? 39 : 49,
+      price: 39,
       features: [
         "Daily WhatsApp check-ins",
         "5 phone calls per week",
@@ -48,23 +50,25 @@ const PricingSection = () => {
       popular: true,
       colorClass: "border-brand-primary"
     },
-    {
-      name: "Teams",
-      description: "Accountability solutions for groups and teams",
-      price: isAnnual ? 99 : 129,
+    pro: {
+      name: "Pro",
+      description: "Comprehensive accountability solution for serious achievers",
+      price: 99,
       features: [
-        "Everything in Pro plan",
-        "5 team member accounts",
-        "Team progress dashboard",
-        "Group accountability calls",
-        "Admin controls",
+        "Everything in Medium plan",
+        "Priority scheduling",
+        "Advanced analytics dashboard",
+        "Personalized strategy sessions",
+        "Custom accountability framework",
         "API access",
         "Dedicated account manager"
       ],
       popular: false,
       colorClass: "border-gray-200 hover:border-brand-primary"
     }
-  ];
+  };
+
+  const selectedPlanData = plans[selectedPlan as keyof typeof plans];
 
   return (
     <section id="pricing" className="py-20 px-4 bg-white">
@@ -75,43 +79,28 @@ const PricingSection = () => {
             
           </p>
           
-          <div className="flex items-center justify-center mt-8 bg-gray-100 p-1 rounded-full w-72 mx-auto">
-            <button
-              onClick={() => setIsAnnual(true)}
-              className={`py-2 px-6 rounded-full text-sm font-medium transition-colors ${
-                isAnnual 
-                  ? 'bg-white shadow-sm text-brand-primary' 
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              Annual (Save 20%)
-            </button>
-            <button
-              onClick={() => setIsAnnual(false)}
-              className={`py-2 px-6 rounded-full text-sm font-medium transition-colors ${
-                !isAnnual 
-                  ? 'bg-white shadow-sm text-brand-primary' 
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              Monthly
-            </button>
-          </div>
+          <Tabs defaultValue="pro" value={selectedPlan} onValueChange={setSelectedPlan} className="w-full max-w-md mx-auto mt-8">
+            <TabsList className="grid grid-cols-3 w-full">
+              <TabsTrigger value="starter">Starter</TabsTrigger>
+              <TabsTrigger value="medium">Medium</TabsTrigger>
+              <TabsTrigger value="pro">Pro</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan, index) => (
+          {Object.entries(plans).map(([key, plan]) => (
             <div
-              key={index}
+              key={key}
               className={`rounded-2xl shadow-md p-8 border-2 ${
-                plan.popular 
+                key === selectedPlan 
                   ? 'relative border-brand-primary ring-4 ring-brand-primary ring-opacity-20' 
                   : `${plan.colorClass}`
               } bg-white flex flex-col h-full`}
             >
-              {plan.popular && (
+              {key === selectedPlan && (
                 <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2 bg-brand-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                  Most Popular
+                  Selected
                 </div>
               )}
               
@@ -121,9 +110,6 @@ const PricingSection = () => {
               <div className="mb-6">
                 <span className="text-4xl font-bold">${plan.price}</span>
                 <span className="text-gray-500">/month</span>
-                {isAnnual && (
-                  <div className="text-sm text-brand-primary mt-1">Billed annually (${plan.price * 12}/year)</div>
-                )}
               </div>
               
               <ul className="space-y-3 mb-8 flex-grow">
@@ -139,7 +125,7 @@ const PricingSection = () => {
               
               <Button
                 className={`w-full py-6 ${
-                  plan.popular 
+                  key === selectedPlan 
                     ? 'bg-brand-primary hover:bg-brand-primary/90' 
                     : 'bg-white border-2 border-brand-primary text-brand-primary hover:bg-brand-light'
                 }`}
