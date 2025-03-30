@@ -2,13 +2,19 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DashboardPreview = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleSignupNavigation = () => {
     navigate('/auth/sign-up');
   };
+
+  const videoUrl = isMobile
+    ? "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//progress_mobile.mp4"
+    : "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//progress.mp4";
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -31,7 +37,7 @@ const DashboardPreview = () => {
           </div>
           <div className="p-4">
             <video 
-              src="https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//progress.mp4"
+              src={videoUrl}
               className="w-full rounded shadow-sm"
               autoPlay
               loop
