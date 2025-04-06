@@ -11,8 +11,20 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+type SubscriptionPlan = {
+  id: string;
+  name: string;
+  description: string;
+  interval: string;
+  price: number;
+  features: string[];
+  stripe_price_id: string;
+  is_active: boolean;
+  created_at: string;
+};
+
 const Account = () => {
-  const { session, loading } = useSessionContext();
+  const { session, loading, userProfile } = useSessionContext();
   const { toast } = useToast();
   const [phone, setPhone] = useState('');
   const [initialPhone, setInitialPhone] = useState('');
@@ -22,7 +34,7 @@ const Account = () => {
   const [nameError, setNameError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [plans, setPlans] = useState([]);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
 
@@ -206,7 +218,7 @@ const Account = () => {
     }
   };
 
-  const handleStartCheckout = async (priceId) => {
+  const handleStartCheckout = async (priceId: string) => {
     if (!session?.user?.id) {
       toast({
         title: "Error",
