@@ -9,7 +9,7 @@ import PhoneInput from '@/components/PhoneInput';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { Json } from '@/integrations/supabase/types';
 
 type SubscriptionPlan = {
@@ -38,6 +38,7 @@ const Account = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [managingSubscription, setManagingSubscription] = useState(false);
 
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
@@ -263,6 +264,47 @@ const Account = () => {
     }
   };
 
+  const handleManageSubscription = async () => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to manage your subscription",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setManagingSubscription(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-portal-session', {
+        body: { 
+          userId: session.user.id,
+          returnUrl: window.location.origin + '/account'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No portal URL returned');
+      }
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to access subscription management. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setManagingSubscription(false);
+    }
+  };
+
   const handlePhoneChange = (value: string) => {
     setPhone(value);
     if (phoneError) {
@@ -378,11 +420,30 @@ const Account = () => {
               ) : plans.length > 0 ? (
                 <div className="space-y-6">
                   {userProfile?.subscription_status === 'active' ? (
-                    <Alert className="bg-green-50 border-green-200">
-                      <AlertDescription>
-                        You currently have an active subscription. Thank you for your support!
-                      </AlertDescription>
-                    </Alert>
+                    <div className="space-y-4">
+                      <Alert className="bg-green-50 border-green-200">
+                        <AlertDescription>
+                          You currently have an active subscription. Thank you for your support!
+                        </AlertDescription>
+                      </Alert>
+                      <Button 
+                        onClick={handleManageSubscription}
+                        disabled={managingSubscription}
+                        className="flex items-center"
+                      >
+                        {managingSubscription ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Redirecting...
+                          </>
+                        ) : (
+                          <>
+                            Manage Subscription
+                            <ExternalLink className="ml-2 h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {plans.map((plan) => (
