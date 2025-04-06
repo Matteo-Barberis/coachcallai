@@ -50,6 +50,55 @@ serve(async (req) => {
 
     console.log(`Retrieved ${data?.length || 0} scheduled calls`);
     
+    // Filter scheduled calls based on user subscription status
+    let filteredData = [];
+    if (data && data.length > 0) {
+      console.log('Filtering calls based on user subscription status...');
+      
+      filteredData = await Promise.all(data.map(async (call) => {
+        // Get user profile with subscription information
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('subscription_status, trial_start_date')
+          .eq('id', call.user_id)
+          .single();
+          
+        if (profileError) {
+          console.error(`Error fetching profile data for user ${call.user_id}:`, profileError);
+          return null;
+        }
+        
+        const subscriptionStatus = profileData?.subscription_status;
+        const trialStartDate = profileData?.trial_start_date;
+        
+        // Check if subscription is active or trial is valid (within 7 days)
+        let isValid = subscriptionStatus === 'active';
+        
+        if (subscriptionStatus === 'trial' && trialStartDate) {
+          const trialStart = new Date(trialStartDate);
+          const currentDate = new Date();
+          const diffTime = currentDate.getTime() - trialStart.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          
+          isValid = diffDays < 7; // Trial valid if less than 7 days have passed
+          console.log(`User ${call.user_id} trial: Started on ${trialStartDate}, days elapsed: ${diffDays}, valid: ${isValid}`);
+        }
+        
+        if (isValid) {
+          console.log(`Including call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
+          return call;
+        } else {
+          console.log(`Excluding call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
+          return null;
+        }
+      }));
+      
+      // Remove null entries (calls that didn't pass the subscription check)
+      filteredData = filteredData.filter(call => call !== null);
+      
+      console.log(`After filtering: ${filteredData.length} scheduled calls will be processed`);
+    }
+    
     // Get Vapi API Key from environment
     const vapiApiKey = Deno.env.get('VAPI_API_KEY');
     if (!vapiApiKey) {
@@ -57,12 +106,12 @@ serve(async (req) => {
     }
     
     // For each call, make a request to the Vapi API
-    if (data && data.length > 0 && vapiApiKey) {
+    if (filteredData && filteredData.length > 0 && vapiApiKey) {
       console.log('Processing scheduled calls...');
       console.log(`SKIP_VAPI_API_CALLS mode is: ${SKIP_VAPI_API_CALLS ? 'ENABLED' : 'DISABLED'}`);
       
       // Store all promises for the API calls
-      const apiCallPromises = data.map(async (call) => {
+      const apiCallPromises = filteredData.map(async (call) => {
         try {
           // Extract template name and description if template_id exists
           let templateName = "Check-in call";
@@ -292,7 +341,7 @@ serve(async (req) => {
       console.log('All call processing completed:', JSON.stringify(apiResults));
       
       // Add the API results to the response data, matching by call.id
-      data.forEach(call => {
+      filteredData.forEach(call => {
         const apiResult = apiResults.find(result => result.callId === call.id);
         call.vapiCallPayload = apiResult ? apiResult.vapiPayload : null;
         call.vapiCallResult = apiResult ? apiResult.vapiResponse : null;
@@ -300,9 +349,9 @@ serve(async (req) => {
       });
     }
     
-    // Return the data
+    // Return the filtered data
     return new Response(
-      JSON.stringify({ data }),
+      JSON.stringify({ data: filteredData }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
