@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -75,13 +74,12 @@ const Dashboard = () => {
     }
   }, [session, navigate, toast]);
 
-  // Calculate days remaining in trial
   const getDaysRemaining = () => {
     if (!userProfile?.trial_start_date) return 0;
     
     const trialStartDate = new Date(userProfile.trial_start_date);
     const trialEndDate = new Date(trialStartDate);
-    trialEndDate.setDate(trialEndDate.getDate() + 14); // Assuming 14-day trial
+    trialEndDate.setDate(trialEndDate.getDate() + 7); // Changed to 7-day trial
     
     const today = new Date();
     const daysRemaining = Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -156,7 +154,7 @@ const Dashboard = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         {userProfile?.subscription_status === 'trial' && (
           <Alert className="mb-4 border-amber-200 bg-amber-50">
-            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertCircle className="h-4 w-4 text-amber-500 mt-1" />
             <AlertDescription className="flex items-center justify-between">
               <span>
                 {getDaysRemaining() > 0 
