@@ -27,17 +27,62 @@ const PaymentSuccess = () => {
       }
 
       try {
-        // Update user's subscription status based on checkout session
-        const { error: updateError } = await supabase
+        // First, set a temporary active status
+        const { error: updateTempError } = await supabase
           .from('profiles')
           .update({
             subscription_status: 'active',
-            subscription_plan: 'pending_verification', // Will be updated by webhook with exact plan
           })
           .eq('id', session.user.id);
 
-        if (updateError) {
-          throw updateError;
+        if (updateTempError) {
+          console.error('Error updating temp status:', updateTempError);
+        }
+
+        // Get session details from Stripe to find the price ID
+        const { data: sessionData, error: sessionError } = await supabase.functions
+          .invoke('get-checkout-session', {
+            body: { sessionId },
+          });
+
+        if (sessionError) {
+          throw new Error(`Failed to get session details: ${sessionError.message}`);
+        }
+
+        if (!sessionData.priceId) {
+          throw new Error('Could not determine subscription plan from checkout session');
+        }
+
+        console.log('Retrieved price ID from Stripe:', sessionData.priceId);
+
+        // Find the subscription plan that matches the price ID
+        const { data: planData, error: planError } = await supabase
+          .from('subscription_plans')
+          .select('name')
+          .eq('stripe_price_id', sessionData.priceId)
+          .maybeSingle();
+
+        if (planError) {
+          throw new Error(`Failed to find subscription plan: ${planError.message}`);
+        }
+
+        if (!planData) {
+          console.warn(`No subscription plan found for price ID: ${sessionData.priceId}`);
+          // Continue with generic success even if plan not found
+        } else {
+          console.log('Found subscription plan:', planData.name);
+          
+          // Update user's subscription with the correct plan name
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({
+              subscription_plan: planData.name,
+            })
+            .eq('id', session.user.id);
+
+          if (updateError) {
+            throw updateError;
+          }
         }
 
         setVerificationComplete(true);
