@@ -21,40 +21,11 @@ serve(async (req) => {
       throw new Error("User ID is required");
     }
 
-    // Initialize Stripe with the secret key
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
-    });
-
-    // Look up the Stripe customer ID for the user
-    const { data: customers } = await stripe.customers.search({
-      query: `metadata['supabase_id']:'${userId}'`,
-    });
-
-    if (!customers || customers.length === 0) {
-      // No customer found for this user
-      return new Response(
-        JSON.stringify({ 
-          error: "No Stripe customer found for this user" 
-        }),
-        { 
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 404 
-        }
-      );
-    }
-
-    const customerId = customers[0].id;
-
-    // Create a Stripe customer portal session
-    const session = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl || "https://pwiqicyfwvwwgqbxhmvv.supabase.co/account",
-    });
-
-    // Return the session URL
+    // Return the provided Stripe Customer Portal URL directly
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ 
+        url: "https://billing.stripe.com/p/login/test_3csg10cCS42pdvWcMM" 
+      }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200 
