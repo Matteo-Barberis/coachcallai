@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -10,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 type SubscriptionPlan = {
   id: string;
@@ -17,7 +19,7 @@ type SubscriptionPlan = {
   description: string;
   interval: string;
   price: number;
-  features: string[];
+  features: string[] | Json;
   stripe_price_id: string;
   is_active: boolean;
   created_at: string;
@@ -386,7 +388,7 @@ const Account = () => {
                           <div className="flex-grow">
                             <h4 className="font-medium mb-2">Features:</h4>
                             <ul className="space-y-1 mb-6">
-                              {plan.features && plan.features.map((feature, idx) => (
+                              {Array.isArray(plan.features) && plan.features.map((feature, idx) => (
                                 <li key={idx} className="text-sm flex items-start">
                                   <span className="text-green-500 mr-2">✓</span>
                                   {feature}
