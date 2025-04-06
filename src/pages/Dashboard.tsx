@@ -5,7 +5,7 @@ import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -15,9 +15,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Dashboard = () => {
-  const { session, loading } = useSessionContext();
+  const { session, loading, userProfile } = useSessionContext();
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
   const [isCallingDemo, setIsCallingDemo] = useState(false);
@@ -73,6 +74,20 @@ const Dashboard = () => {
       setIsCheckingProfile(false);
     }
   }, [session, navigate, toast]);
+
+  // Calculate days remaining in trial
+  const getDaysRemaining = () => {
+    if (!userProfile?.trial_start_date) return 0;
+    
+    const trialStartDate = new Date(userProfile.trial_start_date);
+    const trialEndDate = new Date(trialStartDate);
+    trialEndDate.setDate(trialEndDate.getDate() + 14); // Assuming 14-day trial
+    
+    const today = new Date();
+    const daysRemaining = Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return Math.max(0, daysRemaining);
+  };
 
   const handleTestCall = async () => {
     if (!session?.user.id) return;
@@ -139,6 +154,21 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
+        {userProfile?.subscription_status === 'trial' && (
+          <Alert className="mb-4 border-amber-200 bg-amber-50">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                {getDaysRemaining() > 0 
+                  ? `You are using a free trial. Your free trial will last ${getDaysRemaining()} more days.` 
+                  : "Your trial has ended. Set up a subscription to continue using all features."}
+              </span>
+              <Button size="sm" asChild>
+                <Link to="/account" className="ml-2">Upgrade Now</Link>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
