@@ -46,12 +46,12 @@ serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        await handleCheckoutSessionCompleted(session, supabaseAdmin);
+        await handleCheckoutSessionCompleted(session, supabaseAdmin, stripe);
         break;
       }
       case "customer.subscription.updated": {
         const subscription = event.data.object;
-        await handleSubscriptionUpdated(subscription, supabaseAdmin);
+        await handleSubscriptionUpdated(subscription, supabaseAdmin, stripe);
         break;
       }
       case "customer.subscription.deleted": {
@@ -75,7 +75,7 @@ serve(async (req) => {
 });
 
 // Handle successful checkout completion
-async function handleCheckoutSessionCompleted(session, supabaseAdmin) {
+async function handleCheckoutSessionCompleted(session, supabaseAdmin, stripe) {
   try {
     if (session.mode !== "subscription") {
       console.log("Not a subscription checkout session");
@@ -86,6 +86,27 @@ async function handleCheckoutSessionCompleted(session, supabaseAdmin) {
     const subscriptionId = session.subscription;
     if (!subscriptionId) {
       console.error("No subscription ID found in session");
+      return;
+    }
+    
+    // Get price ID from the subscription
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const priceId = subscription.items.data[0]?.price.id;
+    
+    if (!priceId) {
+      console.error("No price ID found in subscription");
+      return;
+    }
+    
+    // Find matching subscription plan in our database
+    const { data: planData, error: planError } = await supabaseAdmin
+      .from("subscription_plans")
+      .select("id")
+      .eq("stripe_price_id", priceId)
+      .single();
+    
+    if (planError) {
+      console.error("Error finding subscription plan:", planError);
       return;
     }
     
@@ -108,12 +129,13 @@ async function handleCheckoutSessionCompleted(session, supabaseAdmin) {
     
     const userId = profiles[0].id;
     
-    // Update user's subscription status
+    // Update user's subscription status and plan ID
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
       .update({
         subscription_status: "active",
         subscription_id: subscriptionId,
+        subscription_plan_id: planData.id,
         trial_start_date: null // End trial when subscription starts
       })
       .eq("id", userId);
@@ -121,7 +143,7 @@ async function handleCheckoutSessionCompleted(session, supabaseAdmin) {
     if (updateError) {
       console.error("Error updating user profile:", updateError);
     } else {
-      console.log(`Updated subscription status for user ${userId} to active`);
+      console.log(`Updated subscription for user ${userId} to plan ${planData.id}`);
     }
   } catch (error) {
     console.error("Error in handleCheckoutSessionCompleted:", error);
@@ -129,10 +151,28 @@ async function handleCheckoutSessionCompleted(session, supabaseAdmin) {
 }
 
 // Handle subscription updates
-async function handleSubscriptionUpdated(subscription, supabaseAdmin) {
+async function handleSubscriptionUpdated(subscription, supabaseAdmin, stripe) {
   try {
     const status = subscription.status;
     const customerId = subscription.customer;
+    const priceId = subscription.items.data[0]?.price.id;
+    
+    if (!priceId) {
+      console.error("No price ID found in updated subscription");
+      return;
+    }
+    
+    // Find matching subscription plan in our database
+    const { data: planData, error: planError } = await supabaseAdmin
+      .from("subscription_plans")
+      .select("id")
+      .eq("stripe_price_id", priceId)
+      .single();
+    
+    if (planError) {
+      console.error("Error finding subscription plan:", planError);
+      return;
+    }
     
     // Get the user associated with this customer
     const { data: profiles, error: profilesError } = await supabaseAdmin
@@ -178,6 +218,7 @@ async function handleSubscriptionUpdated(subscription, supabaseAdmin) {
       .update({
         subscription_status: subscriptionStatus,
         subscription_id: subscription.id,
+        subscription_plan_id: planData.id,
         subscription_end_date: subscription.current_period_end 
           ? new Date(subscription.current_period_end * 1000).toISOString() 
           : null
@@ -187,7 +228,7 @@ async function handleSubscriptionUpdated(subscription, supabaseAdmin) {
     if (updateError) {
       console.error("Error updating user profile:", updateError);
     } else {
-      console.log(`Updated subscription status for user ${userId} to ${subscriptionStatus}`);
+      console.log(`Updated subscription for user ${userId} to plan ${planData.id} with status ${subscriptionStatus}`);
     }
   } catch (error) {
     console.error("Error in handleSubscriptionUpdated:", error);
@@ -223,6 +264,7 @@ async function handleSubscriptionDeleted(subscription, supabaseAdmin) {
       .update({
         subscription_status: "canceled",
         subscription_id: null,
+        subscription_plan_id: null,
         subscription_end_date: null
       })
       .eq("id", userId);

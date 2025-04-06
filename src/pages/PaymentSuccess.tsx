@@ -58,7 +58,7 @@ const PaymentSuccess = () => {
         // Find the subscription plan that matches the price ID
         const { data: planData, error: planError } = await supabase
           .from('subscription_plans')
-          .select('name')
+          .select('id')
           .eq('stripe_price_id', sessionData.priceId)
           .maybeSingle();
 
@@ -70,13 +70,13 @@ const PaymentSuccess = () => {
           console.warn(`No subscription plan found for price ID: ${sessionData.priceId}`);
           // Continue with generic success even if plan not found
         } else {
-          console.log('Found subscription plan:', planData.name);
+          console.log('Found subscription plan ID:', planData.id);
           
-          // Update user's subscription with the correct plan name
+          // Update user's subscription with the correct plan ID
           const { error: updateError } = await supabase
             .from('profiles')
             .update({
-              subscription_plan: planData.name,
+              subscription_plan_id: planData.id,
             })
             .eq('id', session.user.id);
 

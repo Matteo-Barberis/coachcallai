@@ -7,7 +7,7 @@ type Profile = {
   subscription_status?: string;
   trial_start_date?: string;
   subscription_end_date?: string;
-  subscription_plan?: string;
+  subscription_plan_id?: string;
   // Other profile fields can be added here as needed
 };
 
@@ -63,7 +63,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, subscription_status, trial_start_date, subscription_end_date, subscription_plan')
+        .select('id, subscription_status, trial_start_date, subscription_end_date, subscription_plan_id')
         .eq('id', userId)
         .single();
         

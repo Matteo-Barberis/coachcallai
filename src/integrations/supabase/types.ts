@@ -168,7 +168,7 @@ export type Database = {
           phone_verified: boolean | null
           stripe_customer_id: string | null
           subscription_end_date: string | null
-          subscription_plan: string | null
+          subscription_plan_id: string | null
           subscription_status: string | null
           timezone: string
           trial_start_date: string | null
@@ -190,7 +190,7 @@ export type Database = {
           phone_verified?: boolean | null
           stripe_customer_id?: string | null
           subscription_end_date?: string | null
-          subscription_plan?: string | null
+          subscription_plan_id?: string | null
           subscription_status?: string | null
           timezone?: string
           trial_start_date?: string | null
@@ -212,7 +212,7 @@ export type Database = {
           phone_verified?: boolean | null
           stripe_customer_id?: string | null
           subscription_end_date?: string | null
-          subscription_plan?: string | null
+          subscription_plan_id?: string | null
           subscription_status?: string | null
           timezone?: string
           trial_start_date?: string | null
@@ -224,6 +224,13 @@ export type Database = {
             columns: ["assistant_id"]
             isOneToOne: false
             referencedRelation: "assistants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_subscription_plan_id_fkey"
+            columns: ["subscription_plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
             referencedColumns: ["id"]
           },
         ]
