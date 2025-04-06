@@ -7,6 +7,10 @@ export type Profile = {
   updated_at: string;
   objectives: string | null;
   focus_areas: FocusArea[] | null;
+  subscription_status?: string | null;
+  subscription_plan_id?: string | null;
+  subscription_end_date?: string | null;
+  trial_start_date?: string | null;
 };
 
 export type FocusArea = {
