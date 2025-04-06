@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import ScheduleCall from '@/components/ScheduleCall';
 
 const Schedule = () => {
-  const { session, loading } = useSessionContext();
+  const { session, loading, userProfile } = useSessionContext();
 
   // Redirect to login if not authenticated
   if (!loading && !session) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -134,7 +133,6 @@ const timeZoneOptions = [
   { value: 'Pacific/Auckland', label: 'New Zealand Standard Time (NZST)', timeZone: 'Pacific/Auckland' },
 ];
 
-// Function to find a timezone option by value
 const findTimeZoneOption = (value: string) => {
   return timeZoneOptions.find(tz => tz.value === value);
 };
@@ -142,7 +140,7 @@ const findTimeZoneOption = (value: string) => {
 const ScheduleCall = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { session } = useSessionContext();
+  const { session, userProfile } = useSessionContext();
   
   const [weekdaySchedules, setWeekdaySchedules] = useState<WeekdaySchedule[]>([]);
   const [specificDateSchedules, setSpecificDateSchedules] = useState<SpecificDateSchedule[]>([]);
@@ -294,14 +292,12 @@ const ScheduleCall = () => {
         }
         
         if (data && data.timezone) {
-          // Check if the timezone from DB matches any option in our list
           if (findTimeZoneOption(data.timezone)) {
             setTimeZone(data.timezone);
             form.setValue('timeZone', data.timezone);
             console.log(`Found and set timezone from DB: ${data.timezone}`);
           } else {
             console.error(`Timezone from DB not found in options: ${data.timezone}`);
-            // Default to GMT if we can't match
             setTimeZone('GMT');
             form.setValue('timeZone', 'GMT');
           }
@@ -333,6 +329,16 @@ const ScheduleCall = () => {
   }, []);
 
   const addWeekdaySchedule = () => {
+    if (userProfile?.subscription_status === 'trial' && 
+        (weekdaySchedules.length + specificDateSchedules.length) >= 2) {
+      toast({
+        title: "Trial limitation",
+        description: "Trial users are limited to a maximum of 2 scheduled calls. Upgrade your plan to schedule more calls.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newId = `weekday-${Date.now()}`;
     const defaultTemplateId = templates.length > 0 ? templates[0].id : null;
     
@@ -371,6 +377,16 @@ const ScheduleCall = () => {
   };
 
   const addSpecificDateSchedule = () => {
+    if (userProfile?.subscription_status === 'trial' && 
+        (weekdaySchedules.length + specificDateSchedules.length) >= 2) {
+      toast({
+        title: "Trial limitation",
+        description: "Trial users are limited to a maximum of 2 scheduled calls. Upgrade your plan to schedule more calls.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newId = `date-${Date.now()}`;
     const defaultTemplateId = templates.length > 0 ? templates[0].id : null;
     
@@ -441,7 +457,6 @@ const ScheduleCall = () => {
     setIsLoading(true);
     
     try {
-      // Save the timezone value to the database
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ timezone: data.timeZone })
