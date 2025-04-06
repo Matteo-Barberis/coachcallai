@@ -34,7 +34,7 @@ serve(async (req) => {
     // Get user profile to check if they exist in Stripe
     const { data: profileData, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("stripe_customer_id, email, id")
+      .select("stripe_customer_id, id")
       .eq("id", userId)
       .single();
 
@@ -53,7 +53,7 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Get user email (needed if we need to create a new customer)
+    // Get user email using auth.admin
     const { data: userData, error: userError } = await supabaseClient.auth
       .admin.getUserById(userId);
 
