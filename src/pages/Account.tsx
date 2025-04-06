@@ -9,7 +9,7 @@ import PhoneInput from '@/components/PhoneInput';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 const Account = () => {
   const { session, loading } = useSessionContext();
@@ -22,6 +22,9 @@ const Account = () => {
   const [nameError, setNameError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
@@ -30,6 +33,7 @@ const Account = () => {
   useEffect(() => {
     if (session?.user?.id) {
       fetchUserProfile();
+      fetchSubscriptionPlans();
     }
   }, [session?.user?.id]);
 
@@ -62,6 +66,30 @@ const Account = () => {
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+    }
+  };
+
+  const fetchSubscriptionPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const { data, error } = await supabase
+        .from('subscription_plans')
+        .select('*')
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+      
+      if (error) throw error;
+      
+      setPlans(data || []);
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load subscription plans. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlans(false);
     }
   };
 
@@ -178,6 +206,41 @@ const Account = () => {
     }
   };
 
+  const handleStartCheckout = async (priceId) => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to subscribe",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProcessingPayment(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId }
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+      setProcessingPayment(false);
+    }
+  };
+
   const handlePhoneChange = (value: string) => {
     setPhone(value);
     if (phoneError) {
@@ -284,7 +347,63 @@ const Account = () => {
             
             <div className="border-t pt-6">
               <h2 className="text-lg font-semibold mb-4">Subscription</h2>
-              <p className="text-gray-500 italic">Subscription management will be available in a future update.</p>
+              
+              {loadingPlans ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
+                  <span className="text-gray-500">Loading subscription plans...</span>
+                </div>
+              ) : plans.length > 0 ? (
+                <div className="space-y-6">
+                  {userProfile?.subscription_status === 'active' ? (
+                    <Alert className="bg-green-50 border-green-200">
+                      <AlertDescription>
+                        You currently have an active subscription. Thank you for your support!
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {plans.map((plan) => (
+                        <div 
+                          key={plan.id} 
+                          className="border rounded-lg p-4 flex flex-col"
+                        >
+                          <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                          <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                          <div className="text-2xl font-bold mb-4">${plan.price.toFixed(2)}<span className="text-sm font-normal text-gray-500">/{plan.interval}</span></div>
+                          <div className="flex-grow">
+                            <h4 className="font-medium mb-2">Features:</h4>
+                            <ul className="space-y-1 mb-6">
+                              {plan.features && plan.features.map((feature, idx) => (
+                                <li key={idx} className="text-sm flex items-start">
+                                  <span className="text-green-500 mr-2">✓</span>
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <Button 
+                            onClick={() => handleStartCheckout(plan.stripe_price_id)}
+                            disabled={processingPayment}
+                            className="w-full"
+                          >
+                            {processingPayment ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Processing...
+                              </>
+                            ) : (
+                              `Subscribe`
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">Subscription plans will be available soon.</p>
+              )}
             </div>
           </div>
         </div>

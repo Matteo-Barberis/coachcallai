@@ -279,6 +279,42 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          interval: string
+          is_active: boolean
+          name: string
+          price: number
+          stripe_price_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          interval: string
+          is_active?: boolean
+          name: string
+          price: number
+          stripe_price_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          stripe_price_id?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           created_at: string
