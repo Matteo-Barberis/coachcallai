@@ -32,7 +32,7 @@ const PaymentSuccess = () => {
           .from('profiles')
           .update({
             subscription_status: 'active',
-            subscription_plan: sessionId, // Use the actual session ID instead of 'pending_verification'
+            subscription_plan: 'pending_verification', // Will be updated by webhook with exact plan
           })
           .eq('id', session.user.id);
 
