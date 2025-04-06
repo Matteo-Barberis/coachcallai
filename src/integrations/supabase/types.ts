@@ -167,8 +167,11 @@ export type Database = {
           phone_verification_expires_at: string | null
           phone_verified: boolean | null
           stripe_customer_id: string | null
+          subscription_end_date: string | null
+          subscription_plan: string | null
           subscription_status: string | null
           timezone: string
+          trial_start_date: string | null
           updated_at: string
         }
         Insert: {
@@ -186,8 +189,11 @@ export type Database = {
           phone_verification_expires_at?: string | null
           phone_verified?: boolean | null
           stripe_customer_id?: string | null
+          subscription_end_date?: string | null
+          subscription_plan?: string | null
           subscription_status?: string | null
           timezone?: string
+          trial_start_date?: string | null
           updated_at?: string
         }
         Update: {
@@ -205,8 +211,11 @@ export type Database = {
           phone_verification_expires_at?: string | null
           phone_verified?: boolean | null
           stripe_customer_id?: string | null
+          subscription_end_date?: string | null
+          subscription_plan?: string | null
           subscription_status?: string | null
           timezone?: string
+          trial_start_date?: string | null
           updated_at?: string
         }
         Relationships: [

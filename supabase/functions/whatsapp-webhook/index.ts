@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -149,7 +148,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, assistant_id, subscription_status')
+      .select('id, full_name, assistant_id, subscription_status, trial_start_date')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -161,6 +160,7 @@ serve(async (req) => {
     const userName = profiles?.full_name || 'User';
     const assistantId = profiles?.assistant_id;
     const subscriptionStatus = profiles?.subscription_status;
+    const trialStartDate = profiles?.trial_start_date;
     
     // Define default message for when user is not found or inactive
     const defaultMessage = "Sorry, it appears your phone number is either not registered in our system or doesn't have an active subscription. Please visit our website to register or reactivate your subscription.";
@@ -181,9 +181,24 @@ serve(async (req) => {
       console.log('Successfully saved message to database');
     }
 
-    // Check if user exists and has an active subscription
-    if (!userId || subscriptionStatus !== 'active') {
-      console.log(`User not found or subscription inactive. User ID: ${userId}, Subscription Status: ${subscriptionStatus}`);
+    // Check if trial is still valid (within 7 days from trial_start_date)
+    let isTrialValid = false;
+    if (subscriptionStatus === 'trial' && trialStartDate) {
+      const trialStart = new Date(trialStartDate);
+      const currentDate = new Date();
+      const trialDurationDays = 7;
+      
+      // Calculate difference in days
+      const diffTime = currentDate.getTime() - trialStart.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      isTrialValid = diffDays < trialDurationDays;
+      console.log(`Trial started on: ${trialStartDate}, days elapsed: ${diffDays}, trial valid: ${isTrialValid}`);
+    }
+
+    // Check if user exists and has an active subscription or valid trial
+    if (!userId || (subscriptionStatus !== 'active' && !(subscriptionStatus === 'trial' && isTrialValid))) {
+      console.log(`User not found or subscription not valid. User ID: ${userId}, Subscription Status: ${subscriptionStatus}, Trial valid: ${isTrialValid}`);
       
       // Call WhatsApp API to send the default message
       const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
@@ -249,8 +264,8 @@ serve(async (req) => {
       );
     }
 
-    // If we get to this point, user exists and has an active subscription
-    
+    // If we get to this point, user exists and has an active subscription or valid trial
+
     // Fetch assistant information if we have an assistant_id
     let assistantName = "Coach";
     let assistantPersonality = "";
