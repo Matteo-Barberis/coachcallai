@@ -21,11 +21,49 @@ serve(async (req) => {
       throw new Error("User ID is required");
     }
 
-    // Return the provided Stripe Customer Portal URL directly
+    // Initialize Stripe with the secret key
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2023-10-16",
+    });
+
+    // Look up the Stripe customer ID for the user from the profiles table
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    
+    // Get the user's Stripe customer ID from the profiles table
+    const response = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${userId}&select=stripe_customer_id`, {
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`
+      }
+    });
+    
+    const profiles = await response.json();
+    
+    if (!profiles || profiles.length === 0 || !profiles[0].stripe_customer_id) {
+      return new Response(
+        JSON.stringify({ 
+          error: "No Stripe customer found for this user" 
+        }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 404 
+        }
+      );
+    }
+
+    const customerId = profiles[0].stripe_customer_id;
+    
+    // Create a Stripe customer portal session
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl || `${req.headers.get("origin")}/account`,
+    });
+
+    // Return the session URL
     return new Response(
-      JSON.stringify({ 
-        url: "https://billing.stripe.com/p/login/test_3csg10cCS42pdvWcMM" 
-      }),
+      JSON.stringify({ url: session.url }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200 
