@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@12.5.0?target=deno";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,48 +16,26 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { priceId } = await req.json();
+    const { priceId, userId } = await req.json();
     
     if (!priceId) {
       throw new Error("Price ID is required");
     }
 
-    // Get user info from auth header
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Authorization header is required");
+    if (!userId) {
+      throw new Error("User ID is required");
     }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
-
-    // Get user data and better error handling
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-
-    if (userError) {
-      console.error("Auth error:", userError);
-      throw new Error(`Authentication error: ${userError.message}`);
-    }
-
-    if (!user) {
-      console.error("No user found in session, headers:", JSON.stringify(Object.fromEntries(req.headers.entries())));
-      throw new Error("User not found. Please make sure you are logged in.");
-    }
-
-    console.log("User authenticated successfully:", user.id);
 
     // Get user profile to check if they exist in Stripe
     const { data: profileData, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("stripe_customer_id, email")
-      .eq("id", user.id)
+      .select("stripe_customer_id, email, id")
+      .eq("id", userId)
       .single();
 
     if (profileError) {
@@ -64,9 +43,29 @@ serve(async (req) => {
       throw profileError;
     }
 
+    if (!profileData) {
+      throw new Error("User profile not found");
+    }
+
+    console.log("User profile found:", profileData.id);
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
+
+    // Get user email (needed if we need to create a new customer)
+    const { data: userData, error: userError } = await supabaseClient.auth
+      .admin.getUserById(userId);
+
+    if (userError) {
+      console.error("Error getting user data:", userError);
+      throw userError;
+    }
+
+    const userEmail = userData.user?.email;
+    if (!userEmail) {
+      throw new Error("User email not found");
+    }
 
     // Determine customer ID (create if doesn't exist)
     let customerId = profileData.stripe_customer_id;
@@ -74,9 +73,9 @@ serve(async (req) => {
     if (!customerId) {
       // Create a new customer if one doesn't exist
       const customer = await stripe.customers.create({
-        email: user.email,
+        email: userEmail,
         metadata: {
-          supabase_user_id: user.id,
+          supabase_user_id: userId,
         },
       });
       
@@ -86,11 +85,11 @@ serve(async (req) => {
       await supabaseClient
         .from("profiles")
         .update({ stripe_customer_id: customerId })
-        .eq("id", user.id);
+        .eq("id", userId);
     }
 
     // Create checkout session
-    const origin = req.headers.get("origin");
+    const origin = req.headers.get("origin") || "http://localhost:3000";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -104,10 +103,12 @@ serve(async (req) => {
       cancel_url: `${origin}/payment-canceled`,
       subscription_data: {
         metadata: {
-          supabase_user_id: user.id,
+          supabase_user_id: userId,
         },
       },
     });
+
+    console.log("Checkout session created:", session.id);
 
     // Return the session URL
     return new Response(
@@ -131,5 +132,3 @@ serve(async (req) => {
     );
   }
 });
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";

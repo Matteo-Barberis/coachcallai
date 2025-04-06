@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -235,15 +234,11 @@ const Account = () => {
     try {
       console.log("Starting checkout process for price ID:", priceId);
       
-      // Get fresh access token to ensure we have a valid one
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        throw new Error("No active session found");
-      }
-      
-      // Call the edge function with the current session's access token
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId }
+        body: { 
+          priceId,
+          userId: session.user.id
+        }
       });
 
       if (error) {
