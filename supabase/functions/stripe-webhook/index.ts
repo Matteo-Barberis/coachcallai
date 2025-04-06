@@ -135,7 +135,6 @@ async function handleCheckoutSessionCompleted(session, supabaseAdmin, stripe) {
       .from("profiles")
       .update({
         subscription_status: "active",
-        subscription_id: subscriptionId,
         subscription_plan_id: planData.id,
         trial_start_date: null // End trial when subscription starts
       })
@@ -218,7 +217,6 @@ async function handleSubscriptionUpdated(subscription, supabaseAdmin, stripe) {
       .from("profiles")
       .update({
         subscription_status: subscriptionStatus,
-        subscription_id: subscription.id,
         subscription_plan_id: planData.id,
         subscription_end_date: subscription.current_period_end 
           ? new Date(subscription.current_period_end * 1000).toISOString() 
@@ -264,7 +262,6 @@ async function handleSubscriptionDeleted(subscription, supabaseAdmin) {
       .from("profiles")
       .update({
         subscription_status: "canceled",
-        subscription_id: null,
         subscription_plan_id: null,
         subscription_end_date: null
       })
