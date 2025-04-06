@@ -37,13 +37,20 @@ serve(async (req) => {
       }
     );
 
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
+    // Get user data and better error handling
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError) {
+      console.error("Auth error:", userError);
+      throw new Error(`Authentication error: ${userError.message}`);
+    }
 
     if (!user) {
-      throw new Error("User not found");
+      console.error("No user found in session, headers:", JSON.stringify(Object.fromEntries(req.headers.entries())));
+      throw new Error("User not found. Please make sure you are logged in.");
     }
+
+    console.log("User authenticated successfully:", user.id);
 
     // Get user profile to check if they exist in Stripe
     const { data: profileData, error: profileError } = await supabaseClient
@@ -53,6 +60,7 @@ serve(async (req) => {
       .single();
 
     if (profileError) {
+      console.error("Profile error:", profileError);
       throw profileError;
     }
 

@@ -233,13 +233,26 @@ const Account = () => {
     setProcessingPayment(true);
 
     try {
+      console.log("Starting checkout process for price ID:", priceId);
+      
+      // Get fresh access token to ensure we have a valid one
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error("No active session found");
+      }
+      
+      // Call the edge function with the current session's access token
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Checkout function error:", error);
+        throw error;
+      }
       
       if (data?.url) {
+        console.log("Redirecting to checkout URL:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
