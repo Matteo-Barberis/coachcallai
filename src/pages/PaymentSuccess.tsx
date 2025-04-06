@@ -13,15 +13,26 @@ const PaymentSuccess = () => {
   const sessionId = searchParams.get('session_id');
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { session } = useSessionContext();
+  const { session, loading: sessionLoading } = useSessionContext();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [verificationComplete, setVerificationComplete] = useState(false);
 
   useEffect(() => {
+    // Only proceed with verification when session loading is complete
+    if (sessionLoading) {
+      return; // Wait until session is loaded
+    }
+
     const verifyPayment = async () => {
-      if (!sessionId || !session?.user.id) {
-        setError('Invalid session or not logged in');
+      if (!sessionId) {
+        setError('Invalid session ID');
+        setLoading(false);
+        return;
+      }
+
+      if (!session?.user.id) {
+        setError('Not logged in');
         setLoading(false);
         return;
       }
@@ -98,8 +109,28 @@ const PaymentSuccess = () => {
       }
     };
 
-    verifyPayment();
-  }, [sessionId, session, toast]);
+    if (!verificationComplete) {
+      verifyPayment();
+    }
+  }, [sessionId, session, toast, sessionLoading, verificationComplete]);
+
+  // Show loading state while session is being loaded
+  if (sessionLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-sm">
+            <div className="flex flex-col items-center justify-center py-12">
+              <Loader2 className="h-12 w-12 text-brand-primary animate-spin mb-4" />
+              <h2 className="text-xl font-semibold">Loading your session...</h2>
+              <p className="text-gray-500 mt-2">Please wait while we verify your authentication</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
