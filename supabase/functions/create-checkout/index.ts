@@ -34,7 +34,7 @@ serve(async (req) => {
     // Get user profile to check if they exist in Stripe
     const { data: profileData, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("stripe_customer_id, id")
+      .select("stripe_customer_id, id, subscription_status")
       .eq("id", userId)
       .single();
 
@@ -48,6 +48,19 @@ serve(async (req) => {
     }
 
     console.log("User profile found:", profileData.id);
+
+    // Check if user already has an active subscription
+    if (profileData.subscription_status === "active") {
+      return new Response(
+        JSON.stringify({ 
+          error: "You already have an active subscription. Please manage your existing subscription instead."
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
