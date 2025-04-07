@@ -38,22 +38,13 @@ const PaymentSuccess = () => {
       }
 
       try {
-        // First, set a temporary active status
-        const { error: updateTempError } = await supabase
-          .from('profiles')
-          .update({
-            subscription_status: 'active',
-          })
-          .eq('id', session.user.id);
-
-        if (updateTempError) {
-          console.error('Error updating temp status:', updateTempError);
-        }
-
-        // Get session details from Stripe to find the price ID
+        // Get session details from Stripe to find the price ID and verify subscription
         const { data: sessionData, error: sessionError } = await supabase.functions
           .invoke('get-checkout-session', {
-            body: { sessionId },
+            body: { 
+              sessionId,
+              userId: session.user.id 
+            },
           });
 
         if (sessionError) {
@@ -65,42 +56,20 @@ const PaymentSuccess = () => {
         }
 
         console.log('Retrieved price ID from Stripe:', sessionData.priceId);
+        console.log('Subscription verified:', sessionData.subscriptionVerified);
 
-        // Find the subscription plan that matches the price ID
-        const { data: planData, error: planError } = await supabase
-          .from('subscription_plans')
-          .select('id')
-          .eq('stripe_price_id', sessionData.priceId)
-          .maybeSingle();
-
-        if (planError) {
-          throw new Error(`Failed to find subscription plan: ${planError.message}`);
-        }
-
-        if (!planData) {
-          console.warn(`No subscription plan found for price ID: ${sessionData.priceId}`);
-          // Continue with generic success even if plan not found
+        if (sessionData.subscriptionVerified) {
+          toast({
+            title: 'Subscription activated',
+            description: 'Your subscription has been successfully verified and activated!',
+          });
         } else {
-          console.log('Found subscription plan ID:', planData.id);
-          
-          // Update user's subscription with the correct plan ID
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({
-              subscription_plan_id: planData.id,
-            })
-            .eq('id', session.user.id);
-
-          if (updateError) {
-            throw updateError;
-          }
+          console.log('Subscription was not verified as active');
+          // We don't throw an error here since the purchase might still be valid
+          // but just not a subscription (or still pending)
         }
 
         setVerificationComplete(true);
-        toast({
-          title: 'Subscription activated',
-          description: 'Your subscription has been successfully activated!',
-        });
       } catch (err) {
         console.error('Payment verification error:', err);
         setError('Failed to verify payment. Please contact support.');
