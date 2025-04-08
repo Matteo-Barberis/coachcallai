@@ -33,7 +33,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth/:view" element={<Auth />} />
-            <Route path="/auth/update-password" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/objectives" element={<Objectives />} />

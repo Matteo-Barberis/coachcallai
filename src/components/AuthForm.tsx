@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -10,33 +10,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 type AuthFormProps = {
-  view: 'sign-in' | 'sign-up' | 'reset-password' | 'update-password';
+  view: 'sign-in' | 'sign-up' | 'reset-password';
 };
 
 const AuthForm = ({ view }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
-  const [passwordUpdated, setPasswordUpdated] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-
-  // For update-password view, check if we have a hash fragment from the email link
-  useEffect(() => {
-    if (view === 'update-password') {
-      // The redirect from the email will contain a hash fragment with the access token
-      const hash = location.hash;
-      if (!hash) {
-        setError("Invalid or expired password reset link. Please try again.");
-      }
-    }
-  }, [view, location]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,32 +40,6 @@ const AuthForm = ({ view }: AuthFormProps) => {
         toast({
           title: "Reset link sent",
           description: "Check your email for a password reset link. Be sure to check your spam/junk folder if you don't see it.",
-        });
-        return;
-      } else if (view === 'update-password') {
-        // Password validation
-        if (newPassword.length < 6) {
-          setError("Password must be at least 6 characters");
-          setLoading(false);
-          return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-          setError("Passwords don't match");
-          setLoading(false);
-          return;
-        }
-
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword
-        });
-
-        if (error) throw error;
-
-        setPasswordUpdated(true);
-        toast({
-          title: "Password updated successfully",
-          description: "Your password has been changed. You can now sign in with your new password.",
         });
         return;
       } else if (view === 'sign-up') {
@@ -149,87 +108,6 @@ const AuthForm = ({ view }: AuthFormProps) => {
       setLoading(false);
     }
   };
-
-  // Render update password form
-  if (view === 'update-password') {
-    return (
-      <div className="w-full max-w-md mx-auto p-6 space-y-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Update Your Password</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Enter your new password below
-          </p>
-        </div>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {passwordUpdated ? (
-          <div className="text-center space-y-4">
-            <div className="p-3 bg-green-50 text-green-700 rounded-md">
-              Password updated successfully!
-            </div>
-            <Button 
-              onClick={() => navigate('/auth/sign-in')}
-              variant="outline"
-              className="mt-2"
-            >
-              Go to Sign In
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleAuth} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input
-                id="new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                placeholder="Enter your new password"
-                minLength={6}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="Confirm your new password"
-                minLength={6}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-brand-primary hover:bg-brand-primary/90"
-              disabled={loading}
-            >
-              {loading ? 'Processing...' : 'Update Password'}
-            </Button>
-
-            <div className="text-center text-sm">
-              <a 
-                href="/auth/sign-in" 
-                className="text-brand-primary hover:underline font-medium"
-              >
-                Back to Sign In
-              </a>
-            </div>
-          </form>
-        )}
-      </div>
-    );
-  }
 
   // Render password reset form
   if (view === 'reset-password') {
