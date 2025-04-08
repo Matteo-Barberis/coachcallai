@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LightbulbIcon, Headphones } from 'lucide-react';
+import { MessageSquare, LightbulbIcon, Headphones } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -31,25 +31,7 @@ const Support = () => {
               className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-8 text-center group"
             >
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-indigo-200 transition-colors">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="h-8 w-8 text-indigo-600"
-                >
-                  <path d="M9 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"></path>
-                  <path d="M15 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"></path>
-                  <path d="M18.4 10.8C16.3 8.1 13.2 7 9.5 7h-.2c-.5 0-.7.3-.9.7-1.7.5-3.2 1.2-4.4 2.2-.5.5-.2 1.4.5 1.5 2.5.7 4.7 1.2 5.8 3.1-1.7.4-3 1.2-4.6 2.2-.4.2-.2.8.2.9C8 18.6 10.9 19.1 12 17.8c1.1 1.3 4 .8 6.1-1.1.5-.1.6-.7.2-1a18 18 0 0 0-4.6-2.2c.4-.6.9-.9 1.5-1.2 1 .1 1.9 0 2.8-.3.7-.2 1-1.1.4-1.6-.4-.4-1-.8-1.4-1"></path>
-                  <path d="M15.5 17.5c-1.3.3-2.7.3-4 0"></path>
-                  <path d="M11.7 13c-.2-.6-.2-1.3 0-1.9"></path>
-                  <path d="M12.3 13c.2-.6.2-1.3 0-1.9"></path>
-                </svg>
+                <MessageSquare className="h-8 w-8 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Ask the Community</h3>
               <p className="text-gray-600">
