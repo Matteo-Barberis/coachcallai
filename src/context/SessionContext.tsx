@@ -1,8 +1,6 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 
 type Profile = {
   id: string;
@@ -33,23 +31,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<Profile | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if the URL contains the confirmation token
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasConfirmToken = urlParams.get('type') === 'email_confirmation';
-    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      
-      // If we have a session and confirmation token in URL, this is an automatic login
-      if (session && hasConfirmToken && window.location.pathname === '/') {
-        // Redirect to dashboard or onboarding as needed
-        navigate('/dashboard', { replace: true });
-      }
-      
       if (session) {
         fetchUserProfile(session.user.id);
       } else {
@@ -58,14 +44,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      
-      // Handle automatic sign-in from email confirmation
-      if (event === 'SIGNED_IN' && hasConfirmToken && window.location.pathname === '/') {
-        navigate('/dashboard', { replace: true });
-      }
-      
       if (session) {
         fetchUserProfile(session.user.id);
       } else {
@@ -77,7 +57,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       subscription?.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const fetchUserProfile = async (userId: string) => {
     try {
