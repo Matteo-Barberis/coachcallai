@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LightbulbIcon, Headphones } from 'lucide-react';
@@ -11,6 +10,12 @@ import { useSessionContext } from '@/context/SessionContext';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+type SupportTicket = {
+  user_id: string;
+  title: string;
+  message: string;
+}
 
 const Support = () => {
   const navigate = useNavigate();
@@ -60,13 +65,15 @@ const Support = () => {
     setIsSubmitting(true);
 
     try {
+      const supportTicket: SupportTicket = {
+        user_id: session.user.id,
+        title: supportTitle,
+        message: supportMessage
+      };
+
       const { data, error } = await supabase
         .from('support_tickets')
-        .insert({
-          user_id: session.user.id,
-          title: supportTitle,
-          message: supportMessage
-        });
+        .insert(supportTicket as any);
 
       if (error) throw error;
 
@@ -75,7 +82,6 @@ const Support = () => {
         description: "Your support request has been submitted. We'll get back to you soon.",
       });
 
-      // Reset form and close dialog
       setSupportTitle('');
       setSupportMessage('');
       setSupportDialogOpen(false);
@@ -104,7 +110,6 @@ const Support = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Discord Community Support */}
             <a 
               href="https://discord.gg/7g52pYK2yg" 
               target="_blank" 
@@ -134,7 +139,6 @@ const Support = () => {
               </p>
             </a>
 
-            {/* Feature Requests */}
             <a 
               href="https://coachcallai.featurebase.app/" 
               target="_blank" 
@@ -150,7 +154,6 @@ const Support = () => {
               </p>
             </a>
 
-            {/* Direct Support */}
             <div 
               onClick={handleDirectSupportClick}
               className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-8 text-center group cursor-pointer"
@@ -168,7 +171,6 @@ const Support = () => {
       </main>
       <Footer />
 
-      {/* Support Request Dialog */}
       <Dialog open={supportDialogOpen} onOpenChange={setSupportDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -214,7 +216,6 @@ const Support = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Alert Dialog for non-authenticated or non-active users */}
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
