@@ -1,22 +1,35 @@
 
-import React from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Navigate, useLocation } from 'react-router-dom';
 import AuthForm from '@/components/AuthForm';
 import { useSessionContext } from '@/context/SessionContext';
 
 const Auth = () => {
   const { view } = useParams<{ view: string }>();
   const { session } = useSessionContext();
+  const location = useLocation();
+  const isUpdatePasswordPath = location.pathname === '/auth/update-password';
 
-  // Redirect to home if already authenticated
-  if (session) {
+  // Determine if this is a password update route (from email link)
+  const [authView, setAuthView] = useState<'sign-in' | 'sign-up' | 'reset-password' | 'update-password'>(
+    isUpdatePasswordPath ? 'update-password' : (view as any) || 'sign-in'
+  );
+
+  useEffect(() => {
+    // Handle URL-based view changes
+    if (isUpdatePasswordPath) {
+      setAuthView('update-password');
+    } else if (view === 'sign-in' || view === 'sign-up' || view === 'reset-password') {
+      setAuthView(view);
+    } else {
+      setAuthView('sign-in');
+    }
+  }, [view, isUpdatePasswordPath]);
+
+  // Only redirect if it's not a password reset flow
+  if (session && !isUpdatePasswordPath && authView !== 'reset-password') {
     return <Navigate to="/" replace />;
   }
-
-  // Validate view param
-  const validView = view === 'sign-in' || view === 'sign-up' || view === 'reset-password' 
-    ? view 
-    : 'sign-in';
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-gray-50">
@@ -29,7 +42,7 @@ const Auth = () => {
         </div>
       </div>
       
-      <AuthForm view={validView as 'sign-in' | 'sign-up' | 'reset-password'} />
+      <AuthForm view={authView as 'sign-in' | 'sign-up' | 'reset-password' | 'update-password'} />
     </div>
   );
 };
