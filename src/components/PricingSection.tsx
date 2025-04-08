@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 interface PlanFeature {
   text: string;
@@ -28,7 +29,7 @@ interface SubscriptionPlan {
   name: string;
   description: string | null;
   price: number;
-  features: PlanFeature[];
+  features: Json;
   stripe_price_id: string;
   is_active: boolean;
   interval: string;
@@ -59,20 +60,45 @@ const PricingSection = () => {
         if (data) {
           const formattedPlans: Record<string, Plan> = {};
           
-          data.forEach((plan: SubscriptionPlan, index) => {
+          data.forEach((plan: SubscriptionPlan, index: number) => {
             const planKey = plan.name.toLowerCase().replace(/\s+/g, '_');
             
-            // Format features from JSON
-            const features = Array.isArray(plan.features) 
-              ? plan.features.map(f => typeof f === 'string' ? f : f.text) 
-              : [];
+            // Parse features from JSON to array of PlanFeature objects
+            let formattedFeatures: PlanFeature[] = [];
+            
+            if (plan.features) {
+              // Handle different potential formats of features in the database
+              if (Array.isArray(plan.features)) {
+                formattedFeatures = plan.features.map(feature => {
+                  if (typeof feature === 'string') {
+                    return { text: feature };
+                  } else if (typeof feature === 'object' && feature !== null && 'text' in feature) {
+                    return { text: String(feature.text) };
+                  }
+                  return { text: String(feature) };
+                });
+              } else if (typeof plan.features === 'string') {
+                try {
+                  // Try to parse if it's a JSON string
+                  const parsedFeatures = JSON.parse(plan.features);
+                  if (Array.isArray(parsedFeatures)) {
+                    formattedFeatures = parsedFeatures.map(f => 
+                      typeof f === 'string' ? { text: f } : { text: String(f.text || f) }
+                    );
+                  }
+                } catch (e) {
+                  // If not valid JSON, just use as a single feature
+                  formattedFeatures = [{ text: plan.features as string }];
+                }
+              }
+            }
             
             formattedPlans[planKey] = {
               id: plan.id,
               name: plan.name,
               description: plan.description || `Perfect for ${plan.name.toLowerCase()} users`,
               price: plan.price,
-              features: features,
+              features: formattedFeatures,
               popular: index === 1, // Middle plan is popular
               colorClass: index === 1 
                 ? 'border-brand-primary' 
@@ -119,11 +145,11 @@ const PricingSection = () => {
         description: "Perfect for individuals starting their accountability journey",
         price: 19,
         features: [
-          "Weekly WhatsApp check-ins",
-          "2 phone calls per week",
-          "Basic progress tracking",
-          "Single goal setting",
-          "Email support"
+          { text: "Weekly WhatsApp check-ins" },
+          { text: "2 phone calls per week" },
+          { text: "Basic progress tracking" },
+          { text: "Single goal setting" },
+          { text: "Email support" }
         ],
         popular: false,
         colorClass: "border-gray-200 hover:border-brand-primary"
@@ -133,13 +159,13 @@ const PricingSection = () => {
         description: "For those committed to consistent accountability",
         price: 39,
         features: [
-          "Daily WhatsApp check-ins",
-          "5 phone calls per week",
-          "Advanced progress tracking",
-          "Multiple goal setting",
-          "Priority support",
-          "Custom call scheduling",
-          "Habit streak tracking"
+          { text: "Daily WhatsApp check-ins" },
+          { text: "5 phone calls per week" },
+          { text: "Advanced progress tracking" },
+          { text: "Multiple goal setting" },
+          { text: "Priority support" },
+          { text: "Custom call scheduling" },
+          { text: "Habit streak tracking" }
         ],
         popular: true,
         colorClass: "border-brand-primary"
@@ -149,13 +175,13 @@ const PricingSection = () => {
         description: "Comprehensive accountability solution for serious achievers",
         price: 99,
         features: [
-          "Everything in Medium plan",
-          "Priority scheduling",
-          "Advanced analytics dashboard",
-          "Personalized strategy sessions",
-          "Custom accountability framework",
-          "API access",
-          "Dedicated account manager"
+          { text: "Everything in Medium plan" },
+          { text: "Priority scheduling" },
+          { text: "Advanced analytics dashboard" },
+          { text: "Personalized strategy sessions" },
+          { text: "Custom accountability framework" },
+          { text: "API access" },
+          { text: "Dedicated account manager" }
         ],
         popular: false,
         colorClass: "border-gray-200 hover:border-brand-primary"
@@ -256,7 +282,7 @@ const PricingSection = () => {
                           <div className="mr-3 mt-1 text-brand-primary">
                             <Check className="w-5 h-5" />
                           </div>
-                          <span className="text-gray-700">{typeof feature === 'string' ? feature : feature.text}</span>
+                          <span className="text-gray-700">{feature.text}</span>
                         </li>
                       ))}
                     </ul>
@@ -307,7 +333,7 @@ const PricingSection = () => {
                       <div className="mr-3 mt-1 text-brand-primary">
                         <Check className="w-5 h-5" />
                       </div>
-                      <span className="text-gray-700">{typeof feature === 'string' ? feature : feature.text}</span>
+                      <span className="text-gray-700">{feature.text}</span>
                     </li>
                   ))}
                 </ul>
