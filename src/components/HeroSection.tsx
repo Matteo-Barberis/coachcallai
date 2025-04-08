@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -49,7 +50,7 @@ const HeroSection = () => {
   return (
     <section className="pt-20 pb-16 px-4 md:pt-28 md:pb-24 overflow-hidden relative">
       {session && location.pathname === "/" && (
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10">
           <Button 
             onClick={() => navigate('/dashboard')} 
             className="bg-brand-primary hover:bg-brand-primary/90 shadow-lg flex items-center gap-2 animate-float"
