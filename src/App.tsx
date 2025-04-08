@@ -16,6 +16,7 @@ import Progress from "./pages/Progress";
 import Account from "./pages/Account";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Support from "./pages/Support";
 import Onboarding from "./pages/Onboarding";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/account" element={<Account />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/support" element={<Support />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />

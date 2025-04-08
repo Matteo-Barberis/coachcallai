@@ -49,7 +49,7 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-6">Resources</h3>
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Blog</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brand-primary">Help Center</a></li>
+              <li><Link to="/support" className="text-gray-600 hover:text-brand-primary">Support</Link></li>
               <li><a href="#faq" className="text-gray-600 hover:text-brand-primary">FAQ</a></li>
             </ul>
           </div>
