@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -55,10 +54,10 @@ const AuthForm = ({ view }: AuthFormProps) => {
 
         if (error) throw error;
 
-        // Success - redirect directly to dashboard instead of the sign-in page
+        // Changed success message to notify about email verification
         toast({
           title: "Account created successfully!",
-          description: "You have been automatically signed in.",
+          description: "Please check your email and verify your account before proceeding.",
         });
         
         // Redirect to dashboard instead of sign-in page
