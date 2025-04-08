@@ -1,14 +1,38 @@
 
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LightbulbIcon, Headphones } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useSessionContext } from '@/context/SessionContext';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const Support = () => {
+  const navigate = useNavigate();
+  const { session, userProfile } = useSessionContext();
+  const [supportDialogOpen, setSupportDialogOpen] = useState(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [supportTitle, setSupportTitle] = useState('');
+  const [supportMessage, setSupportMessage] = useState('');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleDirectSupportClick = () => {
+    if (session && userProfile?.subscription_status === 'active') {
+      setSupportDialogOpen(true);
+    } else {
+      setAlertDialogOpen(true);
+    }
+  };
+
+  const handleAlertConfirm = () => {
+    navigate('/auth/sign-in');
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -70,7 +94,10 @@ const Support = () => {
             </a>
 
             {/* Direct Support */}
-            <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-8 text-center group">
+            <div 
+              onClick={handleDirectSupportClick}
+              className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-8 text-center group cursor-pointer"
+            >
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
                 <Headphones className="h-8 w-8 text-green-600" />
               </div>
@@ -83,6 +110,61 @@ const Support = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Support Request Dialog */}
+      <Dialog open={supportDialogOpen} onOpenChange={setSupportDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Submit Support Request</DialogTitle>
+            <DialogDescription>
+              Please provide details about your issue and we'll get back to you as soon as possible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="title" className="text-right font-medium col-span-1">
+                Title
+              </label>
+              <input
+                id="title"
+                value={supportTitle}
+                onChange={(e) => setSupportTitle(e.target.value)}
+                className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="message" className="text-right font-medium col-span-1">
+                Message
+              </label>
+              <Textarea
+                id="message"
+                value={supportMessage}
+                onChange={(e) => setSupportMessage(e.target.value)}
+                className="col-span-3"
+                rows={5}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit">Submit Request</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Alert Dialog for non-authenticated or non-active users */}
+      <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Subscription Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              Direct support is available only for authenticated users with an active subscription.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handleAlertConfirm}>Sign In / Subscribe</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
