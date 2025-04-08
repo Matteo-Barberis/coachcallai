@@ -28,7 +28,7 @@ const Auth = () => {
 
   // Only redirect if it's not a password reset flow
   if (session && !isUpdatePasswordPath && authView !== 'reset-password') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
