@@ -43,13 +43,10 @@ const Support = () => {
                   strokeLinejoin="round" 
                   className="h-8 w-8 text-indigo-600"
                 >
-                  <circle cx="9" cy="12" r="1"></circle>
-                  <circle cx="15" cy="12" r="1"></circle>
-                  <path d="M7.5 7.2C8.4 6.5 9.7 6 11 6c2.7 0 5.1 1.5 5.9 3.8"></path>
-                  <path d="M14.5 16.8c-.9.7-2.2 1.2-3.5 1.2-2.7 0-5.1-1.5-5.9-3.8"></path>
-                  <path d="M16.1 10s.9 1 .9 2-.9 2-.9 2"></path>
-                  <path d="M7.9 10S7 11 7 12s.9 2 .9 2"></path>
-                  <path d="M18.3 18.9c-1 .5-2.2.8-3.3.9-.8.1-1.8.1-2.7.1-1.7 0-3.5-.2-5.1-.6C4 17.9 2 15.7 2 13.6c0-1.8 1.3-3.4 3.4-4.2-1 .8-1.4 1.8-1.4 2.9 0 0 0 9.7 8 6.5q1.5 1.5 4 1.3c2-.1 3.8-1.3 4.8-3.1q3 5.1 6.7 4.2c-2.5 3-6.5 4.3-10 3.5"></path>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M15.9 14a24.1 24.1 0 0 1-3.9.6 24.1 24.1 0 0 1-3.9-.6"></path>
+                  <path d="M9 10h.01"></path>
+                  <path d="M15 10h.01"></path>
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Ask the Community</h3>
