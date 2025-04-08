@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -59,7 +58,7 @@ const UserMenu = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="rounded-full" 
+            className="rounded-full border border-gray-300" 
           >
             <UserRound className="h-5 w-5 text-gray-600" />
           </Button>
