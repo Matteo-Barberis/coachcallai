@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -49,8 +50,6 @@ const Footer = () => {
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Blog</a></li>
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">Help Center</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brand-primary">Documentation</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brand-primary">API</a></li>
               <li><a href="#faq" className="text-gray-600 hover:text-brand-primary">FAQ</a></li>
             </ul>
           </div>
@@ -59,10 +58,8 @@ const Footer = () => {
             <h3 className="font-bold text-lg mb-6">Company</h3>
             <ul className="space-y-4">
               <li><a href="#" className="text-gray-600 hover:text-brand-primary">About Us</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-brand-primary">Careers</a></li>
               <li><Link to="/privacy-policy" className="text-gray-600 hover:text-brand-primary">Privacy Policy</Link></li>
               <li><Link to="/terms-of-service" className="text-gray-600 hover:text-brand-primary">Terms of Service</Link></li>
-              <li><a href="#contact" className="text-gray-600 hover:text-brand-primary">Contact</a></li>
             </ul>
           </div>
         </div>
