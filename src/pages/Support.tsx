@@ -9,14 +9,18 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useSessionContext } from '@/context/SessionContext';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Support = () => {
   const navigate = useNavigate();
   const { session, userProfile } = useSessionContext();
+  const { toast } = useToast();
   const [supportDialogOpen, setSupportDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [supportTitle, setSupportTitle] = useState('');
   const [supportMessage, setSupportMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,6 +36,59 @@ const Support = () => {
 
   const handleAlertConfirm = () => {
     navigate('/auth/sign-in');
+  };
+
+  const handleSubmitSupport = async () => {
+    if (!supportTitle.trim() || !supportMessage.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide both a title and message for your support request.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!session?.user.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to submit a support request.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('support_tickets')
+        .insert({
+          user_id: session.user.id,
+          title: supportTitle,
+          message: supportMessage
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your support request has been submitted. We'll get back to you soon.",
+      });
+
+      // Reset form and close dialog
+      setSupportTitle('');
+      setSupportMessage('');
+      setSupportDialogOpen(false);
+    } catch (error) {
+      console.error('Error submitting support request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your support request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -146,7 +203,13 @@ const Support = () => {
             </div>
           </div>
           <div className="flex justify-end">
-            <Button type="submit">Submit Request</Button>
+            <Button 
+              type="submit" 
+              onClick={handleSubmitSupport} 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
