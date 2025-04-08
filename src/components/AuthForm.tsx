@@ -224,17 +224,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="password">Password</Label>
-            {view === 'sign-in' && (
-              <a 
-                href="/auth/reset-password" 
-                className="text-xs text-brand-primary hover:underline"
-              >
-                Forgot password?
-              </a>
-            )}
-          </div>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
@@ -255,17 +245,27 @@ const AuthForm = ({ view }: AuthFormProps) => {
         </Button>
       </form>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm space-y-2">
         {view === 'sign-in' ? (
-          <p>
-            Don't have an account?{' '}
-            <a 
-              href="/auth/sign-up" 
-              className="text-brand-primary hover:underline font-medium"
-            >
-              Sign Up
-            </a>
-          </p>
+          <>
+            <p>
+              Don't have an account?{' '}
+              <a 
+                href="/auth/sign-up" 
+                className="text-brand-primary hover:underline font-medium"
+              >
+                Sign Up
+              </a>
+            </p>
+            <p>
+              <a 
+                href="/auth/reset-password" 
+                className="text-brand-primary hover:underline text-xs"
+              >
+                Forgot password?
+              </a>
+            </p>
+          </>
         ) : (
           <p>
             Already have an account?{' '}
