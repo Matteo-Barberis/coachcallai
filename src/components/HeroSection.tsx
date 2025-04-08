@@ -38,7 +38,11 @@ const HeroSection = () => {
   const handleButtonClick = () => {
     // On home page (path is "/") always navigate to sign-up
     if (location.pathname === "/") {
-      navigate('/auth/sign-up');
+      if (session) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/sign-up');
+      }
     } else {
       // On other pages, maintain existing behavior
       if (session) {
@@ -77,7 +81,7 @@ const HeroSection = () => {
                 className="text-base md:text-lg py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
                 onClick={handleButtonClick}
               >
-                {location.pathname === "/" ? "Get Your First AI Call" : (session ? "Go to Dashboard" : "Get Your First AI Call")}
+                {location.pathname === "/" && session ? "Go to Dashboard" : "Get Your First AI Call"}
               </Button>
               <Button 
                 variant="outline" 

@@ -31,7 +31,11 @@ const StickyCta = () => {
   const handleButtonClick = () => {
     // On home page (path is "/") always navigate to sign-up
     if (location.pathname === "/") {
-      navigate('/auth/sign-up');
+      if (session) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/sign-up');
+      }
     } else {
       // On other pages, maintain existing behavior
       if (session) {
@@ -74,7 +78,7 @@ const StickyCta = () => {
           className="text-base py-4 px-6 bg-brand-primary hover:bg-brand-primary/90 whitespace-nowrap"
           onClick={handleButtonClick}
         >
-          {location.pathname === "/" ? "Get Your First AI Call" : (session ? "Go to Dashboard" : "Get Your First AI Call")}
+          {location.pathname === "/" && session ? "Go to Dashboard" : "Get Your First AI Call"}
         </Button>
       </div>
     </div>
