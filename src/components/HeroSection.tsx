@@ -54,7 +54,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="pt-20 pb-16 px-4 md:pt-28 md:pb-24 overflow-hidden">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
