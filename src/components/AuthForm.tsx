@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -54,10 +55,10 @@ const AuthForm = ({ view }: AuthFormProps) => {
 
         if (error) throw error;
 
-        // Changed success message to notify about email verification
+        // Updated success message to notify about email verification and checking spam folder
         toast({
           title: "Account created successfully!",
-          description: "Please check your email and verify your account before proceeding.",
+          description: "Please check your email to verify your account. If you don't see it, be sure to check your spam/junk folder.",
         });
         
         // Redirect to dashboard instead of sign-in page
@@ -69,7 +70,14 @@ const AuthForm = ({ view }: AuthFormProps) => {
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // Updated error message for unverified email during sign-in
+          if (error.message.includes('Email not confirmed')) {
+            setError("Please confirm your email before signing in. An email has been sent to your inbox. Remember to check your spam/junk folder if you can't find it.");
+            return;
+          }
+          throw error;
+        }
         
         toast({
           title: "Welcome back!",
