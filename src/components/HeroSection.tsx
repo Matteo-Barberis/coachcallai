@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { PhoneCall, MessageCircle, TrendingUp, MoveUp } from "lucide-react";
+import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
@@ -17,7 +17,10 @@ const HeroSection = () => {
   
   useEffect(() => {
     const interval = setInterval(() => {
+      // First fade out
       setFadeState("fade-out");
+      
+      // Then change word and fade in
       setTimeout(() => {
         setRotatingWord(prevWord => {
           const currentIndex = rotatingWords.indexOf(prevWord);
@@ -25,13 +28,15 @@ const HeroSection = () => {
           return rotatingWords[nextIndex];
         });
         setFadeState("fade-in");
-      }, 300);
-    }, 3000);
+      }, 300); // This should match the transition duration
+      
+    }, 3000); // Slightly longer display time for better readability
     
     return () => clearInterval(interval);
   }, []);
 
   const handleButtonClick = () => {
+    // On home page (path is "/") always navigate to sign-up
     if (location.pathname === "/") {
       if (session) {
         navigate('/dashboard');
@@ -39,6 +44,7 @@ const HeroSection = () => {
         navigate('/auth/sign-up');
       }
     } else {
+      // On other pages, maintain existing behavior
       if (session) {
         navigate('/dashboard');
       } else {
@@ -48,20 +54,9 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="pt-20 pb-16 px-4 md:pt-28 md:pb-24 overflow-hidden relative">
-      {session && location.pathname === "/" && (
-        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-10">
-          <Button 
-            onClick={() => navigate('/dashboard')} 
-            className="bg-brand-primary hover:bg-brand-primary/90 shadow-lg flex items-center gap-2 animate-float"
-          >
-            <MoveUp className="h-4 w-4" />
-            <span>Go to Dashboard</span>
-          </Button>
-        </div>
-      )}
-      
+    <section className="pt-20 pb-16 px-4 md:pt-28 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
