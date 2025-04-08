@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -10,12 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const UserMenu = () => {
   const { session, signOut } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnDashboard = location.pathname === '/dashboard';
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,9 +48,11 @@ const UserMenu = () => {
 
   return (
     <div className="flex items-center space-x-4">
-      <Button variant="outline" onClick={handleSignOut}>
-        Sign Out
-      </Button>
+      {!isOnDashboard && (
+        <Button variant="outline" onClick={() => navigate('/dashboard')}>
+          Dashboard
+        </Button>
+      )}
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
