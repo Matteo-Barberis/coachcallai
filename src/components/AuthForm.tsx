@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +26,17 @@ const AuthForm = ({ view }: AuthFormProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+
+  // For update-password view, check if we have a hash fragment from the email link
+  useEffect(() => {
+    if (view === 'update-password') {
+      // The redirect from the email will contain a hash fragment with the access token
+      const hash = location.hash;
+      if (!hash) {
+        setError("Invalid or expired password reset link. Please try again.");
+      }
+    }
+  }, [view, location]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,6 +150,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
     }
   };
 
+  // Render update password form
   if (view === 'update-password') {
     return (
       <div className="w-full max-w-md mx-auto p-6 space-y-6 bg-white rounded-lg shadow-md">
@@ -218,6 +231,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
     );
   }
 
+  // Render password reset form
   if (view === 'reset-password') {
     return (
       <div className="w-full max-w-md mx-auto p-6 space-y-6 bg-white rounded-lg shadow-md">
