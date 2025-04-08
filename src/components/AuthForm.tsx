@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 type AuthFormProps = {
-  view: 'sign-in' | 'sign-up';
+  view: 'sign-in' | 'sign-up' | 'reset-password';
 };
 
 const AuthForm = ({ view }: AuthFormProps) => {
@@ -19,6 +19,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -28,7 +29,20 @@ const AuthForm = ({ view }: AuthFormProps) => {
     setError(null);
 
     try {
-      if (view === 'sign-up') {
+      if (view === 'reset-password') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/update-password`,
+        });
+
+        if (error) throw error;
+
+        setResetSent(true);
+        toast({
+          title: "Reset link sent",
+          description: "Check your email for a password reset link. Be sure to check your spam/junk folder if you don't see it.",
+        });
+        return;
+      } else if (view === 'sign-up') {
         const { data: authData, error } = await supabase.auth.signUp({
           email,
           password,
@@ -95,6 +109,73 @@ const AuthForm = ({ view }: AuthFormProps) => {
     }
   };
 
+  // Render password reset form
+  if (view === 'reset-password') {
+    return (
+      <div className="w-full max-w-md mx-auto p-6 space-y-6 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Reset Your Password</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Enter your email and we'll send you a link to reset your password
+          </p>
+        </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {resetSent ? (
+          <div className="text-center space-y-4">
+            <div className="p-3 bg-green-50 text-green-700 rounded-md">
+              Reset link sent! Please check your email (including spam folder).
+            </div>
+            <Button 
+              onClick={() => navigate('/auth/sign-in')}
+              variant="outline"
+              className="mt-2"
+            >
+              Back to Sign In
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-brand-primary hover:bg-brand-primary/90"
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : 'Send Reset Link'}
+            </Button>
+
+            <div className="text-center text-sm">
+              <a 
+                href="/auth/sign-in" 
+                className="text-brand-primary hover:underline font-medium"
+              >
+                Back to Sign In
+              </a>
+            </div>
+          </form>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-6 bg-white rounded-lg shadow-md">
       <div className="text-center">
@@ -143,7 +224,17 @@ const AuthForm = ({ view }: AuthFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="password">Password</Label>
+            {view === 'sign-in' && (
+              <a 
+                href="/auth/reset-password" 
+                className="text-xs text-brand-primary hover:underline"
+              >
+                Forgot password?
+              </a>
+            )}
+          </div>
           <Input
             id="password"
             type="password"

@@ -14,7 +14,9 @@ const Auth = () => {
   }
 
   // Validate view param
-  const validView = view === 'sign-in' || view === 'sign-up' ? view : 'sign-in';
+  const validView = view === 'sign-in' || view === 'sign-up' || view === 'reset-password' 
+    ? view 
+    : 'sign-in';
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-gray-50">
@@ -27,7 +29,7 @@ const Auth = () => {
         </div>
       </div>
       
-      <AuthForm view={validView as 'sign-in' | 'sign-up'} />
+      <AuthForm view={validView as 'sign-in' | 'sign-up' | 'reset-password'} />
     </div>
   );
 };
