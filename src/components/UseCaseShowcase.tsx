@@ -41,7 +41,7 @@ const UseCaseShowcase = () => {
     {
       icon: <Brain className="h-8 w-8 text-blue-500" />,
       title: "Habit Building",
-      description: "Receive timely reminders and check-ins that help people with ADHD or chronic procrastination establish consistent routines and overcome distractions.",
+      description: "Receive timely reminders and support for ADHD or chronic procrastination, helping establish consistent routines and overcome distractions.",
       persona: "People with ADHD & Chronic Procrastinators"
     },
     {
