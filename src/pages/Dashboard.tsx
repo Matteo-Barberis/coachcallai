@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -147,6 +146,12 @@ const Dashboard = () => {
 
   const handleUpgradeClick = () => {
     navigate('/account');
+    setTimeout(() => {
+      const subscriptionSection = document.getElementById('subscription-section');
+      if (subscriptionSection) {
+        subscriptionSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   if (loading || isCheckingProfile) {
