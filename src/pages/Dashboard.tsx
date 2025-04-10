@@ -149,7 +149,7 @@ const Dashboard = () => {
     setTimeout(() => {
       const subscriptionSection = document.getElementById('subscription-section');
       if (subscriptionSection) {
-        subscriptionSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        subscriptionSection.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
   };
