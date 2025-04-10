@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
+import { useSessionContext } from '@/context/SessionContext';
 
 interface PlanFeature {
   text: string;
@@ -39,6 +40,7 @@ const PricingSection = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { session } = useSessionContext();
 
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
@@ -122,7 +124,17 @@ const PricingSection = () => {
   }, []);
 
   const handleSubscribe = (plan: string) => {
-    navigate('/auth/sign-up');
+    if (session) {
+      navigate('/account');
+      setTimeout(() => {
+        const subscriptionSection = document.getElementById('subscription-section');
+        if (subscriptionSection) {
+          subscriptionSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      navigate('/auth/sign-up');
+    }
   };
 
   const getFallbackPlans = () => {

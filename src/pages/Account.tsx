@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -409,7 +410,7 @@ const Account = () => {
               </div>
             </div>
             
-            <div className="border-t pt-6">
+            <div id="subscription-section" className="border-t pt-6">
               <h2 className="text-lg font-semibold mb-4">Subscription</h2>
               
               {loadingPlans ? (
