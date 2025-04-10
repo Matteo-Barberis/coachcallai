@@ -147,18 +147,6 @@ const Dashboard = () => {
 
   const handleUpgradeClick = () => {
     navigate('/account');
-    
-    setTimeout(() => {
-      const subscriptionSection = document.getElementById('subscription-section');
-      const plansContainer = document.querySelector('#subscription-section .grid');
-      
-      if (subscriptionSection && plansContainer) {
-        window.scrollTo({
-          top: plansContainer.getBoundingClientRect().top + window.pageYOffset - 100,
-          behavior: 'smooth'
-        });
-      }
-    }, 300);
   };
 
   if (loading || isCheckingProfile) {
