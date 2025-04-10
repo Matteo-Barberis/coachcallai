@@ -157,7 +157,7 @@ const Dashboard = () => {
           behavior: 'smooth'
         });
       }
-    }, 100);
+    }, 200);
   };
 
   if (loading || isCheckingProfile) {
