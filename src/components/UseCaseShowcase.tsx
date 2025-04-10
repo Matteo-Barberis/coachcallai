@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sun, Moon, Calendar, Dumbbell, Clock } from "lucide-react";
+import { Sun, Moon, Calendar, Dumbbell, Clock, Brain } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Carousel,
@@ -39,10 +39,10 @@ const UseCaseShowcase = () => {
       persona: "Professionals & Freelancers"
     },
     {
-      icon: <Clock className="h-8 w-8 text-blue-500" />,
-      title: "Meditation Time",
-      description: "Receive a gentle reminder call when it's time for your daily meditation practice, helping you maintain consistency.",
-      persona: "Mindfulness Practitioners"
+      icon: <Brain className="h-8 w-8 text-blue-500" />,
+      title: "ADHD Task Management",
+      description: "Receive timely reminders and check-ins that help you stay focused on tasks, overcome distractions, and build consistent routines.",
+      persona: "People with ADHD & Chronic Procrastinators"
     },
     {
       icon: <Moon className="h-8 w-8 text-indigo-500" />,
