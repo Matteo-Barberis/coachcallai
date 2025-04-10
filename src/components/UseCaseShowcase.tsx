@@ -40,8 +40,8 @@ const UseCaseShowcase = () => {
     },
     {
       icon: <Brain className="h-8 w-8 text-blue-500" />,
-      title: "ADHD Task Management",
-      description: "Receive timely reminders and check-ins that help you stay focused on tasks, overcome distractions, and build consistent routines.",
+      title: "Habit Building",
+      description: "Receive timely reminders and check-ins that help people with ADHD or chronic procrastination establish consistent routines and overcome distractions.",
       persona: "People with ADHD & Chronic Procrastinators"
     },
     {
