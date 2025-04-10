@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -157,7 +158,7 @@ const Dashboard = () => {
           behavior: 'smooth'
         });
       }
-    }, 200);
+    }, 300);
   };
 
   if (loading || isCheckingProfile) {
