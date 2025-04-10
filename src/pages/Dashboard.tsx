@@ -144,6 +144,16 @@ const Dashboard = () => {
     return null;
   };
 
+  const handleUpgradeClick = () => {
+    navigate('/account');
+    setTimeout(() => {
+      const subscriptionSection = document.getElementById('subscription-section');
+      if (subscriptionSection) {
+        subscriptionSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -161,8 +171,8 @@ const Dashboard = () => {
                   ? `You are using a free trial. Your free trial will last ${getDaysRemaining()} more days.` 
                   : "Your trial has ended. Set up a subscription to continue using all features."}
               </span>
-              <Button size="sm" asChild>
-                <Link to="/account" className="ml-2">Upgrade Now</Link>
+              <Button size="sm" onClick={handleUpgradeClick}>
+                Upgrade Now
               </Button>
             </AlertDescription>
           </Alert>
