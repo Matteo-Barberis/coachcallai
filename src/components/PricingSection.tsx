@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +37,6 @@ const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("Medium");
   const [plans, setPlans] = useState<Record<string, Plan>>({});
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -63,11 +60,9 @@ const PricingSection = () => {
           data.forEach((plan: SubscriptionPlan, index: number) => {
             const planKey = plan.name.toLowerCase().replace(/\s+/g, '_');
             
-            // Parse features from JSON to array of PlanFeature objects
             let formattedFeatures: PlanFeature[] = [];
             
             if (plan.features) {
-              // Handle different potential formats of features in the database
               if (Array.isArray(plan.features)) {
                 formattedFeatures = plan.features.map(feature => {
                   if (typeof feature === 'string') {
@@ -79,7 +74,6 @@ const PricingSection = () => {
                 });
               } else if (typeof plan.features === 'string') {
                 try {
-                  // Try to parse if it's a JSON string
                   const parsedFeatures = JSON.parse(plan.features);
                   if (Array.isArray(parsedFeatures)) {
                     formattedFeatures = parsedFeatures.map(f => 
@@ -87,7 +81,6 @@ const PricingSection = () => {
                     );
                   }
                 } catch (e) {
-                  // If not valid JSON, just use as a single feature
                   formattedFeatures = [{ text: plan.features as string }];
                 }
               }
@@ -99,7 +92,7 @@ const PricingSection = () => {
               description: plan.description || `Perfect for ${plan.name.toLowerCase()} users`,
               price: plan.price,
               features: formattedFeatures,
-              popular: index === 1, // Middle plan is popular
+              popular: index === 1,
               colorClass: index === 1 
                 ? 'border-brand-primary' 
                 : 'border-gray-200 hover:border-brand-primary'
@@ -108,7 +101,6 @@ const PricingSection = () => {
           
           setPlans(formattedPlans);
           
-          // Set default selected plan to the middle one (if exists)
           if (Object.keys(formattedPlans).length > 0) {
             const keys = Object.keys(formattedPlans);
             if (keys.length > 1) {
@@ -130,14 +122,9 @@ const PricingSection = () => {
   }, []);
 
   const handleSubscribe = (plan: string) => {
-    toast({
-      title: `${plan} Plan Selected`,
-      description: "Thanks for your interest! Early access sign-up confirmed.",
-    });
     navigate('/auth/sign-up');
   };
 
-  // Fallback to hardcoded plans if database fetch fails or is empty
   const getFallbackPlans = () => {
     return {
       starter: {
@@ -189,12 +176,10 @@ const PricingSection = () => {
     };
   };
 
-  // Use fetched plans or fallback to hardcoded plans if empty
   const displayPlans = Object.keys(plans).length > 0 ? plans : getFallbackPlans();
   const planNames = Object.values(displayPlans).map(plan => plan.name);
 
   if (loading) {
-    // Return skeleton loading UI that matches the existing design
     return (
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -251,7 +236,6 @@ const PricingSection = () => {
         </div>
 
         {isMobile ? (
-          // Mobile view - Show only the selected plan
           <div className="flex justify-center">
             {Object.entries(displayPlans).map(([key, plan]) => {
               if (plan.name === selectedPlan) {
@@ -300,7 +284,6 @@ const PricingSection = () => {
             })}
           </div>
         ) : (
-          // Desktop view - Show all plans
           <div className="grid md:grid-cols-3 gap-8">
             {Object.entries(displayPlans).map(([key, plan]) => (
               <div
