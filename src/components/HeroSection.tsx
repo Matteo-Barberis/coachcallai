@@ -1,10 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
 const HeroSection = () => {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
   const location = useLocation();

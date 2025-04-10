@@ -1,6 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Check } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -36,6 +39,7 @@ const PricingSection = () => {
   const [selectedPlan, setSelectedPlan] = useState("Medium");
   const [plans, setPlans] = useState<Record<string, Plan>>({});
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -126,9 +130,14 @@ const PricingSection = () => {
   }, []);
 
   const handleSubscribe = (plan: string) => {
+    toast({
+      title: `${plan} Plan Selected`,
+      description: "Thanks for your interest! Early access sign-up confirmed.",
+    });
     navigate('/auth/sign-up');
   };
 
+  // Fallback to hardcoded plans if database fetch fails or is empty
   const getFallbackPlans = () => {
     return {
       starter: {
@@ -180,10 +189,12 @@ const PricingSection = () => {
     };
   };
 
+  // Use fetched plans or fallback to hardcoded plans if empty
   const displayPlans = Object.keys(plans).length > 0 ? plans : getFallbackPlans();
   const planNames = Object.values(displayPlans).map(plan => plan.name);
 
   if (loading) {
+    // Return skeleton loading UI that matches the existing design
     return (
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -240,6 +251,7 @@ const PricingSection = () => {
         </div>
 
         {isMobile ? (
+          // Mobile view - Show only the selected plan
           <div className="flex justify-center">
             {Object.entries(displayPlans).map(([key, plan]) => {
               if (plan.name === selectedPlan) {
@@ -288,6 +300,7 @@ const PricingSection = () => {
             })}
           </div>
         ) : (
+          // Desktop view - Show all plans
           <div className="grid md:grid-cols-3 gap-8">
             {Object.entries(displayPlans).map(([key, plan]) => (
               <div

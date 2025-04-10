@@ -2,6 +2,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
+import FeaturesSection from '@/components/FeaturesSection';
 import HowItWorks from '@/components/HowItWorks';
 import EnhancedTestimonials from '@/components/EnhancedTestimonials';
 import PricingSection from '@/components/PricingSection';

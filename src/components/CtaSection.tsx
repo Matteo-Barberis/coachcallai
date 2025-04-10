@@ -1,10 +1,13 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 
 const CtaSection = () => {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
   const location = useLocation();
