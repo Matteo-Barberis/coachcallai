@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -51,6 +50,28 @@ const Account = () => {
       fetchSubscriptionPlans();
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    const shouldScrollToBasicPlan = sessionStorage.getItem('scrollToBasicPlan');
+    
+    if (shouldScrollToBasicPlan) {
+      sessionStorage.removeItem('scrollToBasicPlan');
+      
+      setTimeout(() => {
+        const subscriptionSection = document.getElementById('subscription-section');
+        if (subscriptionSection) {
+          subscriptionSection.scrollIntoView({ behavior: 'smooth' });
+          
+          setTimeout(() => {
+            const planCards = document.querySelectorAll('[id="subscription-section"] > div > div');
+            if (planCards && planCards.length > 0) {
+              planCards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 300);
+        }
+      }, 100);
+    }
+  }, [plans, loadingPlans]);
 
   useEffect(() => {
     const phoneChanged = phone !== initialPhone;

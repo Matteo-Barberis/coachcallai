@@ -145,13 +145,8 @@ const Dashboard = () => {
   };
 
   const handleUpgradeClick = () => {
+    sessionStorage.setItem('scrollToBasicPlan', 'true');
     navigate('/account');
-    setTimeout(() => {
-      const subscriptionSection = document.getElementById('subscription-section');
-      if (subscriptionSection) {
-        subscriptionSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
   };
 
   if (loading || isCheckingProfile) {
