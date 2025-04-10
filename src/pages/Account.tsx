@@ -54,22 +54,15 @@ const Account = () => {
   useEffect(() => {
     const shouldScrollToBasicPlan = sessionStorage.getItem('scrollToBasicPlan');
     
-    if (shouldScrollToBasicPlan) {
+    if (shouldScrollToBasicPlan && plans.length > 0 && !loadingPlans) {
       sessionStorage.removeItem('scrollToBasicPlan');
       
       setTimeout(() => {
-        const subscriptionSection = document.getElementById('subscription-section');
-        if (subscriptionSection) {
-          subscriptionSection.scrollIntoView({ behavior: 'smooth' });
-          
-          setTimeout(() => {
-            const planCards = document.querySelectorAll('[id="subscription-section"] > div > div');
-            if (planCards && planCards.length > 0) {
-              planCards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }, 300);
+        const firstPlanCard = document.querySelector('[id="subscription-section"] > div > div');
+        if (firstPlanCard) {
+          firstPlanCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      }, 100);
+      }, 200);
     }
   }, [plans, loadingPlans]);
 
