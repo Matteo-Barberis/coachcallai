@@ -26,6 +26,10 @@ const FaqSection = () => {
       answer: "Coach Call AI can help with a wide range of goals, including fitness, productivity, business, education, personal development, and more. The system is flexible and can be customized to your specific needs."
     },
     {
+      question: "How does Coach Call AI help people with ADHD or chronic procrastination?",
+      answer: "Coach Call AI is particularly effective for individuals with ADHD or chronic procrastination. The system provides structure through consistent check-ins, breaking down goals into manageable steps, and offering real-time accountability via phone calls and WhatsApp messages. The varied communication methods help combat attention challenges, while the personalized coach voices and adaptive reminders work with your unique motivation style. Many users report significant improvements in task completion and reduced procrastination within days of starting."
+    },
+    {
       question: "Is my data secure and private?",
       answer: "Yes. We take privacy very seriously. All your conversations and goal information are encrypted and never shared with third parties. You can request data deletion at any time."
     },
