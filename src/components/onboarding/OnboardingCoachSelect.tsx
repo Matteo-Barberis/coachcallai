@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -51,7 +50,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
             vapi_assistant_id,
             personalities (
               name,
-              behavior
+              behaviour_summary
             )
           `);
         
@@ -63,7 +62,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
             id: assistant.id,
             name: assistant.name,
             title: assistant.personalities?.name || 'Coach',
-            description: assistant.personalities?.behavior || 'Personal assistant to help you achieve your goals.',
+            description: assistant.personalities?.behaviour_summary || 'Personal assistant to help you achieve your goals.',
             imageUrl: '/placeholder.svg',
             vapi_assistant_id: assistant.vapi_assistant_id
           }));

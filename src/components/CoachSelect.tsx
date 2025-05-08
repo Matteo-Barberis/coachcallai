@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,7 +13,7 @@ type Assistant = {
   name: string;
   personality_id: string;
   personality_name: string;
-  personality_behavior: string;
+  personality_behaviour_summary: string;
   vapi_assistant_id: string;
   // Adding coach personality type mapping
   personality_type?: 'empathetic' | 'results' | 'friendly';
@@ -81,7 +82,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
             vapi_assistant_id,
             personalities!inner (
               name, 
-              behavior
+              behaviour_summary
             )
           `);
         
@@ -93,7 +94,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
           personality_id: item.personality_id,
           vapi_assistant_id: item.vapi_assistant_id,
           personality_name: item.personalities.name,
-          personality_behavior: item.personalities.behavior,
+          personality_behaviour_summary: item.personalities.behaviour_summary,
           // Add personality type based on name
           personality_type: getPersonalityType(item.name) as 'empathetic' | 'results' | 'friendly'
         }));

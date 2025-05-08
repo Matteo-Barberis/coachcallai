@@ -133,18 +133,21 @@ export type Database = {
       personalities: {
         Row: {
           behavior: string
+          behaviour_summary: string | null
           created_at: string
           id: string
           name: string
         }
         Insert: {
           behavior: string
+          behaviour_summary?: string | null
           created_at?: string
           id?: string
           name: string
         }
         Update: {
           behavior?: string
+          behaviour_summary?: string | null
           created_at?: string
           id?: string
           name?: string
