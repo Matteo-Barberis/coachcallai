@@ -30,3 +30,6 @@ verify_jwt = false
 
 [functions.create-portal-session]
 verify_jwt = false
+
+[functions.test-scheduled-call]
+verify_jwt = false
