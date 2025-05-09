@@ -180,15 +180,24 @@ serve(async (req) => {
             console.log(`No selected assistant found for user ${profileData?.full_name || call.user_id}, using default: ${defaultAssistantId}`);
           }
           
-          // Fetch the actual Vapi assistant ID associated with this Supabase assistant ID
-          console.log(`Fetching Vapi assistant ID for assistant ${assistantId}`);
+          // Fetch the actual Vapi assistant ID and personality behavior associated with this Supabase assistant ID
+          console.log(`Fetching Vapi assistant ID and personality behavior for assistant ${assistantId}`);
           const { data: assistantData, error: assistantError } = await supabaseClient
             .from('assistants')
-            .select('vapi_assistant_id, name')
+            .select(`
+              vapi_assistant_id,
+              name,
+              personalities!inner (
+                id,
+                name,
+                behavior
+              )
+            `)
             .eq('id', assistantId)
             .single();
             
           let vapiAssistantId = "3990f3ad-880c-4d8c-95bf-42d72a90ac14"; // Default Vapi Assistant ID
+          let assistantBehavior = "";
           
           if (assistantError) {
             console.error(`Error fetching assistant data for ID ${assistantId}:`, assistantError);
@@ -196,6 +205,12 @@ serve(async (req) => {
           } else if (assistantData?.vapi_assistant_id) {
             console.log(`Found Vapi assistant ID for ${assistantData.name}: ${assistantData.vapi_assistant_id}`);
             vapiAssistantId = assistantData.vapi_assistant_id;
+            
+            // Get the behavior from the personality
+            if (assistantData.personalities?.behavior) {
+              assistantBehavior = assistantData.personalities.behavior;
+              console.log(`Found assistant behavior: ${assistantBehavior}`);
+            }
           } else {
             console.log(`No Vapi assistant ID found for assistant ${assistantId}, using default: ${vapiAssistantId}`);
           }
@@ -212,7 +227,8 @@ serve(async (req) => {
                 "name": call.full_name || "there",
                 "call_type": templateName,
                 "call_description": templateDescription,
-                "user_goals": call.objectives || "personal goals"
+                "user_goals": call.objectives || "personal goals",
+                "assistant_behaviour": assistantBehavior
               },
               "maxDurationSeconds": 120,
               "firstMessage": greeting
@@ -223,6 +239,7 @@ serve(async (req) => {
           console.log(`Template: ${templateName} - ${templateDescription}`);
           console.log(`Greeting: ${greeting}`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
+          console.log(`Assistant behavior: ${assistantBehavior}`);
           console.log(`Payload: ${JSON.stringify(vapiPayload)}`);
           
           // Make request to Vapi API only if SKIP_VAPI_API_CALLS is false
