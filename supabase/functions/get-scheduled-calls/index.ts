@@ -117,13 +117,16 @@ serve(async (req) => {
           let templateName = "Check-in call";
           let templateDescription = "Check-in call";
           let greeting = `good morning {{name}}, how are you today? `;
+          let templateInstructions = ""; // New variable for template instructions
+          let coachingGuidelines = ""; // New variable for coaching guidelines
+          let modeId = null; // Variable to store mode_id from template
           
           if (call.template_id) {
             // Get template data with full admin access
             console.log(`Fetching template data for template ${call.template_id} using admin privileges`);
             const { data: templateData, error: templateError } = await supabaseClient
               .from('templates')
-              .select('name, description')
+              .select('name, description, instructions, mode_id')
               .eq('id', call.template_id)
               .single();
               
@@ -132,7 +135,27 @@ serve(async (req) => {
             } else if (templateData) {
               templateName = templateData.name;
               templateDescription = templateData.description;
+              templateInstructions = templateData.instructions || ""; // Get instructions from template
+              modeId = templateData.mode_id; // Store mode_id for fetching guidelines
               console.log(`SUCCESSFULLY retrieved template: "${templateName}" - "${templateDescription}"`);
+              console.log(`Template instructions: "${templateInstructions}"`);
+              
+              // If we have a mode_id, fetch the coaching guidelines
+              if (modeId) {
+                console.log(`Fetching coaching guidelines for mode ${modeId}`);
+                const { data: modeData, error: modeError } = await supabaseClient
+                  .from('modes')
+                  .select('guidelines')
+                  .eq('id', modeId)
+                  .single();
+                  
+                if (modeError) {
+                  console.error(`Error fetching mode data for mode ${modeId}:`, modeError);
+                } else if (modeData) {
+                  coachingGuidelines = modeData.guidelines || "";
+                  console.log(`SUCCESSFULLY retrieved coaching guidelines: "${coachingGuidelines}"`);
+                }
+              }
             } else {
               console.log(`No template found for ID ${call.template_id}, using defaults`);
             }
@@ -228,7 +251,9 @@ serve(async (req) => {
                 "call_type": templateName,
                 "call_description": templateDescription,
                 "user_goals": call.objectives || "personal goals",
-                "assistant_behaviour": assistantBehavior
+                "assistant_behaviour": assistantBehavior,
+                "template_instructions": templateInstructions,
+                "coaching_guidelines": coachingGuidelines
               },
               "maxDurationSeconds": 120,
               "firstMessage": greeting
@@ -237,6 +262,8 @@ serve(async (req) => {
           
           console.log(`Processing call ${call.id} for user ${call.full_name || call.user_id}:`);
           console.log(`Template: ${templateName} - ${templateDescription}`);
+          console.log(`Template Instructions: ${templateInstructions}`);
+          console.log(`Coaching Guidelines: ${coachingGuidelines}`);
           console.log(`Greeting: ${greeting}`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Assistant behavior: ${assistantBehavior}`);

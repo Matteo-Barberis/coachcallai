@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          mode_id: string | null
           name: string
           personality_id: string | null
           vapi_assistant_id: string
@@ -20,6 +21,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          mode_id?: string | null
           name: string
           personality_id?: string | null
           vapi_assistant_id: string
@@ -27,11 +29,19 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          mode_id?: string | null
           name?: string
           personality_id?: string | null
           vapi_assistant_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "assistants_mode_id_fkey"
+            columns: ["mode_id"]
+            isOneToOne: false
+            referencedRelation: "modes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fk_personality"
             columns: ["personality_id"]
@@ -130,6 +140,30 @@ export type Database = {
           },
         ]
       }
+      modes: {
+        Row: {
+          created_at: string
+          description: string | null
+          guidelines: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          guidelines?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          guidelines?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       personalities: {
         Row: {
           behavior: string
@@ -159,6 +193,7 @@ export type Database = {
           assistant_id: string | null
           avatar_url: string | null
           created_at: string
+          current_mode_id: string | null
           focus_areas: Json | null
           full_name: string | null
           id: string
@@ -181,6 +216,7 @@ export type Database = {
           assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
+          current_mode_id?: string | null
           focus_areas?: Json | null
           full_name?: string | null
           id: string
@@ -203,6 +239,7 @@ export type Database = {
           assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
+          current_mode_id?: string | null
           focus_areas?: Json | null
           full_name?: string | null
           id?: string
@@ -230,6 +267,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "profiles_current_mode_id_fkey"
+            columns: ["current_mode_id"]
+            isOneToOne: false
+            referencedRelation: "modes"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "profiles_subscription_plan_id_fkey"
             columns: ["subscription_plan_id"]
             isOneToOne: false
@@ -244,6 +288,7 @@ export type Database = {
           execution_timestamp: string | null
           goal_id: string | null
           id: string
+          mode_id: string | null
           specific_date: string | null
           template_id: string | null
           time: string
@@ -255,6 +300,7 @@ export type Database = {
           execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
+          mode_id?: string | null
           specific_date?: string | null
           template_id?: string | null
           time: string
@@ -266,6 +312,7 @@ export type Database = {
           execution_timestamp?: string | null
           goal_id?: string | null
           id?: string
+          mode_id?: string | null
           specific_date?: string | null
           template_id?: string | null
           time?: string
@@ -278,6 +325,13 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_calls_mode_id_fkey"
+            columns: ["mode_id"]
+            isOneToOne: false
+            referencedRelation: "modes"
             referencedColumns: ["id"]
           },
           {
@@ -360,21 +414,35 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          instructions: string | null
+          mode_id: string | null
           name: string
         }
         Insert: {
           created_at?: string
           description: string
           id?: string
+          instructions?: string | null
+          mode_id?: string | null
           name: string
         }
         Update: {
           created_at?: string
           description?: string
           id?: string
+          instructions?: string | null
+          mode_id?: string | null
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "templates_mode_id_fkey"
+            columns: ["mode_id"]
+            isOneToOne: false
+            referencedRelation: "modes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_achievements: {
         Row: {
