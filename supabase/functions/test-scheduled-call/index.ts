@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -8,7 +7,7 @@ const corsHeaders = {
 };
 
 // Default test user ID
-const DEFAULT_TEST_USER = "f4096a03-190d-4b1b-b1bc-2472c638b977";
+const DEFAULT_TEST_USER = "c5efe2e1-9065-407c-a4bb-4207cfcc608f";
 
 serve(async (req) => {
   // Handle CORS preflight requests
