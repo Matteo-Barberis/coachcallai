@@ -21,22 +21,15 @@ serve(async (req) => {
     
     // Parse request body if any
     let userId = DEFAULT_TEST_USER;
-    let modeId = null;
     
     if (req.method === 'POST') {
       const body = await req.json().catch(() => ({}));
       if (body && body.userId) {
         userId = body.userId;
       }
-      if (body && body.modeId) {
-        modeId = body.modeId;
-      }
     }
     
     console.log(`Using test user ID: ${userId}`);
-    if (modeId) {
-      console.log(`Using mode ID: ${modeId}`);
-    }
 
     // Create Supabase client with service role key for admin privileges
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -51,11 +44,11 @@ serve(async (req) => {
     const supabaseClient = createClient(supabaseUrl, serviceRoleKey);
     console.log('Supabase client created successfully');
 
-    // Verify the user exists
-    console.log(`Verifying user ${userId} exists...`);
+    // Verify the user exists and get their current mode_id
+    console.log(`Verifying user ${userId} exists and fetching their current mode_id...`);
     const { data: userData, error: userError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, phone')
+      .select('id, full_name, phone, current_mode_id')
       .eq('id', userId)
       .single();
       
@@ -83,6 +76,34 @@ serve(async (req) => {
       );
     }
 
+    // Get the user's current mode_id
+    const modeId = userData.current_mode_id;
+    console.log(`User's current mode_id: ${modeId || 'None'}`);
+    
+    // Find a random template that matches the user's mode_id
+    let templateId = null;
+    
+    if (modeId) {
+      console.log(`Looking for templates matching mode_id: ${modeId}`);
+      const { data: templatesData, error: templatesError } = await supabaseClient
+        .from('templates')
+        .select('id')
+        .eq('mode_id', modeId);
+        
+      if (templatesError) {
+        console.error('Error fetching templates:', templatesError);
+      } else if (templatesData && templatesData.length > 0) {
+        // Select a random template from the matching ones
+        const randomIndex = Math.floor(Math.random() * templatesData.length);
+        templateId = templatesData[randomIndex].id;
+        console.log(`Selected random template with ID: ${templateId}`);
+      } else {
+        console.log(`No templates found for mode_id: ${modeId}, will proceed without template`);
+      }
+    } else {
+      console.log('User has no current mode_id set, proceeding without mode-specific template');
+    }
+
     // Create a scheduled call for the current time
     const now = new Date();
     const currentTime = now.toTimeString().substring(0, 8); // HH:MM:SS format
@@ -93,14 +114,13 @@ serve(async (req) => {
       user_id: userId,
       time: currentTime,
       specific_date: now.toISOString().substring(0, 10), // YYYY-MM-DD format
-      execution_timestamp: now.toISOString() // Store the exact execution time
+      execution_timestamp: now.toISOString(), // Store the exact execution time
+      mode_id: modeId, // Set the mode_id from the user's profile
+      template_id: templateId // Set the template_id if one was found
     };
     
-    // Add mode_id if provided
-    if (modeId) {
-      scheduleCallData.mode_id = modeId;
-      console.log(`Adding mode_id ${modeId} to scheduled call`);
-    }
+    // Log the data being used to create the scheduled call
+    console.log('Creating scheduled call with data:', JSON.stringify(scheduleCallData));
     
     const { data: scheduleData, error: scheduleError } = await supabaseClient
       .from('scheduled_calls')
@@ -157,7 +177,9 @@ serve(async (req) => {
         scheduleCallId: scheduleData.id,
         wasProcessed: !!processedCall,
         scheduleCallData: scheduleData,
-        functionResult
+        functionResult,
+        userModeId: modeId,
+        selectedTemplateId: templateId
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
