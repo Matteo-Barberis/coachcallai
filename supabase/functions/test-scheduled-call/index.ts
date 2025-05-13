@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -20,15 +21,22 @@ serve(async (req) => {
     
     // Parse request body if any
     let userId = DEFAULT_TEST_USER;
+    let modeId = null;
     
     if (req.method === 'POST') {
       const body = await req.json().catch(() => ({}));
       if (body && body.userId) {
         userId = body.userId;
       }
+      if (body && body.modeId) {
+        modeId = body.modeId;
+      }
     }
     
     console.log(`Using test user ID: ${userId}`);
+    if (modeId) {
+      console.log(`Using mode ID: ${modeId}`);
+    }
 
     // Create Supabase client with service role key for admin privileges
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -81,14 +89,22 @@ serve(async (req) => {
     
     console.log(`Creating test scheduled call for user ${userId} at time ${currentTime} on date ${now.toISOString().substring(0, 10)}`);
     
+    const scheduleCallData = {
+      user_id: userId,
+      time: currentTime,
+      specific_date: now.toISOString().substring(0, 10), // YYYY-MM-DD format
+      execution_timestamp: now.toISOString() // Store the exact execution time
+    };
+    
+    // Add mode_id if provided
+    if (modeId) {
+      scheduleCallData.mode_id = modeId;
+      console.log(`Adding mode_id ${modeId} to scheduled call`);
+    }
+    
     const { data: scheduleData, error: scheduleError } = await supabaseClient
       .from('scheduled_calls')
-      .insert({
-        user_id: userId,
-        time: currentTime,
-        specific_date: now.toISOString().substring(0, 10), // YYYY-MM-DD format
-        execution_timestamp: now.toISOString() // Store the exact execution time
-      })
+      .insert(scheduleCallData)
       .select()
       .single();
       

@@ -117,16 +117,15 @@ serve(async (req) => {
           let templateName = "Check-in call";
           let templateDescription = "Check-in call";
           let greeting = `good morning {{name}}, how are you today? `;
-          let templateInstructions = ""; // New variable for template instructions
-          let coachingGuidelines = ""; // New variable for coaching guidelines
-          let modeId = null; // Variable to store mode_id from template
+          let templateInstructions = ""; 
+          let coachingGuidelines = "";
           
           if (call.template_id) {
             // Get template data with full admin access
             console.log(`Fetching template data for template ${call.template_id} using admin privileges`);
             const { data: templateData, error: templateError } = await supabaseClient
               .from('templates')
-              .select('name, description, instructions, mode_id')
+              .select('name, description, instructions')
               .eq('id', call.template_id)
               .single();
               
@@ -135,27 +134,9 @@ serve(async (req) => {
             } else if (templateData) {
               templateName = templateData.name;
               templateDescription = templateData.description;
-              templateInstructions = templateData.instructions || ""; // Get instructions from template
-              modeId = templateData.mode_id; // Store mode_id for fetching guidelines
+              templateInstructions = templateData.instructions || "";
               console.log(`SUCCESSFULLY retrieved template: "${templateName}" - "${templateDescription}"`);
               console.log(`Template instructions: "${templateInstructions}"`);
-              
-              // If we have a mode_id, fetch the coaching guidelines
-              if (modeId) {
-                console.log(`Fetching coaching guidelines for mode ${modeId}`);
-                const { data: modeData, error: modeError } = await supabaseClient
-                  .from('modes')
-                  .select('guidelines')
-                  .eq('id', modeId)
-                  .single();
-                  
-                if (modeError) {
-                  console.error(`Error fetching mode data for mode ${modeId}:`, modeError);
-                } else if (modeData) {
-                  coachingGuidelines = modeData.guidelines || "";
-                  console.log(`SUCCESSFULLY retrieved coaching guidelines: "${coachingGuidelines}"`);
-                }
-              }
             } else {
               console.log(`No template found for ID ${call.template_id}, using defaults`);
             }
@@ -179,6 +160,29 @@ serve(async (req) => {
             } else {
               console.log(`No greetings found for template ${call.template_id}, using default`);
             }
+          }
+          
+          // Use mode_id from the scheduled call if available
+          let modeId = call.mode_id;
+          
+          // If mode_id exists in the scheduled call, fetch the coaching guidelines
+          if (modeId) {
+            console.log(`Using mode_id from scheduled call: ${modeId}`);
+            console.log(`Fetching coaching guidelines for mode ${modeId}`);
+            const { data: modeData, error: modeError } = await supabaseClient
+              .from('modes')
+              .select('guidelines')
+              .eq('id', modeId)
+              .single();
+              
+            if (modeError) {
+              console.error(`Error fetching mode data for mode ${modeId}:`, modeError);
+            } else if (modeData) {
+              coachingGuidelines = modeData.guidelines || "";
+              console.log(`SUCCESSFULLY retrieved coaching guidelines: "${coachingGuidelines}"`);
+            }
+          } else {
+            console.log(`No mode_id found in scheduled call ${call.id}, proceeding without mode-specific guidelines`);
           }
           
           // Get the user's selected assistant ID from the profile
