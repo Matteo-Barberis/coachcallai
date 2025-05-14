@@ -512,6 +512,7 @@ export type Database = {
           weekday: number
           specific_date: string
           template_id: string
+          mode_id: string
           timezone: string
           execution_timestamp: string
           profile_id: string
