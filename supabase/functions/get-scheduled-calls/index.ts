@@ -116,7 +116,6 @@ serve(async (req) => {
           // Extract template name and description if template_id exists
           let templateName = "Check-in call";
           let templateDescription = "Check-in call";
-          let greeting = `good morning {{name}}, how are you today? `;
           let templateInstructions = ""; 
           let coachingGuidelines = "";
           
@@ -139,26 +138,6 @@ serve(async (req) => {
               console.log(`Template instructions: "${templateInstructions}"`);
             } else {
               console.log(`No template found for ID ${call.template_id}, using defaults`);
-            }
-            
-            // Fetch a random greeting for this template with admin access
-            console.log(`Fetching greetings for template ${call.template_id} using admin privileges`);
-            const { data: greetingData, error: greetingError } = await supabaseClient
-              .from('greetings')
-              .select('greeting_text')
-              .eq('template_id', call.template_id)
-              .order('created_at', { ascending: false })
-              .limit(20);  // Limit to most recent 20 greetings
-            
-            if (greetingError) {
-              console.error(`Error fetching greetings for template ${call.template_id}:`, greetingError);
-            } else if (greetingData && greetingData.length > 0) {
-              // Select a random greeting from the results
-              const randomIndex = Math.floor(Math.random() * greetingData.length);
-              greeting = greetingData[randomIndex].greeting_text;
-              console.log(`SUCCESSFULLY selected random greeting: "${greeting}" for template ${templateName}`);
-            } else {
-              console.log(`No greetings found for template ${call.template_id}, using default`);
             }
           }
           
@@ -244,7 +223,7 @@ serve(async (req) => {
             console.log(`No Vapi assistant ID found for assistant ${assistantId}, using default: ${vapiAssistantId}`);
           }
           
-          // Prepare Vapi API call payload
+          // Prepare Vapi API call payload with empty string as firstMessage
           const vapiPayload = {
             "assistantId": vapiAssistantId,
             "customer": {
@@ -263,7 +242,7 @@ serve(async (req) => {
                 "assistant_name": assistantName
               },
               "maxDurationSeconds": 120,
-              "firstMessage": greeting
+              "firstMessage": "" // Empty string as requested
             }
           };
           
@@ -271,7 +250,7 @@ serve(async (req) => {
           console.log(`Template: ${templateName} - ${templateDescription}`);
           console.log(`Template Instructions: ${templateInstructions}`);
           console.log(`Coaching Guidelines: ${coachingGuidelines}`);
-          console.log(`Greeting: ${greeting}`);
+          console.log(`Using empty string as greeting`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Assistant behavior: ${assistantBehavior}`);
           console.log(`Assistant name: ${assistantName}`);
