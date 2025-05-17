@@ -140,6 +140,55 @@ export type Database = {
           },
         ]
       }
+      mode_preferences: {
+        Row: {
+          assistant_id: string | null
+          created_at: string
+          id: string
+          mode_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assistant_id?: string | null
+          created_at?: string
+          id?: string
+          mode_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assistant_id?: string | null
+          created_at?: string
+          id?: string
+          mode_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mode_preferences_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "assistants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mode_preferences_mode_id_fkey"
+            columns: ["mode_id"]
+            isOneToOne: false
+            referencedRelation: "modes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mode_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modes: {
         Row: {
           created_at: string
@@ -526,6 +575,10 @@ export type Database = {
           phone_verified: boolean
           updated_at: string
         }[]
+      }
+      initialize_mode_preferences: {
+        Args: { user_id_param: string }
+        Returns: undefined
       }
     }
     Enums: {

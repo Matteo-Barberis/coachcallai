@@ -164,26 +164,62 @@ serve(async (req) => {
             console.log(`No mode_id found in scheduled call ${call.id}, proceeding without mode-specific guidelines`);
           }
           
-          // Get the user's selected assistant ID from the profile
-          console.log(`Fetching user's selected assistant ID for user ${call.user_id}`);
-          const { data: profileData, error: profileError } = await supabaseClient
-            .from('profiles')
-            .select('assistant_id, full_name')
-            .eq('id', call.user_id)
-            .single();
-            
-          // Default assistant ID to use if none found in profile
+          // Default assistant ID to use if none found in mode preferences
           const defaultAssistantId = "3990f3ad-880c-4d8c-95bf-42d72a90ac14";
           let assistantId = defaultAssistantId;
           
-          if (profileError) {
-            console.error(`Error fetching profile data for user ${call.user_id}:`, profileError);
-            console.log(`Using default assistant ID: ${defaultAssistantId}`);
-          } else if (profileData?.assistant_id) {
-            console.log(`User ${profileData.full_name || call.user_id} has selected assistant ID: ${profileData.assistant_id}`);
-            assistantId = profileData.assistant_id;
+          // Get assistant ID from mode_preferences if mode_id is available
+          if (modeId) {
+            console.log(`Fetching assistant ID from mode_preferences for user ${call.user_id} and mode ${modeId}`);
+            const { data: preferenceData, error: preferenceError } = await supabaseClient
+              .from('mode_preferences')
+              .select('assistant_id')
+              .eq('user_id', call.user_id)
+              .eq('mode_id', modeId)
+              .single();
+              
+            if (preferenceError) {
+              console.error(`Error fetching mode preference for user ${call.user_id} and mode ${modeId}:`, preferenceError);
+              console.log(`Using default assistant ID: ${defaultAssistantId}`);
+            } else if (preferenceData?.assistant_id) {
+              console.log(`Found assistant ID in mode preferences: ${preferenceData.assistant_id}`);
+              assistantId = preferenceData.assistant_id;
+            } else {
+              console.log(`No assistant found in mode preferences, using default: ${defaultAssistantId}`);
+            }
           } else {
-            console.log(`No selected assistant found for user ${profileData?.full_name || call.user_id}, using default: ${defaultAssistantId}`);
+            // If no mode_id in scheduled call, look up user's profile for current_mode_id
+            console.log(`No mode_id in scheduled call, checking user profile for current_mode_id`);
+            const { data: profileData, error: profileError } = await supabaseClient
+              .from('profiles')
+              .select('full_name, current_mode_id')
+              .eq('id', call.user_id)
+              .single();
+              
+            if (profileError) {
+              console.error(`Error fetching profile data for user ${call.user_id}:`, profileError);
+            } else if (profileData?.current_mode_id) {
+              modeId = profileData.current_mode_id;
+              console.log(`User ${profileData.full_name || call.user_id} has current mode: ${modeId}`);
+              
+              // Get assistant from mode preferences using current_mode_id
+              console.log(`Fetching assistant ID from mode_preferences for user ${call.user_id} and mode ${modeId}`);
+              const { data: modePreferenceData, error: modePreferenceError } = await supabaseClient
+                .from('mode_preferences')
+                .select('assistant_id')
+                .eq('user_id', call.user_id)
+                .eq('mode_id', modeId)
+                .single();
+                
+              if (modePreferenceError) {
+                console.error(`Error fetching mode preference for user ${call.user_id} and mode ${modeId}:`, modePreferenceError);
+              } else if (modePreferenceData?.assistant_id) {
+                assistantId = modePreferenceData.assistant_id;
+                console.log(`Found assistant ID in mode preferences: ${assistantId}`);
+              }
+            } else {
+              console.log(`No current mode found for user ${profileData?.full_name || call.user_id}, using default assistant: ${defaultAssistantId}`);
+            }
           }
           
           // Fetch the actual Vapi assistant ID and personality behavior associated with this Supabase assistant ID
