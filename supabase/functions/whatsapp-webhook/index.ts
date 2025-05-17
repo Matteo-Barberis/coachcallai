@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -148,7 +149,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, assistant_id, subscription_status, trial_start_date')
+      .select('id, full_name, current_mode_id, subscription_status, trial_start_date')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -158,7 +159,7 @@ serve(async (req) => {
 
     const userId = profiles?.id;
     const userName = profiles?.full_name || 'User';
-    const assistantId = profiles?.assistant_id;
+    const currentModeId = profiles?.current_mode_id;
     const subscriptionStatus = profiles?.subscription_status;
     const trialStartDate = profiles?.trial_start_date;
     
@@ -266,39 +267,57 @@ serve(async (req) => {
 
     // If we get to this point, user exists and has an active subscription or valid trial
 
-    // Fetch assistant information if we have an assistant_id
+    // Fetch assistant information from mode preferences based on user's current mode
     let assistantName = "Coach";
     let assistantPersonality = "";
+    let assistantId = null;
     
-    if (assistantId) {
-      // First query: Get the assistant name
-      const { data: assistantData, error: assistantError } = await supabaseClient
-        .from('assistants')
-        .select('name, personality_id')
-        .eq('id', assistantId)
+    if (currentModeId) {
+      // Get assistant_id from mode_preferences for the user's current mode
+      const { data: modePreferenceData, error: modePreferenceError } = await supabaseClient
+        .from('mode_preferences')
+        .select('assistant_id')
+        .eq('user_id', userId)
+        .eq('mode_id', currentModeId)
         .maybeSingle();
         
-      if (assistantError) {
-        console.error('Error fetching assistant data:', assistantError);
-      } else if (assistantData) {
-        assistantName = assistantData.name || "Coach";
+      if (modePreferenceError) {
+        console.error('Error fetching mode preference:', modePreferenceError);
+      } else if (modePreferenceData && modePreferenceData.assistant_id) {
+        assistantId = modePreferenceData.assistant_id;
+        console.log(`Found assistant ID ${assistantId} from mode preferences for mode ${currentModeId}`);
         
-        // If we have a personality_id, get the personality behavior in a second query
-        if (assistantData.personality_id) {
-          const { data: personalityData, error: personalityError } = await supabaseClient
-            .from('personalities')
-            .select('behavior')
-            .eq('id', assistantData.personality_id)
-            .maybeSingle();
-            
-          if (personalityError) {
-            console.error('Error fetching personality data:', personalityError);
-          } else if (personalityData) {
-            assistantPersonality = personalityData.behavior || "";
+        // Get assistant details
+        const { data: assistantData, error: assistantError } = await supabaseClient
+          .from('assistants')
+          .select('name, personality_id')
+          .eq('id', assistantId)
+          .maybeSingle();
+          
+        if (assistantError) {
+          console.error('Error fetching assistant data:', assistantError);
+        } else if (assistantData) {
+          assistantName = assistantData.name || "Coach";
+          
+          // If we have a personality_id, get the personality behavior in a second query
+          if (assistantData.personality_id) {
+            const { data: personalityData, error: personalityError } = await supabaseClient
+              .from('personalities')
+              .select('behavior')
+              .eq('id', assistantData.personality_id)
+              .maybeSingle();
+              
+            if (personalityError) {
+              console.error('Error fetching personality data:', personalityError);
+            } else if (personalityData) {
+              assistantPersonality = personalityData.behavior || "";
+            }
           }
+          
+          console.log(`Using assistant: ${assistantName} with personality: ${assistantPersonality}`);
         }
-        
-        console.log(`Using assistant: ${assistantName} with personality: ${assistantPersonality}`);
+      } else {
+        console.log(`No mode preference found for user ${userId} and mode ${currentModeId}, using default assistant`);
       }
     }
 
