@@ -39,16 +39,10 @@ serve(async (req) => {
     
     console.log(`Updating last_demo_call_at for user: ${userId}`);
     
-    // Fetch user profile to get phone number and assistant_id
+    // Fetch user profile to get phone number and current_mode_id
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select(`
-        phone,
-        assistant_id,
-        assistants!inner (
-          vapi_assistant_id
-        )
-      `)
+      .select('phone, current_mode_id')
       .eq('id', userId)
       .single();
       
@@ -60,7 +54,7 @@ serve(async (req) => {
       );
     }
     
-    // Check if profile has phone number and assistant ID
+    // Check if profile has phone number
     if (!profileData.phone) {
       console.error("User has no phone number");
       return new Response(
@@ -68,17 +62,57 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const userPhone = profileData.phone;
     
-    if (!profileData.assistant_id || !profileData.assistants.vapi_assistant_id) {
-      console.error("User has no selected coach or coach has no Vapi assistant ID");
+    // Get assistant_id from mode_preferences for user's current mode
+    const { data: modePreferenceData, error: modePreferenceError } = await supabase
+      .from('mode_preferences')
+      .select('assistant_id')
+      .eq('user_id', userId)
+      .eq('mode_id', profileData.current_mode_id)
+      .maybeSingle();
+      
+    if (modePreferenceError) {
+      console.error("Error fetching mode preference:", modePreferenceError);
       return new Response(
-        JSON.stringify({ error: "No coach selected or coach has no Vapi assistant ID" }),
+        JSON.stringify({ error: "Error fetching mode preference: " + modePreferenceError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!modePreferenceData || !modePreferenceData.assistant_id) {
+      console.error("User has no selected coach for the current mode");
+      return new Response(
+        JSON.stringify({ error: "No coach selected for the current mode" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get vapi_assistant_id from the assistant record
+    const { data: assistantData, error: assistantError } = await supabase
+      .from('assistants')
+      .select('vapi_assistant_id')
+      .eq('id', modePreferenceData.assistant_id)
+      .single();
+      
+    if (assistantError) {
+      console.error("Error fetching assistant:", assistantError);
+      return new Response(
+        JSON.stringify({ error: "Error fetching assistant: " + assistantError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!assistantData.vapi_assistant_id) {
+      console.error("Selected coach has no Vapi assistant ID");
+      return new Response(
+        JSON.stringify({ error: "Selected coach has no Vapi assistant ID" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
-    const vapiAssistantId = profileData.assistants.vapi_assistant_id;
-    const userPhone = profileData.phone;
+    const vapiAssistantId = assistantData.vapi_assistant_id;
     
     // Update the last_demo_call_at field to the current timestamp
     const { data: updateData, error: updateError } = await supabase
