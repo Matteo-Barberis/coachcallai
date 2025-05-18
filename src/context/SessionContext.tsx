@@ -9,6 +9,7 @@ type SessionContextType = {
   loading: boolean;
   signOut: () => Promise<void>;
   userProfile: Profile | null;
+  refreshProfile: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextType>({
@@ -16,6 +17,7 @@ const SessionContext = createContext<SessionContextType>({
   loading: true,
   signOut: async () => {},
   userProfile: null,
+  refreshProfile: async () => {},
 });
 
 export const useSessionContext = () => useContext(SessionContext);
@@ -72,12 +74,18 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const refreshProfile = async () => {
+    if (session?.user.id) {
+      await fetchUserProfile(session.user.id);
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <SessionContext.Provider value={{ session, loading, signOut, userProfile }}>
+    <SessionContext.Provider value={{ session, loading, signOut, userProfile, refreshProfile }}>
       {children}
     </SessionContext.Provider>
   );

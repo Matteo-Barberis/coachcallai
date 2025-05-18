@@ -11,6 +11,23 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { Json } from '@/integrations/supabase/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type SubscriptionPlan = {
   id: string;
@@ -24,8 +41,14 @@ type SubscriptionPlan = {
   created_at: string;
 };
 
+type Mode = {
+  id: string;
+  name: string;
+  description: string;
+};
+
 const Account = () => {
-  const { session, loading, userProfile } = useSessionContext();
+  const { session, loading, userProfile, refreshProfile } = useSessionContext();
   const { toast } = useToast();
   const [phone, setPhone] = useState('');
   const [initialPhone, setInitialPhone] = useState('');
@@ -39,6 +62,14 @@ const Account = () => {
   const [loadingPlans, setLoadingPlans] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [managingSubscription, setManagingSubscription] = useState(false);
+  
+  // New state variables for mode selection
+  const [modes, setModes] = useState<Mode[]>([]);
+  const [loadingModes, setLoadingModes] = useState(false);
+  const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
+  const [showModeChangeDialog, setShowModeChangeDialog] = useState(false);
+  const [newModeId, setNewModeId] = useState<string | null>(null);
+  const [updatingMode, setUpdatingMode] = useState(false);
 
   if (!loading && !session) {
     return <Navigate to="/auth/sign-in" replace />;
@@ -48,8 +79,15 @@ const Account = () => {
     if (session?.user?.id) {
       fetchUserProfile();
       fetchSubscriptionPlans();
+      fetchModes();
     }
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    if (userProfile?.current_mode_id) {
+      setSelectedModeId(userProfile.current_mode_id);
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     const shouldScrollToBasicPlan = sessionStorage.getItem('scrollToBasicPlan');
@@ -120,6 +158,83 @@ const Account = () => {
     } finally {
       setLoadingPlans(false);
     }
+  };
+
+  const fetchModes = async () => {
+    setLoadingModes(true);
+    try {
+      const { data, error } = await supabase
+        .from('modes')
+        .select('id, name, description')
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      
+      setModes(data || []);
+    } catch (error) {
+      console.error('Error fetching modes:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load available modes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingModes(false);
+    }
+  };
+
+  const handleModeChange = (modeId: string) => {
+    // If user selected the current mode, do nothing
+    if (modeId === selectedModeId) {
+      return;
+    }
+    
+    // Store the new mode ID temporarily and show confirmation dialog
+    setNewModeId(modeId);
+    setShowModeChangeDialog(true);
+  };
+
+  const confirmModeChange = async () => {
+    if (!newModeId || !session?.user?.id) return;
+    
+    setUpdatingMode(true);
+    try {
+      // Update the user's current mode ID in the profiles table
+      const { error } = await supabase
+        .from('profiles')
+        .update({ current_mode_id: newModeId })
+        .eq('id', session.user.id);
+      
+      if (error) throw error;
+      
+      setSelectedModeId(newModeId);
+      setNewModeId(null);
+      
+      // Close the dialog
+      setShowModeChangeDialog(false);
+      
+      // Refresh the user profile in the session context
+      await refreshProfile();
+      
+      toast({
+        title: "Mode Updated",
+        description: "Your coaching mode has been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error updating mode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update coaching mode. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingMode(false);
+    }
+  };
+
+  const cancelModeChange = () => {
+    setNewModeId(null);
+    setShowModeChangeDialog(false);
   };
 
   const validateName = (): boolean => {
@@ -424,6 +539,44 @@ const Account = () => {
               </div>
             </div>
             
+            {/* New Mode Preferences Section */}
+            <div className="border-t pt-6">
+              <h2 className="text-lg font-semibold mb-4">Mode Preferences</h2>
+              <div className="space-y-4 max-w-md">
+                <div className="space-y-2">
+                  <Label htmlFor="modeSelect">Coaching Mode</Label>
+                  {loadingModes ? (
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading modes...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Select 
+                        value={selectedModeId || undefined} 
+                        onValueChange={handleModeChange}
+                        disabled={updatingMode}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a coaching mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {modes.map((mode) => (
+                            <SelectItem key={mode.id} value={mode.id}>
+                              {mode.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        This determines which coaching style and coaches are available to you.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            
             <div id="subscription-section" className="border-t pt-6">
               <h2 className="text-lg font-semibold mb-4">Subscription</h2>
               
@@ -506,6 +659,42 @@ const Account = () => {
           </div>
         </div>
       </main>
+
+      {/* Mode Change Confirmation Dialog */}
+      <AlertDialog open={showModeChangeDialog} onOpenChange={setShowModeChangeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change Coaching Mode</AlertDialogTitle>
+            <AlertDialogDescription>
+              <p className="mb-2">
+                Are you sure you want to change your coaching mode? This will affect:
+              </p>
+              <ul className="list-disc pl-5 space-y-1 mb-2">
+                <li>The coaches available to you will change</li>
+                <li>Any scheduled calls for your current mode will not transfer to the new mode</li>
+                <li>Your scheduled calls for the current mode will be saved if you switch back later</li>
+              </ul>
+              <p>Do you want to continue?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelModeChange}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmModeChange}
+              disabled={updatingMode}
+            >
+              {updatingMode ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Updating...
+                </>
+              ) : (
+                'Continue'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
