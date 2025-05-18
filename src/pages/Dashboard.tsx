@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -176,7 +177,8 @@ const Dashboard = () => {
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
             <div className="flex items-center flex-wrap gap-2">
-              <CoachSelect />
+              {/* Explicitly pass the current mode ID to the CoachSelect component */}
+              <CoachSelect modeId={userProfile?.current_mode_id} />
               <div className="flex items-center">
                 <Tooltip>
                   <TooltipTrigger asChild>
