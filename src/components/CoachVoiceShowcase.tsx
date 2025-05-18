@@ -9,6 +9,9 @@ import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
+// Hardcoded accountability mode ID as requested
+const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
+
 const coachPersonalities = {
   "empathetic": {
     name: "Empathetic Supporter",
@@ -152,6 +155,7 @@ const CoachVoiceShowcase = () => {
                     onCoachSelect={handleCoachSelect} 
                     defaultPersonalityType={!session ? "empathetic" : undefined}
                     suppressToast={true}
+                    modeId={ACCOUNTABILITY_MODE_ID} // Pass the hardcoded mode ID
                   />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,14 +14,14 @@ type Assistant = {
   personality_name: string;
   personality_behaviour_summary: string;
   vapi_assistant_id: string;
-  // Adding coach personality type mapping
   personality_type?: 'empathetic' | 'results' | 'friendly';
 };
 
 interface CoachSelectProps {
   onCoachSelect?: (coachId: string, personalityType: string) => void;
-  defaultPersonalityType?: string; // New prop for default personality type
-  suppressToast?: boolean; // New prop to suppress toast notifications
+  defaultPersonalityType?: string;
+  suppressToast?: boolean;
+  modeId?: string;
 }
 
 const groupCoachesByPersonality = (coaches: Assistant[]) => {
@@ -56,7 +55,8 @@ const getPersonalityType = (coachName: string): string => {
 const CoachSelect: React.FC<CoachSelectProps> = ({ 
   onCoachSelect, 
   defaultPersonalityType,
-  suppressToast = false // Default to false to maintain backward compatibility
+  suppressToast = false,
+  modeId
 }) => {
   const [coaches, setCoaches] = useState<Assistant[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
@@ -65,7 +65,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
   const [playingCoachId, setPlayingCoachId] = useState<string | null>(null);
   const [initialSelectionDone, setInitialSelectionDone] = useState(false);
   const { toast } = useToast();
-  const { session } = useSessionContext();
+  const { session, userProfile } = useSessionContext();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -73,7 +73,16 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
       try {
         setLoading(true);
         
-        const { data: coachesData, error: coachesError } = await supabase
+        // Determine which mode_id to use (explicitly provided or from user profile)
+        let effectiveModeId = modeId;
+        
+        // If no modeId provided and user is authenticated, use their current mode
+        if (!modeId && session?.user.id && userProfile?.current_mode_id) {
+          effectiveModeId = userProfile.current_mode_id;
+        }
+        
+        // Build query to fetch assistants
+        let query = supabase
           .from('assistants')
           .select(`
             id, 
@@ -86,6 +95,13 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
             )
           `);
         
+        // Filter by mode_id if available
+        if (effectiveModeId) {
+          query = query.eq('mode_id', effectiveModeId);
+        }
+        
+        const { data: coachesData, error: coachesError } = await query;
+        
         if (coachesError) throw coachesError;
         
         const transformedCoaches = coachesData.map(item => ({
@@ -95,7 +111,6 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
           vapi_assistant_id: item.vapi_assistant_id,
           personality_name: item.personalities.name,
           personality_behaviour_summary: item.personalities.behaviour_summary,
-          // Add personality type based on name
           personality_type: getPersonalityType(item.name) as 'empathetic' | 'results' | 'friendly'
         }));
         
@@ -105,20 +120,37 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
         if (!initialSelectionDone) {
           // Handle selection for authenticated users
           if (session?.user.id) {
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('assistant_id')
-              .eq('id', session.user.id)
-              .single();
+            let preferredAssistantId = null;
             
-            if (profileError && profileError.code !== 'PGRST116') {
-              throw profileError;
+            if (effectiveModeId) {
+              // Get preferred assistant from mode_preferences
+              const { data: modePreference, error: modePreferenceError } = await supabase
+                .from('mode_preferences')
+                .select('assistant_id')
+                .eq('user_id', session.user.id)
+                .eq('mode_id', effectiveModeId)
+                .maybeSingle();
+              
+              if (!modePreferenceError && modePreference?.assistant_id) {
+                preferredAssistantId = modePreference.assistant_id;
+              }
+            } else {
+              // Fallback to the legacy assistant_id from profiles if no mode filtering
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('assistant_id')
+                .eq('id', session.user.id)
+                .single();
+                
+              if (!profileError && profileData?.assistant_id) {
+                preferredAssistantId = profileData.assistant_id;
+              }
             }
             
-            if (profileData?.assistant_id) {
-              setSelectedCoach(profileData.assistant_id);
+            if (preferredAssistantId) {
+              setSelectedCoach(preferredAssistantId);
               // Notify parent about selected coach on initial load
-              const selectedCoachData = transformedCoaches.find(c => c.id === profileData.assistant_id);
+              const selectedCoachData = transformedCoaches.find(c => c.id === preferredAssistantId);
               if (selectedCoachData && onCoachSelect) {
                 onCoachSelect(selectedCoachData.id, selectedCoachData.personality_type || 'friendly');
               }
@@ -166,7 +198,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
     };
 
     fetchData();
-  }, [session, onCoachSelect, initialSelectionDone]); // Removed defaultPersonalityType from dependencies
+  }, [session, onCoachSelect, initialSelectionDone, modeId, userProfile]); // Removed defaultPersonalityType from dependencies
 
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
@@ -188,12 +220,32 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
     
     if (session?.user.id) {
       try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ assistant_id: coachId })
-          .eq('id', session.user.id);
+        // Determine which mode_id to use
+        let effectiveModeId = modeId;
         
-        if (error) throw error;
+        // If no modeId provided and user is authenticated, use their current mode
+        if (!effectiveModeId && userProfile?.current_mode_id) {
+          effectiveModeId = userProfile.current_mode_id;
+        }
+        
+        if (effectiveModeId) {
+          // Update the mode_preference for this mode
+          const { error } = await supabase
+            .from('mode_preferences')
+            .update({ assistant_id: coachId })
+            .eq('user_id', session.user.id)
+            .eq('mode_id', effectiveModeId);
+          
+          if (error) throw error;
+        } else {
+          // Fallback to updating the legacy assistant_id in profiles if no mode is available
+          const { error } = await supabase
+            .from('profiles')
+            .update({ assistant_id: coachId })
+            .eq('id', session.user.id);
+          
+          if (error) throw error;
+        }
       } catch (error) {
         console.error('Error saving coach selection:', error);
         // Only show error toast if not suppressed
