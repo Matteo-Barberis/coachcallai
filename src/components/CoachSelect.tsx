@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,6 +7,7 @@ import { useSessionContext } from "@/context/SessionContext";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Profile } from "@/types/supabase"; // Explicitly import the Profile type from our types file
 
 type Assistant = {
   id: string;
@@ -198,7 +200,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
     };
 
     fetchData();
-  }, [session, onCoachSelect, initialSelectionDone, modeId, userProfile]); // Removed defaultPersonalityType from dependencies
+  }, [session, onCoachSelect, initialSelectionDone, modeId, userProfile]); // Dependencies
 
   const handleCoachChange = async (coachId: string) => {
     setSelectedCoach(coachId);
