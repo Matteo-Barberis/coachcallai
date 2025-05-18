@@ -11,6 +11,7 @@ export type Profile = {
   subscription_plan_id?: string | null;
   subscription_end_date?: string | null;
   trial_start_date?: string | null;
+  current_mode_id?: string | null;
 };
 
 export type FocusArea = {
