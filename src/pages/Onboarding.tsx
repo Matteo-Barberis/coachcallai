@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +26,7 @@ const Onboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session } = useSessionContext();
+  const { session, refreshProfile } = useSessionContext();
 
   // Check if we should load saved data from localStorage
   useEffect(() => {
@@ -180,6 +181,9 @@ const Onboarding = () => {
           return;
         }
       }
+
+      // Refresh the profile data in the context to get the updated mode_id
+      await refreshProfile();
 
       toast({
         title: "Onboarding completed successfully!",
