@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -91,9 +90,8 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           phone: data.phone,
-          assistant_id: data.coachId,
           objectives: data.objectives,
-          current_mode_id: data.modeId,
+          current_mode_id: data.modeId, // Save the selected mode ID
           is_onboarding: false // Mark onboarding as complete
         })
         .eq('id', session.user.id);
@@ -118,27 +116,91 @@ const Onboarding = () => {
             variant: "destructive",
           });
         }
-      } else {
-        toast({
-          title: "Onboarding completed successfully!",
-          description: "Welcome to Coach Call AI. You're all set to start your journey.",
-        });
-        
-        // Clear onboarding data from localStorage
-        localStorage.removeItem('onboardingData');
-        
-        // Wait a brief moment to ensure database writes are completed
-        setTimeout(() => {
-          // Redirect to dashboard directly
-          navigate('/dashboard');
-        }, 100);
+        setIsSubmitting(false);
+        return;
       }
+
+      // Check if a mode preference record already exists for this user and mode
+      const { data: existingPreference, error: preferenceCheckError } = await supabase
+        .from('mode_preferences')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('mode_id', data.modeId)
+        .single();
+
+      if (preferenceCheckError && preferenceCheckError.code !== 'PGRST116') { // PGRST116 = not found
+        console.error("Error checking mode preference:", preferenceCheckError);
+        toast({
+          title: "Error saving coach preference",
+          description: "We couldn't save your coach preference. Please try again.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Update or insert mode preference record
+      if (existingPreference) {
+        // Update existing preference
+        const { error: updateError } = await supabase
+          .from('mode_preferences')
+          .update({
+            assistant_id: data.coachId
+          })
+          .eq('id', existingPreference.id);
+
+        if (updateError) {
+          console.error("Error updating mode preference:", updateError);
+          toast({
+            title: "Error saving coach preference",
+            description: "We couldn't update your coach preference. Please try again.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        // Insert new preference
+        const { error: insertError } = await supabase
+          .from('mode_preferences')
+          .insert({
+            user_id: session.user.id,
+            mode_id: data.modeId,
+            assistant_id: data.coachId
+          });
+
+        if (insertError) {
+          console.error("Error inserting mode preference:", insertError);
+          toast({
+            title: "Error saving coach preference",
+            description: "We couldn't save your coach preference. Please try again.",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      toast({
+        title: "Onboarding completed successfully!",
+        description: "Welcome to Coach Call AI. You're all set to start your journey.",
+      });
+      
+      // Clear onboarding data from localStorage
+      localStorage.removeItem('onboardingData');
+      
+      // Wait a brief moment to ensure database writes are completed
+      setTimeout(() => {
+        // Redirect to dashboard directly
+        navigate('/dashboard');
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Onboarding error",
         description: error.message || "An error occurred during onboarding.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
     } finally {
       setIsSubmitting(false);
     }
