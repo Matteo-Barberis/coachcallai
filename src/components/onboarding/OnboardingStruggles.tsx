@@ -1,85 +1,102 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
 
-interface StruggleOption {
+interface Mode {
   id: string;
-  label: string;
+  name: string;
   description: string;
 }
 
-const strugglesOptions: StruggleOption[] = [
-  {
-    id: 'productivity',
-    label: 'Productivity',
-    description: 'I struggle with staying focused and getting things done.'
-  },
-  {
-    id: 'fitness',
-    label: 'Fitness & Health',
-    description: 'I struggle with maintaining consistent exercise and healthy habits.'
-  },
-  {
-    id: 'mindfulness',
-    label: 'Mindfulness',
-    description: 'I struggle with stress, anxiety, and staying present in the moment.'
-  },
-  {
-    id: 'learning',
-    label: 'Learning & Growth',
-    description: 'I struggle with making time for skill development and personal growth.'
-  }
-];
-
-interface OnboardingStrugglesProps {
-  selectedArea: string;
-  onSelect: (area: string) => void;
+interface OnboardingModeProps {
+  selectedMode: string;
+  onSelect: (modeId: string) => void;
   onNext: () => void;
 }
 
-const OnboardingStruggles: React.FC<OnboardingStrugglesProps> = ({ 
-  selectedArea, 
+const OnboardingStruggles: React.FC<OnboardingModeProps> = ({ 
+  selectedMode, 
   onSelect, 
   onNext 
 }) => {
+  const [modes, setModes] = useState<Mode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchModes = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('modes')
+          .select('id, name, description')
+          .order('created_at');
+          
+        if (error) {
+          console.error('Error fetching modes:', error);
+          setError('Failed to load coaching modes. Please try again.');
+        } else {
+          setModes(data || []);
+        }
+      } catch (err) {
+        console.error('Exception when fetching modes:', err);
+        setError('An unexpected error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchModes();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">What do you struggle with most?</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Select Your Coaching Mode</h1>
         <p className="text-gray-600">
-          We'll customize your coach to help you with your specific challenges.
+          Choose the type of coaching that best matches your goals. We'll customize your experience accordingly.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {strugglesOptions.map((option) => (
-          <div
-            key={option.id}
-            className={`border rounded-lg p-4 cursor-pointer transition-all ${
-              selectedArea === option.id
-                ? 'border-brand-primary bg-brand-light/20 shadow-sm'
-                : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-            }`}
-            onClick={() => onSelect(option.id)}
-          >
-            <div className="flex items-start">
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">{option.label}</h3>
-                <p className="text-gray-600 text-sm mt-1">{option.description}</p>
+      {loading ? (
+        <div className="flex justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+        </div>
+      ) : error ? (
+        <div className="p-4 border border-red-300 bg-red-50 text-red-800 rounded-lg">
+          {error}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {modes.map((mode) => (
+            <div
+              key={mode.id}
+              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                selectedMode === mode.id
+                  ? 'border-brand-primary bg-brand-light/20 shadow-sm'
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+              }`}
+              onClick={() => onSelect(mode.id)}
+            >
+              <div className="flex items-start">
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900">{mode.name}</h3>
+                  <p className="text-gray-600 text-sm mt-1">{mode.description}</p>
+                </div>
+                {selectedMode === mode.id && (
+                  <CheckCircle2 className="h-5 w-5 text-brand-primary" />
+                )}
               </div>
-              {selectedArea === option.id && (
-                <CheckCircle2 className="h-5 w-5 text-brand-primary" />
-              )}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="mt-8 flex justify-end">
         <Button
           className="bg-brand-primary hover:bg-brand-primary/90"
-          disabled={!selectedArea}
+          disabled={!selectedMode || loading}
           onClick={onNext}
         >
           Continue

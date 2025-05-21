@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@/context/SessionContext';
 
 type OnboardingData = {
-  focusArea: string;
+  modeId: string;
   phone: string;
   objectives: string;
   coachId: string;
@@ -18,7 +18,7 @@ type OnboardingData = {
 const Onboarding = () => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
-    focusArea: '',
+    modeId: '',
     phone: '',
     objectives: '',
     coachId: '',
@@ -28,7 +28,7 @@ const Onboarding = () => {
   const { toast } = useToast();
   const { session } = useSessionContext();
 
-  // Check if we should load saved data from cookies
+  // Check if we should load saved data from localStorage
   useEffect(() => {
     const savedData = localStorage.getItem('onboardingData');
     if (savedData) {
@@ -87,13 +87,13 @@ const Onboarding = () => {
       }
 
       // Update user profile with onboarding data and explicitly set is_onboarding to false
-      // Removed focus_areas from the update to prevent incorrect data format
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           phone: data.phone,
           assistant_id: data.coachId,
           objectives: data.objectives,
+          current_mode_id: data.modeId,
           is_onboarding: false // Mark onboarding as complete
         })
         .eq('id', session.user.id);
@@ -175,8 +175,8 @@ const Onboarding = () => {
           <div className="p-6 md:p-8">
             {step === 1 && (
               <OnboardingStruggles 
-                selectedArea={data.focusArea} 
-                onSelect={(area) => updateData({ focusArea: area })} 
+                selectedMode={data.modeId} 
+                onSelect={(modeId) => updateData({ modeId })} 
                 onNext={nextStep} 
               />
             )}
