@@ -168,9 +168,18 @@ const ScheduleCall = () => {
   const fetchTemplates = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // Filter templates by the user's current mode_id
+      const query = supabase
         .from('templates')
         .select('id, name, description');
+        
+      // Only filter by mode_id if the user has one set
+      if (userProfile?.current_mode_id) {
+        query.eq('mode_id', userProfile.current_mode_id);
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         console.error('Error fetching templates:', error);
@@ -179,6 +188,9 @@ const ScheduleCall = () => {
       
       if (data && data.length > 0) {
         setTemplates(data);
+      } else {
+        console.log('No templates found for current mode');
+        setTemplates([]);
       }
     } catch (error) {
       console.error('Error in fetchTemplates:', error);
@@ -193,11 +205,19 @@ const ScheduleCall = () => {
     try {
       setIsLoading(true);
       
-      const { data: weekdayData, error: weekdayError } = await supabase
+      // Get weekday schedules filtered by current mode_id
+      const weekdayQuery = supabase
         .from('scheduled_calls')
         .select('id, weekday, time, template_id')
         .eq('user_id', session.user.id)
         .not('weekday', 'is', null);
+      
+      // Only filter by mode_id if the user has one set
+      if (userProfile?.current_mode_id) {
+        weekdayQuery.eq('mode_id', userProfile.current_mode_id);
+      }
+      
+      const { data: weekdayData, error: weekdayError } = await weekdayQuery;
       
       if (weekdayError) {
         console.error('Error fetching weekday schedules:', weekdayError);
@@ -231,13 +251,25 @@ const ScheduleCall = () => {
           time, 
           templateId: templateId || templates[0]?.id || ""
         })));
+      } else {
+        // Reset to empty array when no schedules are found
+        setWeekdaySchedules([]);
+        form.setValue('weekdaySchedules', []);
       }
       
-      const { data: dateData, error: dateError } = await supabase
+      // Get specific date schedules filtered by current mode_id
+      const dateQuery = supabase
         .from('scheduled_calls')
         .select('id, specific_date, time, template_id')
         .eq('user_id', session.user.id)
         .not('specific_date', 'is', null);
+      
+      // Only filter by mode_id if the user has one set
+      if (userProfile?.current_mode_id) {
+        dateQuery.eq('mode_id', userProfile.current_mode_id);
+      }
+      
+      const { data: dateData, error: dateError } = await dateQuery;
       
       if (dateError) {
         console.error('Error fetching specific date schedules:', dateError);
@@ -267,6 +299,10 @@ const ScheduleCall = () => {
           time, 
           templateId: templateId || templates[0]?.id || ""
         })));
+      } else {
+        // Reset to empty array when no schedules are found
+        setSpecificDateSchedules([]);
+        form.setValue('specificDateSchedules', []);
       }
     } catch (error) {
       console.error('Error in fetchSchedules:', error);
@@ -528,7 +564,8 @@ const ScheduleCall = () => {
               weekday: weekdayNum,
               time: formSchedule.time,
               template_id: templateId,
-              goal_id: null
+              goal_id: null,
+              mode_id: userProfile?.current_mode_id // Update with current mode_id
             })
             .eq('id', schedule.id)
             .eq('user_id', session.user.id)
@@ -561,7 +598,8 @@ const ScheduleCall = () => {
               template_id: templateId,
               user_id: session.user.id,
               specific_date: null,
-              goal_id: null
+              goal_id: null,
+              mode_id: userProfile?.current_mode_id // Include current mode_id
             })
             .select('id, weekday, time, template_id')
             .single();
@@ -610,7 +648,8 @@ const ScheduleCall = () => {
               specific_date: formattedDate,
               time: formSchedule.time,
               template_id: templateId,
-              goal_id: null
+              goal_id: null,
+              mode_id: userProfile?.current_mode_id // Update with current mode_id
             })
             .eq('id', schedule.id)
             .eq('user_id', session.user.id)
@@ -640,7 +679,8 @@ const ScheduleCall = () => {
               template_id: templateId,
               user_id: session.user.id,
               weekday: null,
-              goal_id: null
+              goal_id: null,
+              mode_id: userProfile?.current_mode_id // Include current mode_id
             })
             .select('id, specific_date, time, template_id')
             .single();
@@ -1012,6 +1052,11 @@ const ScheduleCall = () => {
             <FormLabel className="text-base">Templates</FormLabel>
             <FormDescription>
               Choose from these predefined templates for your coaching sessions. Each template is designed for a specific purpose.
+              {userProfile?.current_mode_id && templates.length === 0 && (
+                <div className="mt-2 text-amber-600">
+                  No templates available for your current mode. Please contact support.
+                </div>
+              )}
             </FormDescription>
           </div>
           
