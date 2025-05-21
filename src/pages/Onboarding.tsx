@@ -197,6 +197,7 @@ const Onboarding = () => {
                 onSelect={(coachId) => updateData({ coachId })}
                 onBack={prevStep}
                 onComplete={handleComplete}
+                modeId={data.modeId} // Pass the modeId to filter coaches
               />
             )}
           </div>

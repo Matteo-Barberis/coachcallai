@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Check, PlayCircle } from "lucide-react";
+import { Check, PlayCircle, Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Coach {
   id: string;
@@ -20,13 +20,15 @@ interface OnboardingCoachSelectProps {
   onSelect: (coachId: string) => void;
   onBack: () => void;
   onComplete: () => void;
+  modeId: string; // Add modeId prop to filter coaches
 }
 
 const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   selectedCoach,
   onSelect,
   onBack,
-  onComplete
+  onComplete,
+  modeId // Use the modeId prop
 }) => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,13 +37,22 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
-  // Fetch coaches only once when component mounts
+  // Fetch coaches filtered by modeId when component mounts or modeId changes
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
         setLoading(true);
         
-        // Fetch assistants with their personality information
+        if (!modeId) {
+          console.error('No mode ID provided to filter coaches');
+          setError('Cannot load coaches: no coaching mode selected');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Fetching coaches for mode ID:', modeId);
+        
+        // Fetch assistants filtered by the selected mode_id
         const { data, error } = await supabase
           .from('assistants')
           .select(`
@@ -52,7 +63,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
               name,
               behaviour_summary
             )
-          `);
+          `)
+          .eq('mode_id', modeId); // Filter by mode_id
         
         if (error) throw error;
         
@@ -74,33 +86,9 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
             onSelect(transformedCoaches[0].id);
           }
         } else {
-          // If no coaches are found in the database, set a fallback
-          setCoaches([
-            {
-              id: '5c8d3aba-0c2e-4cc5-a114-d4558c8efed2',
-              name: 'Alex',
-              title: 'Productivity Coach',
-              description: 'Helps you build effective routines and stay focused on your most important tasks.',
-              imageUrl: '/placeholder.svg',
-              vapi_assistant_id: 'prod_assistant_1'
-            },
-            {
-              id: '45a76abb-e468-4cc4-badb-9567d3b13193',
-              name: 'Sam',
-              title: 'Mindfulness Coach',
-              description: 'Guides you to reduce stress and be more present in your daily life.',
-              imageUrl: '/placeholder.svg',
-              vapi_assistant_id: 'mind_assistant_1'
-            },
-            {
-              id: '6d2edf2a-bc0f-4a05-a8c0-3b11c4bfe3ba',
-              name: 'Taylor',
-              title: 'Fitness Coach',
-              description: 'Keeps you accountable for your physical health and exercise goals.',
-              imageUrl: '/placeholder.svg',
-              vapi_assistant_id: 'fit_assistant_1'
-            }
-          ]);
+          // If no coaches are found for the selected mode, show an error
+          console.log('No coaches found for mode:', modeId);
+          setError(`No coaches available for the selected coaching mode. Please try a different mode.`);
         }
       } catch (err: any) {
         console.error('Error fetching coaches:', err);
@@ -111,7 +99,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
     };
 
     fetchCoaches();
-  }, []);
+  }, [modeId, onSelect]); // Add modeId as a dependency
 
   // Function to play coach's voice
   const playCoachVoice = (coachId: string, e: React.MouseEvent) => {
@@ -176,12 +164,22 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
       </div>
 
       {loading ? (
-        <div className="text-center py-10">
-          <p className="text-gray-500">Loading coaches...</p>
+        <div className="flex justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
         </div>
       ) : error ? (
-        <div className="text-center py-10 text-red-500">
-          <p>{error}</p>
+        <div className="p-4 border border-red-300 bg-red-50 text-red-800 rounded-lg">
+          {error}
+        </div>
+      ) : coaches.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500">No coaches available for this coaching mode. Please go back and select a different mode.</p>
+          <Button
+            onClick={onBack}
+            className="mt-4"
+          >
+            Go Back
+          </Button>
         </div>
       ) : (
         <RadioGroup value={selectedCoach} onValueChange={onSelect} className="space-y-4">
@@ -237,7 +235,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
         </Button>
         <Button
           className="bg-brand-primary hover:bg-brand-primary/90"
-          disabled={!selectedCoach || loading}
+          disabled={!selectedCoach || loading || coaches.length === 0}
           onClick={onComplete}
         >
           Continue
