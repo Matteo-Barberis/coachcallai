@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -222,14 +221,14 @@ const Dashboard = () => {
           <div className="mt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h3 className="font-medium mb-2">Set Your Objectives</h3>
+                <h3 className="font-medium mb-2">Customize Your Coaching</h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  Define what you want to achieve with your coaching sessions to get personalized guidance.
+                  Set custom instructions and preferences to personalize your coaching experience.
                 </p>
                 <Button variant="outline" asChild>
                   <Link to="/objectives" className="flex items-center gap-2">
                     <Target className="h-4 w-4" /> 
-                    Set Objectives
+                    Set Custom Instructions
                   </Link>
                 </Button>
               </div>
