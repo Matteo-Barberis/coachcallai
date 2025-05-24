@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -6,6 +7,7 @@ import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
+import ModeDisplayBadge from '@/components/ModeDisplayBadge';
 import { useToast } from '@/components/ui/use-toast';
 import {
   Tooltip,
@@ -174,7 +176,10 @@ const Dashboard = () => {
         )}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <ModeDisplayBadge modeId={userProfile?.current_mode_id} />
+            </div>
             <div className="flex items-center flex-wrap gap-2">
               {/* Explicitly pass the current mode ID to the CoachSelect component */}
               <CoachSelect modeId={userProfile?.current_mode_id} />
