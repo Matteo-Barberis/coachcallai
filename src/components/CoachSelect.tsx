@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,6 +124,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
             let preferredAssistantId = null;
             
             if (effectiveModeId) {
+              console.log('Mode-based coach selection used successfully');
               // Get preferred assistant from mode_preferences
               const { data: modePreference, error: modePreferenceError } = await supabase
                 .from('mode_preferences')
@@ -137,16 +137,7 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
                 preferredAssistantId = modePreference.assistant_id;
               }
             } else {
-              // Fallback to the legacy assistant_id from profiles if no mode filtering
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('assistant_id')
-                .eq('id', session.user.id)
-                .single();
-                
-              if (!profileError && profileData?.assistant_id) {
-                preferredAssistantId = profileData.assistant_id;
-              }
+              console.log('No mode available for user, defaulting to first coach');
             }
             
             if (preferredAssistantId) {
@@ -237,14 +228,6 @@ const CoachSelect: React.FC<CoachSelectProps> = ({
             .update({ assistant_id: coachId })
             .eq('user_id', session.user.id)
             .eq('mode_id', effectiveModeId);
-          
-          if (error) throw error;
-        } else {
-          // Fallback to updating the legacy assistant_id in profiles if no mode is available
-          const { error } = await supabase
-            .from('profiles')
-            .update({ assistant_id: coachId })
-            .eq('id', session.user.id);
           
           if (error) throw error;
         }

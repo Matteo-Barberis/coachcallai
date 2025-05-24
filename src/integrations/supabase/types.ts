@@ -251,7 +251,6 @@ export type Database = {
           id: string
           is_onboarding: boolean
           last_demo_call_at: string | null
-          objectives: string | null
           phone: string | null
           phone_verification_code: string | null
           phone_verification_expires_at: string | null
@@ -274,7 +273,6 @@ export type Database = {
           id: string
           is_onboarding?: boolean
           last_demo_call_at?: string | null
-          objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
@@ -297,7 +295,6 @@ export type Database = {
           id?: string
           is_onboarding?: boolean
           last_demo_call_at?: string | null
-          objectives?: string | null
           phone?: string | null
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
@@ -571,7 +568,6 @@ export type Database = {
           avatar_url: string
           created_at: string
           full_name: string
-          objectives: string
           phone: string
           phone_verification_code: string
           phone_verification_expires_at: string
