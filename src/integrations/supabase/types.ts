@@ -144,6 +144,7 @@ export type Database = {
         Row: {
           assistant_id: string | null
           created_at: string
+          custom_instructions: string | null
           id: string
           mode_id: string
           updated_at: string
@@ -152,6 +153,7 @@ export type Database = {
         Insert: {
           assistant_id?: string | null
           created_at?: string
+          custom_instructions?: string | null
           id?: string
           mode_id: string
           updated_at?: string
@@ -160,6 +162,7 @@ export type Database = {
         Update: {
           assistant_id?: string | null
           created_at?: string
+          custom_instructions?: string | null
           id?: string
           mode_id?: string
           updated_at?: string

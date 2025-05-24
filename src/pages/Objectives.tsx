@@ -11,17 +11,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 type FormValues = {
-  objectives: string;
+  custom_instructions: string;
 };
 
 const Objectives = () => {
-  const { session, loading } = useSessionContext();
+  const { session, loading, userProfile } = useSessionContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
   const form = useForm<FormValues>({
     defaultValues: {
-      objectives: '',
+      custom_instructions: '',
     },
   });
 
@@ -30,59 +30,61 @@ const Objectives = () => {
     return <Navigate to="/auth/sign-in" replace />;
   }
 
-  // Fetch user's objectives
+  // Fetch user's custom instructions from mode preferences
   useEffect(() => {
-    const fetchObjectives = async () => {
-      if (session?.user) {
+    const fetchCustomInstructions = async () => {
+      if (session?.user && userProfile?.current_mode_id) {
         try {
           const { data, error } = await supabase
-            .from('profiles')
-            .select('objectives')
-            .eq('id', session.user.id)
+            .from('mode_preferences')
+            .select('custom_instructions')
+            .eq('user_id', session.user.id)
+            .eq('mode_id', userProfile.current_mode_id)
             .single();
           
           if (error) {
-            console.error('Error fetching objectives:', error);
+            console.error('Error fetching custom instructions:', error);
             return;
           }
           
-          if (data && data.objectives) {
-            form.setValue('objectives', data.objectives);
+          if (data && data.custom_instructions) {
+            form.setValue('custom_instructions', data.custom_instructions);
           }
         } catch (error) {
-          console.error('Error fetching objectives:', error);
+          console.error('Error fetching custom instructions:', error);
         }
       }
     };
 
-    fetchObjectives();
-  }, [session, form]);
+    fetchCustomInstructions();
+  }, [session, userProfile, form]);
 
   const onSubmit = async (data: FormValues) => {
-    if (!session?.user) return;
+    if (!session?.user || !userProfile?.current_mode_id) return;
     
     setIsSubmitting(true);
     
     try {
       const { error } = await supabase
-        .from('profiles')
-        .update({ objectives: data.objectives })
-        .eq('id', session.user.id);
+        .from('mode_preferences')
+        .update({ custom_instructions: data.custom_instructions })
+        .eq('user_id', session.user.id)
+        .eq('mode_id', userProfile.current_mode_id);
       
       if (error) {
         throw error;
       }
       
       toast({
-        title: 'Objectives saved',
-        description: 'Your coaching objectives have been updated successfully.',
+        title: 'Instructions saved',
+        description: 'Your custom instructions have been updated successfully.',
       });
       
     } catch (error) {
-      console.error('Error saving objectives:', error);
+      console.error('Error saving custom instructions:', error);
       toast({
         title: 'Failed to save',
-        description: 'There was an error saving your objectives. Please try again.',
+        description: 'There was an error saving your instructions. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -90,25 +92,40 @@ const Objectives = () => {
     }
   };
 
+  if (!userProfile?.current_mode_id) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
+              You need to select a coaching mode before setting custom instructions. Please complete the onboarding process.
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold mb-2">Set Your Objectives</h1>
-          <p className="text-gray-500 mb-6">Define what you want to achieve with your coaching sessions</p>
+          <h1 className="text-2xl font-bold mb-2">Set Your Custom Instructions</h1>
+          <p className="text-gray-500 mb-6">Define specific instructions and preferences for your coaching sessions</p>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="objectives"
+                name="custom_instructions"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Objectives</FormLabel>
+                    <FormLabel>Your Custom Instructions</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="List the goals you want to achieve through coaching..."
+                        placeholder="Enter any specific instructions, goals, or preferences for your coaching sessions..."
                         className="min-h-[200px]"
                         {...field}
                       />
@@ -118,7 +135,7 @@ const Objectives = () => {
                 )}
               />
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Objectives'}
+                {isSubmitting ? 'Saving...' : 'Save Instructions'}
               </Button>
             </form>
           </Form>
