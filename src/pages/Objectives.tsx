@@ -99,7 +99,7 @@ const Objectives = () => {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
-              You need to select a coaching mode before setting custom instructions. Please complete the onboarding process.
+              You need to select a coaching mode before setting your objectives. Please complete the onboarding process.
             </div>
           </div>
         </main>
@@ -112,8 +112,8 @@ const Objectives = () => {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold mb-2">Set Your Custom Instructions</h1>
-          <p className="text-gray-500 mb-6">Define specific instructions and preferences for your coaching sessions</p>
+          <h1 className="text-2xl font-bold mb-2">Set Your Coaching Objectives</h1>
+          <p className="text-gray-500 mb-6">Tell us what you want to focus on and improve in your coaching sessions</p>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -122,10 +122,10 @@ const Objectives = () => {
                 name="custom_instructions"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Custom Instructions</FormLabel>
+                    <FormLabel>What would you like to focus on?</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter any specific instructions, goals, or preferences for your coaching sessions..."
+                        placeholder="Describe what you want to work on, your goals, challenges you're facing, or areas where you'd like to improve..."
                         className="min-h-[200px]"
                         {...field}
                       />
@@ -135,7 +135,7 @@ const Objectives = () => {
                 )}
               />
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Instructions'}
+                {isSubmitting ? 'Saving...' : 'Save Objectives'}
               </Button>
             </form>
           </Form>
