@@ -22,6 +22,7 @@ interface OnboardingCoachSelectProps {
   onBack: () => void;
   onComplete: () => void;
   modeId: string;
+  isSubmitting?: boolean;
 }
 
 const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
@@ -29,7 +30,8 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   onSelect,
   onBack,
   onComplete,
-  modeId
+  modeId,
+  isSubmitting = false
 }) => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
@@ -230,15 +232,23 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
         <Button
           variant="outline"
           onClick={onBack}
+          disabled={isSubmitting}
         >
           Back
         </Button>
         <Button
           className="bg-brand-primary hover:bg-brand-primary/90"
-          disabled={!selectedCoach || loading || coaches.length === 0}
+          disabled={!selectedCoach || loading || coaches.length === 0 || isSubmitting}
           onClick={onComplete}
         >
-          Continue
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Processing...
+            </>
+          ) : (
+            'Continue'
+          )}
         </Button>
       </div>
     </div>
