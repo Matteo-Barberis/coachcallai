@@ -226,7 +226,7 @@ const Dashboard = () => {
                   Set custom instructions and preferences to personalize your coaching experience.
                 </p>
                 <Button variant="outline" asChild>
-                  <Link to="/objectives" className="flex items-center gap-2">
+                  <Link to="/custom-instructions" className="flex items-center gap-2">
                     <Target className="h-4 w-4" /> 
                     Set Custom Instructions
                   </Link>
