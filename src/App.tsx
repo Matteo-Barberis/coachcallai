@@ -36,7 +36,7 @@ const App = () => (
             <Route path="/auth/update-password" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/schedule" element={<Schedule />} />
-            <Route path="/objectives" element={<Objectives />} />
+            <Route path="/custom-instructions" element={<Objectives />} />
             <Route path="/connect-whatsapp" element={<ConnectWhatsapp />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/account" element={<Account />} />
