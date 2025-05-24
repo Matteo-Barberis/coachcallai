@@ -22,6 +22,13 @@ const templateMessages = {
   'evening_checkin_personal': 'Good evening! How did your day go?'
 };
 
+// Regular text messages for within 24h window (with placeholders for user names)
+const regularTextMessages = {
+  'morning': 'Good morning {{name}}! Ready to tackle your goals today? Let me know how I can support you.',
+  'midday': 'Hey {{name}}, it\'s midday already! How\'s your day going so far? Need any help staying on track?',
+  'evening': 'Good evening {{name}}! How did your day go?'
+};
+
 // Log immediately when the function is loaded
 console.log("Scheduled WhatsApp check-ins function is starting up...");
 
@@ -58,10 +65,9 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all unique timezones from the database - fixing the distinct query
+    // Get all unique timezones from the database
     console.log(`[${new Date().toISOString()}] Fetching unique timezones from profiles...`);
     
-    // Changed: Removed phone_verified check
     const { data: timezoneObjects, error: timezonesError } = await supabase
       .from('profiles')
       .select('timezone')
@@ -121,7 +127,6 @@ serve(async (req) => {
           if (isInWindow) {
             console.log(`[${new Date().toISOString()}] Time in ${timezone} falls within ${window.type} check-in window`);
             
-            // Changed: Removed phone_verified check
             const { data: users, error: usersError } = await supabase
               .from('profiles')
               .select('id, full_name, phone, timezone')
@@ -138,12 +143,12 @@ serve(async (req) => {
             // Process each user
             for (const user of users) {
               try {
-                // Get user's latest WhatsApp message - MODIFIED: Only fetch user-type messages
+                // Get user's latest WhatsApp message - only fetch user-type messages
                 const { data: latestMessages, error: messagesError } = await supabase
                   .from('whatsapp_messages')
                   .select('created_at')
                   .eq('user_id', user.id)
-                  .eq('type', 'user') // CHANGE: Only consider messages from the user, not system messages
+                  .eq('type', 'user')
                   .order('created_at', { ascending: false })
                   .limit(1);
                 
@@ -152,21 +157,29 @@ serve(async (req) => {
                   continue;
                 }
                 
-                const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+                const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
                 const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
                 
                 let shouldSendMessage = false;
+                let useTemplate = false;
                 
-                // CHANGED: If the user has message history, check the time window
+                // If the user has message history, check the time window
                 if (latestMessages.length > 0) {
-                  // Check if latest message is outside 2-hour window but within 48 hours
                   const latestMessageTime = new Date(latestMessages[0].created_at);
                   
-                  if (latestMessageTime < twoHoursAgo && latestMessageTime > fortyEightHoursAgo) {
+                  if (latestMessageTime > twentyFourHoursAgo) {
+                    // Within 24 hours - send regular text message
                     shouldSendMessage = true;
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last user message was at ${latestMessageTime.toISOString()}, sending check-in`);
+                    useTemplate = false;
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was within 24h, sending regular text message`);
+                  } else if (latestMessageTime > fortyEightHoursAgo) {
+                    // Between 24-48 hours - send template message
+                    shouldSendMessage = true;
+                    useTemplate = true;
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was between 24-48h, sending template message`);
                   } else {
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last user message was at ${latestMessageTime.toISOString()}, not sending check-in`);
+                    // Past 48 hours - don't send anything
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was over 48h ago, not sending check-in`);
                   }
                 } else {
                   // User has no user-type message history, don't send a check-in
@@ -180,34 +193,49 @@ serve(async (req) => {
                   // Get the user's first name or full name to use as parameter
                   const userName = user.full_name ? user.full_name.split(' ')[0] : 'there';
                   
-                  // Send WhatsApp template message with user's name as parameter
-                  const result = await sendWhatsAppTemplateMessage(
-                    phoneNumber,
-                    window.templateId,
-                    whatsappApiToken,
-                    phoneNumberId,
-                    userName
-                  );
+                  let result;
+                  let messageContent;
+                  
+                  if (useTemplate) {
+                    // Send WhatsApp template message
+                    result = await sendWhatsAppTemplateMessage(
+                      phoneNumber,
+                      window.templateId,
+                      whatsappApiToken,
+                      phoneNumberId,
+                      userName
+                    );
+                    messageContent = templateMessages[window.templateId];
+                  } else {
+                    // Send regular text message
+                    const textMessage = regularTextMessages[window.type].replace('{{name}}', userName);
+                    result = await sendWhatsAppTextMessage(
+                      phoneNumber,
+                      textMessage,
+                      whatsappApiToken,
+                      phoneNumberId
+                    );
+                    messageContent = textMessage;
+                  }
                   
                   if (result.success) {
                     messagesSent++;
-                    console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber}`);
+                    console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber} using ${useTemplate ? 'template' : 'text'} message`);
                     
-                    // NEW: Store the sent template message in the database as a system message
-                    const templateContent = templateMessages[window.templateId];
-                    if (templateContent) {
+                    // Store the sent message in the database as a system message
+                    if (messageContent) {
                       const { error: storeMessageError } = await supabase
                         .from('whatsapp_messages')
                         .insert({
                           user_id: user.id,
-                          content: templateContent,
+                          content: messageContent,
                           type: 'system'
                         });
                         
                       if (storeMessageError) {
-                        console.error(`[${new Date().toISOString()}] Error storing template message for user ${user.id}:`, storeMessageError);
+                        console.error(`[${new Date().toISOString()}] Error storing message for user ${user.id}:`, storeMessageError);
                       } else {
-                        console.log(`[${new Date().toISOString()}] Successfully stored template message in database for user ${user.id}`);
+                        console.log(`[${new Date().toISOString()}] Successfully stored message in database for user ${user.id}`);
                       }
                     }
                   } else {
@@ -218,7 +246,7 @@ serve(async (req) => {
                     userId: user.id,
                     phone: phoneNumber,
                     timezone: timezone,
-                    template: window.templateId,
+                    template: useTemplate ? window.templateId : 'text_message',
                     result: result.success ? 'sent' : 'failed',
                     error: result.error || null
                   });
@@ -284,6 +312,49 @@ function isTimeInWindow(hours: number, minutes: number, startHour: number, start
   const endTime = endHour * 60 + endMinute;
   
   return time >= startTime && time <= endTime;
+}
+
+/**
+ * Send a WhatsApp regular text message
+ */
+async function sendWhatsAppTextMessage(
+  to: string,
+  message: string,
+  whatsappToken: string,
+  phoneNumberId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+    
+    const response = await fetch(whatsappApiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${whatsappToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: to,
+        type: 'text',
+        text: {
+          body: message
+        }
+      })
+    });
+    
+    const responseData = await response.json();
+    
+    if (!response.ok) {
+      console.error('Error sending WhatsApp text message:', responseData);
+      return { success: false, error: JSON.stringify(responseData) };
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Exception sending WhatsApp text message:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 /**
