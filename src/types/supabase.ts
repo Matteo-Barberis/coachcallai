@@ -1,11 +1,9 @@
-
 export type Profile = {
   id: string;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
-  objectives: string | null;
   focus_areas: FocusArea[] | null;
   subscription_status?: string | null;
   subscription_plan_id?: string | null;
