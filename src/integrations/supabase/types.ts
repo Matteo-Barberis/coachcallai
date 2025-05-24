@@ -242,7 +242,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          assistant_id: string | null
           avatar_url: string | null
           created_at: string
           current_mode_id: string | null
@@ -264,7 +263,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
           current_mode_id?: string | null
@@ -286,7 +284,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          assistant_id?: string | null
           avatar_url?: string | null
           created_at?: string
           current_mode_id?: string | null
@@ -308,13 +305,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "profiles_assistant_id_fkey"
-            columns: ["assistant_id"]
-            isOneToOne: false
-            referencedRelation: "assistants"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "profiles_current_mode_id_fkey"
             columns: ["current_mode_id"]
