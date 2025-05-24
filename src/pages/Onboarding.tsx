@@ -86,12 +86,11 @@ const Onboarding = () => {
         }
       }
 
-      // Update user profile with onboarding data and explicitly set is_onboarding to false
+      // Update user profile with phone and set is_onboarding to false (remove objectives from here)
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           phone: data.phone,
-          objectives: data.objectives,
           current_mode_id: data.modeId, // Save the selected mode ID
           is_onboarding: false // Mark onboarding as complete
         })
@@ -146,7 +145,8 @@ const Onboarding = () => {
         const { error: updateError } = await supabase
           .from('mode_preferences')
           .update({
-            assistant_id: data.coachId
+            assistant_id: data.coachId,
+            custom_instructions: data.objectives // ✅ Save objectives here
           })
           .eq('id', existingPreference.id);
 
@@ -167,7 +167,8 @@ const Onboarding = () => {
           .insert({
             user_id: session.user.id,
             mode_id: data.modeId,
-            assistant_id: data.coachId
+            assistant_id: data.coachId,
+            custom_instructions: data.objectives // ✅ Save objectives here
           });
 
         if (insertError) {
