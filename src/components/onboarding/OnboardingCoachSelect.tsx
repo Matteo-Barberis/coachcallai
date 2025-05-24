@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -20,7 +21,7 @@ interface OnboardingCoachSelectProps {
   onSelect: (coachId: string) => void;
   onBack: () => void;
   onComplete: () => void;
-  modeId: string; // Add modeId prop to filter coaches
+  modeId: string;
 }
 
 const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
@@ -28,7 +29,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
   onSelect,
   onBack,
   onComplete,
-  modeId // Use the modeId prop
+  modeId
 }) => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
               behaviour_summary
             )
           `)
-          .eq('mode_id', modeId); // Filter by mode_id
+          .eq('mode_id', modeId);
         
         if (error) throw error;
         
@@ -80,13 +81,7 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
           }));
           
           setCoaches(transformedCoaches);
-          
-          // If no coach is selected yet, select the first one by default
-          if (!selectedCoach && transformedCoaches.length > 0) {
-            onSelect(transformedCoaches[0].id);
-          }
         } else {
-          // If no coaches are found for the selected mode, show an error
           console.log('No coaches found for mode:', modeId);
           setError(`No coaches available for the selected coaching mode. Please try a different mode.`);
         }
@@ -99,13 +94,19 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
     };
 
     fetchCoaches();
-  }, [modeId, onSelect]); // Add modeId as a dependency
+  }, [modeId]); // Removed onSelect from dependencies
+
+  // Handle default selection when coaches are loaded and no coach is selected
+  useEffect(() => {
+    if (coaches.length > 0 && !selectedCoach) {
+      onSelect(coaches[0].id);
+    }
+  }, [coaches, selectedCoach, onSelect]);
 
   // Function to play coach's voice
   const playCoachVoice = (coachId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the coach selection
+    e.stopPropagation();
     
-    // Stop any currently playing audio
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
@@ -121,7 +122,6 @@ const OnboardingCoachSelect: React.FC<OnboardingCoachSelectProps> = ({
       return;
     }
 
-    // Create the audio URL based on the vapi_assistant_id
     const audioUrl = `https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/${coach.vapi_assistant_id}.wav`;
     
     const newAudio = new Audio(audioUrl);
