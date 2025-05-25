@@ -507,6 +507,75 @@ Keep your reply conversational, friendly and encouraging. If you detect achievem
       }
     }
 
+    // Analyze message importance using OpenAI
+    let isImportant = 0; // Default to not important
+    if (userId && messageContent !== '[Media message]') {
+      console.log('Analyzing message importance...');
+      
+      const importancePrompt = `Analyze the user's message and decide whether it contains meaningful personal information that should be remembered to help an AI assistant have more personal, continuous, or emotionally intelligent conversations in the future. Ignore generic, shallow, or impersonal messages.
+
+user last message: ${messageContent}
+
+Return one of:
+
+"1" if it contains anything personal, emotional, identity-revealing, or memory-worthy
+
+"0" if it doesn't`;
+
+      try {
+        const importanceResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              { 
+                role: 'user', 
+                content: importancePrompt 
+              }
+            ],
+            max_tokens: 10,
+            temperature: 0,
+          }),
+        });
+
+        if (importanceResponse.ok) {
+          const importanceData = await importanceResponse.json();
+          const response = importanceData.choices[0].message.content.trim();
+          
+          if (response === '1') {
+            isImportant = 1;
+            console.log('Message marked as important');
+          } else {
+            console.log('Message marked as not important');
+          }
+        } else {
+          console.error('Error from OpenAI importance analysis:', await importanceResponse.text());
+        }
+      } catch (importanceError) {
+        console.error('Error analyzing message importance:', importanceError);
+      }
+
+      // Update the message importance in the database
+      const { error: updateError } = await supabaseClient
+        .from('whatsapp_messages')
+        .update({ is_important: isImportant })
+        .eq('user_id', userId)
+        .eq('content', messageContent)
+        .eq('type', 'user')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (updateError) {
+        console.error('Error updating message importance:', updateError);
+      } else {
+        console.log(`Successfully updated message importance to ${isImportant}`);
+      }
+    }
+
     // Call WhatsApp API to send the reply
     const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
     if (!phoneNumberId) {

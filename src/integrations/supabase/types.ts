@@ -59,6 +59,7 @@ export type Database = {
           id: string
           payload: Json | null
           processed_by_ai: boolean | null
+          processed_for_summary: boolean
           processed_keywords: boolean | null
           response: Json | null
           scheduled_call_id: string | null
@@ -72,6 +73,7 @@ export type Database = {
           id?: string
           payload?: Json | null
           processed_by_ai?: boolean | null
+          processed_for_summary?: boolean
           processed_keywords?: boolean | null
           response?: Json | null
           scheduled_call_id?: string | null
@@ -85,6 +87,7 @@ export type Database = {
           id?: string
           payload?: Json | null
           processed_by_ai?: boolean | null
+          processed_for_summary?: boolean
           processed_keywords?: boolean | null
           response?: Json | null
           scheduled_call_id?: string | null
@@ -250,6 +253,7 @@ export type Database = {
           id: string
           is_onboarding: boolean
           last_demo_call_at: string | null
+          last_summary_update: string | null
           phone: string | null
           phone_verification_code: string | null
           phone_verification_expires_at: string | null
@@ -261,6 +265,7 @@ export type Database = {
           timezone: string
           trial_start_date: string | null
           updated_at: string
+          user_summary: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -271,6 +276,7 @@ export type Database = {
           id: string
           is_onboarding?: boolean
           last_demo_call_at?: string | null
+          last_summary_update?: string | null
           phone?: string | null
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
@@ -282,6 +288,7 @@ export type Database = {
           timezone?: string
           trial_start_date?: string | null
           updated_at?: string
+          user_summary?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -292,6 +299,7 @@ export type Database = {
           id?: string
           is_onboarding?: boolean
           last_demo_call_at?: string | null
+          last_summary_update?: string | null
           phone?: string | null
           phone_verification_code?: string | null
           phone_verification_expires_at?: string | null
@@ -303,6 +311,7 @@ export type Database = {
           timezone?: string
           trial_start_date?: string | null
           updated_at?: string
+          user_summary?: string | null
         }
         Relationships: [
           {
@@ -448,6 +457,33 @@ export type Database = {
         }
         Relationships: []
       }
+      system_prompts: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          prompt_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          prompt_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          prompt_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           created_at: string
@@ -518,6 +554,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_important: boolean | null
+          summary_processed: boolean | null
           type: string
           user_id: string | null
         }
@@ -525,6 +563,8 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_important?: boolean | null
+          summary_processed?: boolean | null
           type: string
           user_id?: string | null
         }
@@ -532,6 +572,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_important?: boolean | null
+          summary_processed?: boolean | null
           type?: string
           user_id?: string | null
         }
