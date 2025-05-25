@@ -506,12 +506,23 @@ Keep your reply conversational, friendly and encouraging. If you detect achievem
       }
     }
 
-    // Analyze message importance using OpenAI
+    // Analyze message importance using OpenAI with function calling
     let isImportant = 0; // Default to not important
     if (userId && messageContent !== '[Media message]') {
       console.log('Analyzing message importance...');
       
-      const importancePrompt = `Analyze the user's message and decide whether it contains meaningful personal information that should be remembered to help an AI assistant have more personal, continuous, or emotionally intelligent conversations in the future. Ignore generic, shallow, or impersonal messages.
+      // Fetch the user_text_analyze prompt from database
+      const { data: promptData, error: promptError } = await supabaseClient
+        .from('system_prompts')
+        .select('prompt_text')
+        .eq('name', 'user_text_analyze')
+        .maybeSingle();
+
+      if (promptError) {
+        console.error('Error fetching user_text_analyze prompt:', promptError);
+      }
+
+      let importancePrompt = `Analyze the user's message and decide whether it contains meaningful personal information that should be remembered to help an AI assistant have more personal, continuous, or emotionally intelligent conversations in the future. Ignore generic, shallow, or impersonal messages.
 
 user last message: ${messageContent}
 
@@ -520,6 +531,33 @@ Return one of:
 "1" if it contains anything personal, emotional, identity-revealing, or memory-worthy
 
 "0" if it doesn't`;
+
+      // Use database prompt if available, otherwise use fallback
+      if (promptData && promptData.prompt_text) {
+        importancePrompt = promptData.prompt_text.replace('${messageContent}', messageContent);
+        console.log('Using database prompt for importance analysis');
+      } else {
+        console.log('Using fallback prompt for importance analysis');
+      }
+
+      // Define function for importance analysis
+      const importanceFunctions = [
+        {
+          name: "analyzeMessageImportance",
+          description: "Analyze if a message contains important personal information",
+          parameters: {
+            type: "object",
+            properties: {
+              is_important: {
+                type: "integer",
+                description: "1 if the message contains meaningful personal information, 0 if it doesn't",
+                enum: [0, 1]
+              }
+            },
+            required: ["is_important"]
+          }
+        }
+      ];
 
       try {
         const importanceResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -536,6 +574,8 @@ Return one of:
                 content: importancePrompt 
               }
             ],
+            functions: importanceFunctions,
+            function_call: { name: "analyzeMessageImportance" },
             max_tokens: 10,
             temperature: 0,
           }),
@@ -543,13 +583,26 @@ Return one of:
 
         if (importanceResponse.ok) {
           const importanceData = await importanceResponse.json();
-          const response = importanceData.choices[0].message.content.trim();
+          console.log('Importance analysis response:', JSON.stringify(importanceData));
           
-          if (response === '1') {
-            isImportant = 1;
-            console.log('Message marked as important');
-          } else {
-            console.log('Message marked as not important');
+          if (importanceData.choices && importanceData.choices.length > 0) {
+            const functionCall = importanceData.choices[0].message.function_call;
+            
+            if (functionCall && functionCall.name === 'analyzeMessageImportance') {
+              try {
+                const functionArgs = JSON.parse(functionCall.arguments);
+                if (typeof functionArgs.is_important === 'number') {
+                  isImportant = functionArgs.is_important;
+                  console.log(`Message importance analyzed: ${isImportant}`);
+                } else {
+                  console.error('Invalid is_important value:', functionArgs.is_important);
+                }
+              } catch (parseError) {
+                console.error('Error parsing importance function arguments:', parseError);
+              }
+            } else {
+              console.error('Function call not found in importance response');
+            }
           }
         } else {
           console.error('Error from OpenAI importance analysis:', await importanceResponse.text());
