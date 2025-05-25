@@ -159,7 +159,7 @@ export async function main() {
     // Step 2: Find users who have 10+ unprocessed important messages
     console.log(`[${new Date().toISOString()}] Finding users with 10+ unprocessed important messages...`);
     
-    const { data: eligibleUsers, error: usersError } = await supabaseClient
+    const { data: userCounts, error: usersError } = await supabaseClient
       .from('whatsapp_messages')
       .select('user_id')
       .eq('is_important', true)
@@ -168,30 +168,30 @@ export async function main() {
       .not('user_id', 'is', null);
 
     if (usersError) {
-      console.error(`[${new Date().toISOString()}] Error fetching eligible users:`, usersError);
+      console.error(`[${new Date().toISOString()}] Error fetching unprocessed messages:`, usersError);
       throw usersError;
     }
 
-    if (!eligibleUsers || eligibleUsers.length === 0) {
+    if (!userCounts || userCounts.length === 0) {
       console.log(`[${new Date().toISOString()}] No unprocessed important messages found`);
       return { message: 'No WhatsApp messages to process', results: [] };
     }
 
     // Count messages per user and filter those with 10+
     const userMessageCounts: Record<string, number> = {};
-    eligibleUsers.forEach(msg => {
+    userCounts.forEach(msg => {
       if (msg.user_id) {
         userMessageCounts[msg.user_id] = (userMessageCounts[msg.user_id] || 0) + 1;
       }
     });
 
-    const usersWithEnoughMessages = Object.entries(userMessageCounts)
+    const eligibleUserIds = Object.entries(userMessageCounts)
       .filter(([_, count]) => count >= 10)
       .map(([userId, _]) => userId);
 
-    console.log(`[${new Date().toISOString()}] Found ${usersWithEnoughMessages.length} users with 10+ unprocessed important messages`);
+    console.log(`[${new Date().toISOString()}] Found ${eligibleUserIds.length} users with 10+ unprocessed important messages`);
 
-    if (usersWithEnoughMessages.length === 0) {
+    if (eligibleUserIds.length === 0) {
       console.log(`[${new Date().toISOString()}] No users with sufficient messages (10+) found`);
       return { message: 'No users with enough messages to process', results: [] };
     }
@@ -200,11 +200,11 @@ export async function main() {
     let processedUsersCount = 0;
 
     // Step 3: Process each eligible user
-    for (const userId of usersWithEnoughMessages) {
+    for (const userId of eligibleUserIds) {
       console.log(`[${new Date().toISOString()}] Starting processing for user ${userId}...`);
 
       try {
-        // Get the most recent 40 unprocessed important messages for this user
+        // Get up to 40 unprocessed important messages for this user that are NOT locked
         const { data: userMessages, error: messagesError } = await supabaseClient
           .from('whatsapp_messages')
           .select('id, content, created_at')
@@ -221,13 +221,13 @@ export async function main() {
         }
 
         if (!userMessages || userMessages.length === 0) {
-          console.log(`[${new Date().toISOString()}] No messages found for user ${userId} (may have been processed by another instance)`);
+          console.log(`[${new Date().toISOString()}] No unlocked messages found for user ${userId} (may have been processed by another instance)`);
           continue;
         }
 
-        console.log(`[${new Date().toISOString()}] Found ${userMessages.length} messages for user ${userId}`);
+        console.log(`[${new Date().toISOString()}] Found ${userMessages.length} unlocked messages for user ${userId}`);
 
-        // Atomically claim these specific messages
+        // Atomically lock these specific messages
         const messageIds = userMessages.map(m => m.id);
         const { data: claimedMessages, error: claimError } = await supabaseClient
           .from('whatsapp_messages')
