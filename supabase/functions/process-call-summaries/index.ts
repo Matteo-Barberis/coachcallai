@@ -1,4 +1,5 @@
 
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -119,6 +120,23 @@ export async function main() {
     );
     console.log(`[${new Date().toISOString()}] Supabase client created successfully`);
 
+    // Step 1: Timeout recovery - Clear any call logs stuck in processing for more than 15 minutes
+    console.log(`[${new Date().toISOString()}] Starting timeout recovery...`);
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    
+    const { data: recoveredLogs, error: recoveryError } = await supabaseClient
+      .from('call_logs')
+      .update({ processing_started_at: null })
+      .lt('processing_started_at', fifteenMinutesAgo)
+      .not('processing_started_at', 'is', null)
+      .select('id');
+
+    if (recoveryError) {
+      console.error(`[${new Date().toISOString()}] Error during timeout recovery:`, recoveryError);
+    } else {
+      console.log(`[${new Date().toISOString()}] Recovered ${recoveredLogs?.length || 0} stuck call logs from timeout`);
+    }
+
     // Fetch the user_summary_update prompt from database
     console.log(`[${new Date().toISOString()}] Fetching user_summary_update prompt from database...`);
     const { data: promptData, error: promptError } = await supabaseClient
@@ -139,36 +157,37 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs for summary...`);
-    
-    // Get all call logs that are not processed for summary but have summary
-    const { data: unprocessedLogs, error: fetchError } = await supabaseClient
-      .from('call_logs')
-      .select('id, call_summary, scheduled_call_id')
-      .eq('processed_for_summary', false)
-      .not('call_summary', 'is', null);
-
-    if (fetchError) {
-      console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
-      throw fetchError;
-    }
-
-    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs?.length || 0} unprocessed call logs for summary`);
-    console.log(`[${new Date().toISOString()}] Memory usage after fetching logs: ${JSON.stringify(Deno.memoryUsage())}`);
-    
-    if (!unprocessedLogs || unprocessedLogs.length === 0) {
-      console.log(`[${new Date().toISOString()}] No unprocessed call logs found for summary, exiting function`);
-      return { message: 'No unprocessed call logs found for summary' };
-    }
-
     const results = [];
+    let processedCount = 0;
 
-    // Process each log
-    for (const [index, log] of unprocessedLogs.entries()) {
+    // Step 2: Process call logs one by one using atomic claiming
+    console.log(`[${new Date().toISOString()}] Starting atomic call log processing...`);
+    
+    while (true) {
+      // Atomically claim the next available call log
+      const { data: claimedLogs, error: claimError } = await supabaseClient
+        .from('call_logs')
+        .update({ processing_started_at: new Date().toISOString() })
+        .eq('processed_for_summary', false)
+        .is('processing_started_at', null)
+        .not('call_summary', 'is', null)
+        .limit(1)
+        .select('id, call_summary, scheduled_call_id');
+
+      if (claimError) {
+        console.error(`[${new Date().toISOString()}] Error claiming call log:`, claimError);
+        break;
+      }
+
+      if (!claimedLogs || claimedLogs.length === 0) {
+        console.log(`[${new Date().toISOString()}] No more call logs to process`);
+        break;
+      }
+
+      const log = claimedLogs[0];
+      console.log(`[${new Date().toISOString()}] Claimed and processing call log ID: ${log.id}`);
+
       try {
-        console.log(`[${new Date().toISOString()}] Processing call log ${index + 1}/${unprocessedLogs.length}, ID: ${log.id}`);
-        console.log(`[${new Date().toISOString()}] Summary length: ${log.call_summary?.length || 0}`);
-
         // Get user_id from scheduled_call
         console.log(`[${new Date().toISOString()}] Fetching scheduled call data for call ID: ${log.scheduled_call_id}`);
         
@@ -180,13 +199,32 @@ export async function main() {
 
         if (scheduledCallError) {
           console.error(`[${new Date().toISOString()}] Error fetching scheduled call for log ${log.id}:`, scheduledCallError);
-          console.error(`[${new Date().toISOString()}] Error details:`, JSON.stringify(scheduledCallError));
+          
+          // Mark as processed to avoid infinite retry
+          await supabaseClient
+            .from('call_logs')
+            .update({ 
+              processed_for_summary: true,
+              processing_started_at: null 
+            })
+            .eq('id', log.id);
+          
           continue;
         }
 
         const userId = scheduledCall?.user_id;
         if (!userId) {
           console.error(`[${new Date().toISOString()}] No user_id found for scheduled call ${log.scheduled_call_id}`);
+          
+          // Mark as processed to avoid infinite retry
+          await supabaseClient
+            .from('call_logs')
+            .update({ 
+              processed_for_summary: true,
+              processing_started_at: null 
+            })
+            .eq('id', log.id);
+          
           continue;
         }
         console.log(`[${new Date().toISOString()}] Found user_id: ${userId} for call log ${log.id}`);
@@ -200,6 +238,16 @@ export async function main() {
 
         if (profileError) {
           console.error(`[${new Date().toISOString()}] Error fetching user profile for ${userId}:`, profileError);
+          
+          // Mark as processed to avoid infinite retry
+          await supabaseClient
+            .from('call_logs')
+            .update({ 
+              processed_for_summary: true,
+              processing_started_at: null 
+            })
+            .eq('id', log.id);
+          
           continue;
         }
 
@@ -245,18 +293,22 @@ export async function main() {
           });
         }
 
-        // Mark log as processed for summary
+        // Mark log as processed and clear the processing timestamp
         console.log(`[${new Date().toISOString()}] Marking call log ${log.id} as processed for summary...`);
         
         const { error: updateLogError } = await supabaseClient
           .from('call_logs')
-          .update({ processed_for_summary: true })
+          .update({ 
+            processed_for_summary: true,
+            processing_started_at: null
+          })
           .eq('id', log.id);
 
         if (updateLogError) {
           console.error(`[${new Date().toISOString()}] Error marking call log ${log.id} as processed for summary:`, updateLogError);
         } else {
           console.log(`[${new Date().toISOString()}] Successfully marked call log ${log.id} as processed for summary`);
+          processedCount++;
         }
         
         console.log(`[${new Date().toISOString()}] Completed processing for call log ${log.id}`);
@@ -264,6 +316,12 @@ export async function main() {
       } catch (error) {
         console.error(`[${new Date().toISOString()}] Error processing call log ${log.id}:`, error);
         console.error(`[${new Date().toISOString()}] Error stack:`, error.stack);
+        
+        // Clear the processing timestamp so it can be retried later
+        await supabaseClient
+          .from('call_logs')
+          .update({ processing_started_at: null })
+          .eq('id', log.id);
       }
     }
 
@@ -271,7 +329,7 @@ export async function main() {
     console.log(`[${new Date().toISOString()}] Final memory usage: ${JSON.stringify(Deno.memoryUsage())}`);
     
     return { 
-      message: `Processed ${unprocessedLogs.length} call logs for summary`, 
+      message: `Processed ${processedCount} call logs for summary`, 
       results: results 
     };
   } catch (error) {
@@ -300,3 +358,4 @@ Deno.serve(async (req) => {
     });
   }
 });
+

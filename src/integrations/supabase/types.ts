@@ -61,6 +61,7 @@ export type Database = {
           processed_by_ai: boolean | null
           processed_for_summary: boolean
           processed_keywords: boolean | null
+          processing_started_at: string | null
           response: Json | null
           scheduled_call_id: string | null
           status: string | null
@@ -75,6 +76,7 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_for_summary?: boolean
           processed_keywords?: boolean | null
+          processing_started_at?: string | null
           response?: Json | null
           scheduled_call_id?: string | null
           status?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_for_summary?: boolean
           processed_keywords?: boolean | null
+          processing_started_at?: string | null
           response?: Json | null
           scheduled_call_id?: string | null
           status?: string | null
@@ -555,6 +558,7 @@ export type Database = {
           created_at: string
           id: string
           is_important: boolean | null
+          processing_started_at: string | null
           summary_processed: boolean | null
           type: string
           user_id: string | null
@@ -564,6 +568,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_important?: boolean | null
+          processing_started_at?: string | null
           summary_processed?: boolean | null
           type: string
           user_id?: string | null
@@ -573,6 +578,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_important?: boolean | null
+          processing_started_at?: string | null
           summary_processed?: boolean | null
           type?: string
           user_id?: string | null
