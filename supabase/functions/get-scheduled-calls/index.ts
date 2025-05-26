@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -302,6 +301,7 @@ serve(async (req) => {
               const { error: logError } = await supabaseClient
                 .from('call_logs')
                 .insert({
+                  user_id: call.user_id,
                   scheduled_call_id: call.id,
                   vapi_call_id: vapiCallId,
                   status: callStatus,
@@ -329,6 +329,7 @@ serve(async (req) => {
               const { error: logError } = await supabaseClient
                 .from('call_logs')
                 .insert({
+                  user_id: call.user_id,
                   scheduled_call_id: call.id,
                   vapi_call_id: 'test-mode-' + Date.now(),
                   status: 'TEST_MODE',
@@ -362,6 +363,7 @@ serve(async (req) => {
             const { error: logError } = await supabaseClient
               .from('call_logs')
               .insert({
+                user_id: call.user_id,
                 scheduled_call_id: call.id,
                 status: 'error',
                 call_summary: callError.message,

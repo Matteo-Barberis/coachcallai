@@ -61,10 +61,10 @@ export type Database = {
           processed_by_ai: boolean | null
           processed_for_summary: boolean
           processed_keywords: boolean | null
-          processing_started_at: string | null
           response: Json | null
           scheduled_call_id: string | null
           status: string | null
+          user_id: string | null
           vapi_call_id: string | null
         }
         Insert: {
@@ -76,10 +76,10 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_for_summary?: boolean
           processed_keywords?: boolean | null
-          processing_started_at?: string | null
           response?: Json | null
           scheduled_call_id?: string | null
           status?: string | null
+          user_id?: string | null
           vapi_call_id?: string | null
         }
         Update: {
@@ -91,10 +91,10 @@ export type Database = {
           processed_by_ai?: boolean | null
           processed_for_summary?: boolean
           processed_keywords?: boolean | null
-          processing_started_at?: string | null
           response?: Json | null
           scheduled_call_id?: string | null
           status?: string | null
+          user_id?: string | null
           vapi_call_id?: string | null
         }
         Relationships: [
