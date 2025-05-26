@@ -1,5 +1,3 @@
-
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -164,13 +162,14 @@ export async function main() {
     console.log(`[${new Date().toISOString()}] Starting atomic call log processing...`);
     
     while (true) {
-      // Atomically claim the next available call log
+      // Atomically claim the next available call log (oldest first)
       const { data: claimedLogs, error: claimError } = await supabaseClient
         .from('call_logs')
         .update({ processing_started_at: new Date().toISOString() })
         .eq('processed_for_summary', false)
         .is('processing_started_at', null)
         .not('call_summary', 'is', null)
+        .order('created_at', { ascending: true })
         .limit(1)
         .select('id, call_summary, scheduled_call_id');
 
@@ -358,4 +357,3 @@ Deno.serve(async (req) => {
     });
   }
 });
-
