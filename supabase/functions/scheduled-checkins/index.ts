@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 import { format } from "https://deno.land/std@0.168.0/datetime/mod.ts";
@@ -157,6 +156,7 @@ serve(async (req) => {
                   continue;
                 }
                 
+                const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
                 const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
                 const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
                 
@@ -167,11 +167,14 @@ serve(async (req) => {
                 if (latestMessages.length > 0) {
                   const latestMessageTime = new Date(latestMessages[0].created_at);
                   
-                  if (latestMessageTime > twentyFourHoursAgo) {
-                    // Within 24 hours - send regular text message
+                  if (latestMessageTime > twoHoursAgo) {
+                    // Within 2 hours - skip entirely (user was recently active)
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was within 2h, skipping check-in (recently active)`);
+                  } else if (latestMessageTime > twentyFourHoursAgo) {
+                    // Between 2-24 hours - send regular text message
                     shouldSendMessage = true;
                     useTemplate = false;
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was within 24h, sending regular text message`);
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was between 2-24h, sending regular text message`);
                   } else if (latestMessageTime > fortyEightHoursAgo) {
                     // Between 24-48 hours - send template message
                     shouldSendMessage = true;
