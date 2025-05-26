@@ -119,23 +119,6 @@ export async function main() {
     );
     console.log(`[${new Date().toISOString()}] Supabase client created successfully`);
 
-    // Step 1: Timeout recovery - Clear any WhatsApp messages stuck in processing for more than 15 minutes
-    console.log(`[${new Date().toISOString()}] Starting timeout recovery...`);
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-    
-    const { data: recoveredMessages, error: recoveryError } = await supabaseClient
-      .from('whatsapp_messages')
-      .update({ processing_started_at: null })
-      .lt('processing_started_at', fifteenMinutesAgo)
-      .not('processing_started_at', 'is', null)
-      .select('id');
-
-    if (recoveryError) {
-      console.error(`[${new Date().toISOString()}] Error during timeout recovery:`, recoveryError);
-    } else {
-      console.log(`[${new Date().toISOString()}] Recovered ${recoveredMessages?.length || 0} stuck WhatsApp messages from timeout`);
-    }
-
     // Fetch the user_summary_update prompt from database
     console.log(`[${new Date().toISOString()}] Fetching user_summary_update prompt from database...`);
     const { data: promptData, error: promptError } = await supabaseClient
@@ -156,15 +139,14 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    // Step 2: Find users who have 10+ unprocessed important messages
-    console.log(`[${new Date().toISOString()}] Finding users with 10+ unprocessed important messages...`);
+    // Step 1: Find users who have 5+ unprocessed important messages
+    console.log(`[${new Date().toISOString()}] Finding users with 5+ unprocessed important messages...`);
     
     const { data: userCounts, error: usersError } = await supabaseClient
       .from('whatsapp_messages')
       .select('user_id')
       .eq('is_important', true)
       .eq('summary_processed', false)
-      .is('processing_started_at', null)
       .not('user_id', 'is', null);
 
     if (usersError) {
@@ -177,7 +159,7 @@ export async function main() {
       return { message: 'No WhatsApp messages to process', results: [] };
     }
 
-    // Count messages per user and filter those with 10+
+    // Count messages per user and filter those with 5+
     const userMessageCounts: Record<string, number> = {};
     userCounts.forEach(msg => {
       if (msg.user_id) {
@@ -186,32 +168,31 @@ export async function main() {
     });
 
     const eligibleUserIds = Object.entries(userMessageCounts)
-      .filter(([_, count]) => count >= 10)
+      .filter(([_, count]) => count >= 5)
       .map(([userId, _]) => userId);
 
-    console.log(`[${new Date().toISOString()}] Found ${eligibleUserIds.length} users with 10+ unprocessed important messages`);
+    console.log(`[${new Date().toISOString()}] Found ${eligibleUserIds.length} users with 5+ unprocessed important messages`);
 
     if (eligibleUserIds.length === 0) {
-      console.log(`[${new Date().toISOString()}] No users with sufficient messages (10+) found`);
+      console.log(`[${new Date().toISOString()}] No users with sufficient messages (5+) found`);
       return { message: 'No users with enough messages to process', results: [] };
     }
 
     const results = [];
     let processedUsersCount = 0;
 
-    // Step 3: Process each eligible user
+    // Step 2: Process each eligible user
     for (const userId of eligibleUserIds) {
       console.log(`[${new Date().toISOString()}] Starting processing for user ${userId}...`);
 
       try {
-        // Get up to 40 unprocessed important messages for this user that are NOT locked
+        // Get up to 40 unprocessed important messages for this user
         const { data: userMessages, error: messagesError } = await supabaseClient
           .from('whatsapp_messages')
           .select('id, content, created_at')
           .eq('user_id', userId)
           .eq('is_important', true)
           .eq('summary_processed', false)
-          .is('processing_started_at', null)
           .order('created_at', { ascending: false })
           .limit(40);
 
@@ -221,33 +202,11 @@ export async function main() {
         }
 
         if (!userMessages || userMessages.length === 0) {
-          console.log(`[${new Date().toISOString()}] No unlocked messages found for user ${userId} (may have been processed by another instance)`);
+          console.log(`[${new Date().toISOString()}] No unprocessed messages found for user ${userId} (may have been processed by another instance)`);
           continue;
         }
 
-        console.log(`[${new Date().toISOString()}] Found ${userMessages.length} unlocked messages for user ${userId}`);
-
-        // Atomically lock these specific messages
-        const messageIds = userMessages.map(m => m.id);
-        const { data: claimedMessages, error: claimError } = await supabaseClient
-          .from('whatsapp_messages')
-          .update({ processing_started_at: new Date().toISOString() })
-          .in('id', messageIds)
-          .eq('summary_processed', false)
-          .is('processing_started_at', null)
-          .select('id');
-
-        if (claimError) {
-          console.error(`[${new Date().toISOString()}] Error claiming messages for user ${userId}:`, claimError);
-          continue;
-        }
-
-        if (!claimedMessages || claimedMessages.length === 0) {
-          console.log(`[${new Date().toISOString()}] No messages were claimed for user ${userId} (may have been processed by another instance)`);
-          continue;
-        }
-
-        console.log(`[${new Date().toISOString()}] Successfully claimed ${claimedMessages.length} messages for user ${userId}`);
+        console.log(`[${new Date().toISOString()}] Found ${userMessages.length} unprocessed messages for user ${userId}`);
 
         // Get user's current summary
         const { data: userProfile, error: profileError } = await supabaseClient
@@ -258,13 +217,6 @@ export async function main() {
 
         if (profileError) {
           console.error(`[${new Date().toISOString()}] Error fetching user profile for ${userId}:`, profileError);
-          
-          // Release claim on these messages
-          await supabaseClient
-            .from('whatsapp_messages')
-            .update({ processing_started_at: null })
-            .in('id', messageIds);
-          
           continue;
         }
 
@@ -307,33 +259,31 @@ export async function main() {
 
           results.push({
             user_id: userId,
-            messages_processed: claimedMessages.length,
+            messages_processed: userMessages.length,
             summary_updated: !updateError
           });
         } else {
           console.log(`[${new Date().toISOString()}] No summary update needed for user ${userId}`);
           results.push({
             user_id: userId,
-            messages_processed: claimedMessages.length,
+            messages_processed: userMessages.length,
             summary_updated: false
           });
         }
 
-        // Mark messages as processed and clear the processing timestamp
-        console.log(`[${new Date().toISOString()}] Marking ${claimedMessages.length} messages as processed for user ${userId}...`);
+        // Mark messages as processed
+        console.log(`[${new Date().toISOString()}] Marking ${userMessages.length} messages as processed for user ${userId}...`);
 
+        const messageIds = userMessages.map(m => m.id);
         const { error: markProcessedError } = await supabaseClient
           .from('whatsapp_messages')
-          .update({ 
-            summary_processed: true,
-            processing_started_at: null
-          })
+          .update({ summary_processed: true })
           .in('id', messageIds);
 
         if (markProcessedError) {
           console.error(`[${new Date().toISOString()}] Error marking messages as processed for user ${userId}:`, markProcessedError);
         } else {
-          console.log(`[${new Date().toISOString()}] Successfully marked ${claimedMessages.length} messages as processed for user ${userId}`);
+          console.log(`[${new Date().toISOString()}] Successfully marked ${userMessages.length} messages as processed for user ${userId}`);
         }
 
         processedUsersCount++;
@@ -343,23 +293,6 @@ export async function main() {
       } catch (error) {
         console.error(`[${new Date().toISOString()}] Error processing user ${userId}:`, error);
         console.error(`[${new Date().toISOString()}] Error stack:`, error.stack);
-        
-        // Clear the processing timestamp so these messages can be retried later
-        const { data: userMessages } = await supabaseClient
-          .from('whatsapp_messages')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('is_important', true)
-          .eq('summary_processed', false)
-          .not('processing_started_at', 'is', null)
-          .limit(40);
-
-        if (userMessages) {
-          await supabaseClient
-            .from('whatsapp_messages')
-            .update({ processing_started_at: null })
-            .in('id', userMessages.map(m => m.id));
-        }
       }
     }
 
