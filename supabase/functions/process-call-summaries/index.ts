@@ -1,3 +1,4 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -161,6 +162,7 @@ export async function main() {
 
     const results = [];
     let processedCount = 0;
+    let aiProcessedCount = 0; // Track actual AI processing
 
     // Step 2: Loop through each call log ID
     for (let i = 0; i < unprocessedLogs.length; i++) {
@@ -239,6 +241,7 @@ export async function main() {
             console.error(`[${new Date().toISOString()}] Error updating user summary for user ${userId}:`, updateError);
           } else {
             console.log(`[${new Date().toISOString()}] Successfully updated user summary for user ${userId}`);
+            aiProcessedCount++; // Increment only when AI processing and update succeeded
             results.push({
               user_id: userId,
               call_log_id: logId,
@@ -247,6 +250,7 @@ export async function main() {
           }
         } else {
           console.log(`[${new Date().toISOString()}] No summary update needed for call log ${logId}`);
+          aiProcessedCount++; // Still processed by AI, just no update needed
           results.push({
             user_id: userId,
             call_log_id: logId,
@@ -281,7 +285,7 @@ export async function main() {
     console.log(`[${new Date().toISOString()}] Final memory usage: ${JSON.stringify(Deno.memoryUsage())}`);
     
     return { 
-      message: `Processed ${processedCount} call logs for summary`, 
+      message: `Processed ${aiProcessedCount} call logs with AI analysis`, 
       results: results 
     };
   } catch (error) {
