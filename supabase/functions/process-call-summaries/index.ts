@@ -1,4 +1,3 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -140,10 +139,10 @@ export async function main() {
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
     // Step 1: Get all unprocessed call log IDs (ordered oldest to newest)
-    console.log(`[${new Date().toISOString()}] Fetching all unprocessed call log IDs...`);
+    console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs...`);
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
-      .select('id')
+      .select('id, call_summary, call_transcript, user_id')
       .eq('processed_for_summary', false)
       .not('call_summary', 'is', null)
       .order('created_at', { ascending: true });
@@ -158,7 +157,7 @@ export async function main() {
       return { message: 'No call logs to process', results: [] };
     }
 
-    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs.length} unprocessed call logs to process`);
+    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs.length} unprocessed call logs`);
 
     const results = [];
     let processedCount = 0;
@@ -166,13 +165,14 @@ export async function main() {
     // Step 2: Loop through each call log ID
     for (let i = 0; i < unprocessedLogs.length; i++) {
       const logId = unprocessedLogs[i].id;
+      const userId = unprocessedLogs[i].user_id;
       console.log(`[${new Date().toISOString()}] Processing call log ${i + 1}/${unprocessedLogs.length}, ID: ${logId}`);
 
       try {
         // Step 3: Check if this log is still unprocessed (prevents race conditions)
         const { data: currentLog, error: checkError } = await supabaseClient
           .from('call_logs')
-          .select('id, call_summary, scheduled_call_id, processed_for_summary')
+          .select('id, call_summary, call_transcript, processed_for_summary, user_id')
           .eq('id', logId)
           .eq('processed_for_summary', false)
           .not('call_summary', 'is', null)
@@ -188,30 +188,8 @@ export async function main() {
           continue;
         }
 
-        // Get user_id from scheduled_call
-        console.log(`[${new Date().toISOString()}] Fetching scheduled call data for call ID: ${currentLog.scheduled_call_id}`);
-        
-        const { data: scheduledCall, error: scheduledCallError } = await supabaseClient
-          .from('scheduled_calls')
-          .select('user_id')
-          .eq('id', currentLog.scheduled_call_id)
-          .single();
-
-        if (scheduledCallError) {
-          console.error(`[${new Date().toISOString()}] Error fetching scheduled call for log ${logId}:`, scheduledCallError);
-          
-          // Mark as processed to avoid infinite retry
-          await supabaseClient
-            .from('call_logs')
-            .update({ processed_for_summary: true })
-            .eq('id', logId);
-          
-          continue;
-        }
-
-        const userId = scheduledCall?.user_id;
         if (!userId) {
-          console.error(`[${new Date().toISOString()}] No user_id found for scheduled call ${currentLog.scheduled_call_id}`);
+          console.error(`[${new Date().toISOString()}] No user_id found for call log ${logId}`);
           
           // Mark as processed to avoid infinite retry
           await supabaseClient
@@ -221,7 +199,6 @@ export async function main() {
           
           continue;
         }
-        console.log(`[${new Date().toISOString()}] Found user_id: ${userId} for call log ${logId}`);
 
         // Get user's current summary
         const { data: userProfile, error: profileError } = await supabaseClient
@@ -232,13 +209,6 @@ export async function main() {
 
         if (profileError) {
           console.error(`[${new Date().toISOString()}] Error fetching user profile for ${userId}:`, profileError);
-          
-          // Mark as processed to avoid infinite retry
-          await supabaseClient
-            .from('call_logs')
-            .update({ processed_for_summary: true })
-            .eq('id', logId);
-          
           continue;
         }
 
