@@ -2,16 +2,19 @@
 import React from 'react';
 import { Check, Phone, MessageCircle, Trophy, PhoneIncoming, Star, Calendar } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from '@/hooks/useTheme';
 
 const FeaturesShowcase = () => {
   const isMobile = useIsMobile();
+  const theme = useTheme();
+  
   const features = [
     {
-      icon: <Phone className="h-10 w-10 text-brand-primary" />,
+      icon: <Phone className={`h-10 w-10 ${theme.primary}`} />,
       title: "Scheduled Phone Calls",
       description: "Real phone calls to your device when you need motivation the most",
       customImage: (
-        <div className="w-full max-w-xs mx-auto bg-brand-dark rounded-2xl shadow-xl p-3" style={{ transform: "scale(0.75)" }}>
+        <div className={`w-full max-w-xs mx-auto ${theme.darkGradient} rounded-2xl shadow-xl p-3`} style={{ transform: "scale(0.75)" }}>
           <div className="flex flex-col items-center mb-4 mt-2 text-white">
             <h4 className="font-medium text-xl mb-1">Coach AI</h4>
             <p className="text-gray-400 text-sm">Incoming Call</p>
@@ -39,13 +42,13 @@ const FeaturesShowcase = () => {
       ]
     },
     {
-      icon: <MessageCircle className="h-10 w-10 text-brand-primary" />,
+      icon: <MessageCircle className={`h-10 w-10 ${theme.primary}`} />,
       title: "WhatsApp Integration",
       description: "Daily check-ins and conversations with your AI coach via WhatsApp",
       customImage: (
         <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow-xl overflow-hidden" style={{ transform: "scale(0.7)", maxHeight: "280px" }}>
           {/* WhatsApp header - scaled down */}
-          <div className="bg-brand-primary px-4 py-2 flex items-center">
+          <div className={`${theme.gradient} px-4 py-2 flex items-center`}>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-3">
               <MessageCircle className="h-5 w-5 text-white" />
             </div>
@@ -72,7 +75,7 @@ const FeaturesShowcase = () => {
             
             {/* User message */}
             <div className="flex justify-end">
-              <div className="bg-brand-light rounded-lg p-2 max-w-[75%] shadow-sm">
+              <div className={`${theme.light} rounded-lg p-2 max-w-[75%] shadow-sm`}>
                 <p className="text-xs">A bit tired but I'm still planning to go to the gym this afternoon!</p>
                 <p className="text-[9px] text-gray-400 text-right mt-1">8:30 AM</p>
               </div>
@@ -102,7 +105,7 @@ const FeaturesShowcase = () => {
       ]
     },
     {
-      icon: <Trophy className="h-10 w-10 text-brand-primary" />,
+      icon: <Trophy className={`h-10 w-10 ${theme.primary}`} />,
       title: "Achievement Tracking",
       description: "Every accomplishment automatically recorded to visualize your progress",
       customImage: (
@@ -193,7 +196,7 @@ const FeaturesShowcase = () => {
     <section id="features-showcase" className="py-16 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Stop Failing Your Goals. Start Taking Real Action.</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Stop Failing Your Goals. Start Taking Real Action.</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Our AI coach integrates seamlessly into your life with powerful tools designed for real accountability.
           </p>
