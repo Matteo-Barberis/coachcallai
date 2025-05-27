@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SessionProvider } from "./context/SessionContext";
 import Index from "./pages/Index";
+import CustomLanding from "./pages/CustomLanding";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
@@ -32,6 +33,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/custom" element={<CustomLanding />} />
             <Route path="/auth/:view" element={<Auth />} />
             <Route path="/auth/update-password" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
