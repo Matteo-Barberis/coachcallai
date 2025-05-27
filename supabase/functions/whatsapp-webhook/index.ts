@@ -165,7 +165,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, current_mode_id, subscription_status, trial_start_date')
+      .select('id, full_name, current_mode_id, subscription_status, trial_start_date, user_summary')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -178,6 +178,7 @@ serve(async (req) => {
     const currentModeId = profiles?.current_mode_id;
     const subscriptionStatus = profiles?.subscription_status;
     const trialStartDate = profiles?.trial_start_date;
+    const userSummary = profiles?.user_summary;
     
     // Define default message for when user is not found or inactive
     const defaultMessage = "Sorry, it appears your phone number is either not registered in our system or doesn't have an active subscription. Please visit our website to register or reactivate your subscription.";
@@ -403,10 +404,14 @@ serve(async (req) => {
       }
     ];
 
-    // Create ChatGPT prompt with achievement detection instruction
+    // Create ChatGPT prompt with achievement detection instruction and user summary
     const prompt = `You are a coach responsible of keeping users accountable and motivated on their goals. 
 Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} 
 The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". 
+
+User Summary (what you know about the user from past conversations):
+${userSummary || 'No summary available yet'}
+
 This is the conversation you are having so far:
 
 ${conversationHistoryText}
@@ -422,7 +427,10 @@ Types of achievements:
 - "milestone": Significant progress markers (e.g., "I completed my first 5K race")
 - "breakthrough": Major transformative accomplishments (e.g., "I finally qualified for the marathon after years of training")
 
-Keep your reply conversational, friendly and encouraging. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.`;
+Keep your reply conversational, friendly and encouraging. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.
+
+- Only when appropriate, gently and naturally weave in details from the user summary — such as preferences, relationships, pets, interests, or recent life events — during conversation. Mention specific information only if it is contextually relevant and it adds warmth, familiarity, or meaning to the current topic.
+Absolutely avoid forcing or steering the conversation just to reference these details — doing so feels artificial and breaks trust.`;
 
     console.log('Sending prompt to ChatGPT:', prompt);
 
