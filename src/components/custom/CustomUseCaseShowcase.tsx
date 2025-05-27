@@ -54,14 +54,14 @@ const CustomUseCaseShowcase = () => {
 
   // Render a card (used for both mobile and desktop)
   const renderCard = (useCase, index) => (
-    <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow duration-300 h-full">
+    <Card key={index} className="border border-orange-200 hover:shadow-md transition-shadow duration-300 h-full">
       <CardHeader className="pb-2">
         <div className="mb-3">{useCase.icon}</div>
         <CardTitle className="text-xl">{useCase.title}</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-gray-600 mb-4">{useCase.description}</p>
-        <div className="text-sm font-medium bg-white text-gray-700 py-1 px-3 rounded-full inline-block">
+        <div className="text-sm font-medium bg-orange-50 text-orange-700 py-1 px-3 rounded-full inline-block">
           {useCase.persona}
         </div>
       </CardContent>
@@ -69,10 +69,10 @@ const CustomUseCaseShowcase = () => {
   );
 
   return (
-    <section className="py-20 px-4 bg-gray-50">
+    <section className="py-20 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Create Your Perfect AI Companion</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Create Your Perfect AI Companion</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Design an AI companion that fits your personality, communication style, and support needs perfectly.
           </p>

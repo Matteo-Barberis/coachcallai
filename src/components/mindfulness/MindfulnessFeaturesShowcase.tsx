@@ -38,7 +38,7 @@ const MindfulnessFeaturesShowcase = () => {
   ];
 
   return (
-    <section id="features-showcase" className="py-20 px-4 bg-white">
+    <section id="features-showcase" className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
