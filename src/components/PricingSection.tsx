@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -39,8 +39,46 @@ const PricingSection = () => {
   const [plans, setPlans] = useState<Record<string, Plan>>({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const { session } = useSessionContext();
+
+  // Determine colors based on current route
+  const getColors = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        gradient: 'bg-gradient-to-r from-purple-600 to-pink-600',
+        primary: 'bg-purple-600',
+        primaryHover: 'hover:bg-purple-600/90',
+        border: 'border-purple-600',
+        ring: 'ring-purple-600',
+        light: 'bg-purple-50',
+        text: 'text-purple-600'
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
+        primary: 'bg-orange-600',
+        primaryHover: 'hover:bg-orange-600/90',
+        border: 'border-orange-600',
+        ring: 'ring-orange-600',
+        light: 'bg-orange-50',
+        text: 'text-orange-600'
+      };
+    } else {
+      return {
+        gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+        primary: 'bg-brand-primary',
+        primaryHover: 'hover:bg-brand-primary/90',
+        border: 'border-brand-primary',
+        ring: 'ring-brand-primary',
+        light: 'bg-brand-light',
+        text: 'text-brand-primary'
+      };
+    }
+  };
+
+  const colors = getColors();
 
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
@@ -96,8 +134,8 @@ const PricingSection = () => {
               features: formattedFeatures,
               popular: index === 1,
               colorClass: index === 1 
-                ? 'border-brand-primary' 
-                : 'border-gray-200 hover:border-brand-primary'
+                ? colors.border 
+                : `border-gray-200 hover:${colors.border}`
             };
           });
           
@@ -121,7 +159,7 @@ const PricingSection = () => {
     };
 
     fetchSubscriptionPlans();
-  }, []);
+  }, [colors.border]);
 
   const handleSubscribe = (plan: string) => {
     if (session) {
@@ -151,7 +189,7 @@ const PricingSection = () => {
           { text: "Email support" }
         ],
         popular: false,
-        colorClass: "border-gray-200 hover:border-brand-primary"
+        colorClass: `border-gray-200 hover:${colors.border}`
       },
       medium: {
         name: "Medium",
@@ -167,7 +205,7 @@ const PricingSection = () => {
           { text: "Habit streak tracking" }
         ],
         popular: true,
-        colorClass: "border-brand-primary"
+        colorClass: colors.border
       },
       pro: {
         name: "Pro",
@@ -183,7 +221,7 @@ const PricingSection = () => {
           { text: "Dedicated account manager" }
         ],
         popular: false,
-        colorClass: "border-gray-200 hover:border-brand-primary"
+        colorClass: `border-gray-200 hover:${colors.border}`
       }
     };
   };
@@ -254,11 +292,11 @@ const PricingSection = () => {
                 return (
                   <div
                     key={key}
-                    className={`rounded-2xl shadow-md p-8 border-2 border-brand-primary ring-4 ring-brand-primary ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
+                    className={`rounded-2xl shadow-md p-8 border-2 ${colors.border} ${colors.ring} ring-4 ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
                   >
                     {plan.popular && (
                       <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
-                        <Badge variant="default" className="bg-brand-primary text-white px-4 py-1">
+                        <Badge variant="default" className={`${colors.primary} text-white px-4 py-1`}>
                           Most Popular
                         </Badge>
                       </div>
@@ -275,7 +313,7 @@ const PricingSection = () => {
                     <ul className="space-y-3 mb-8 flex-grow">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start">
-                          <div className="mr-3 mt-1 text-brand-primary">
+                          <div className={`mr-3 mt-1 ${colors.text}`}>
                             <Check className="w-5 h-5" />
                           </div>
                           <span className="text-gray-700">{feature.text}</span>
@@ -284,7 +322,7 @@ const PricingSection = () => {
                     </ul>
                     
                     <Button
-                      className="w-full py-6 bg-brand-primary hover:bg-brand-primary/90"
+                      className={`w-full py-6 ${colors.primary} ${colors.primaryHover}`}
                       onClick={() => handleSubscribe(plan.name)}
                     >
                       Get Started
@@ -302,13 +340,13 @@ const PricingSection = () => {
                 key={key}
                 className={`rounded-2xl shadow-md p-8 border-2 ${
                   plan.name === selectedPlan 
-                    ? 'relative border-brand-primary ring-4 ring-brand-primary ring-opacity-20' 
+                    ? `relative ${colors.border} ${colors.ring} ring-4 ring-opacity-20` 
                     : `${plan.colorClass}`
                 } bg-white flex flex-col h-full`}
               >
                 {plan.popular && (
                   <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
-                    <Badge variant="default" className="bg-brand-primary text-white px-4 py-1">
+                    <Badge variant="default" className={`${colors.primary} text-white px-4 py-1`}>
                       Most Popular
                     </Badge>
                   </div>
@@ -325,7 +363,7 @@ const PricingSection = () => {
                 <ul className="space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start">
-                      <div className="mr-3 mt-1 text-brand-primary">
+                      <div className={`mr-3 mt-1 ${colors.text}`}>
                         <Check className="w-5 h-5" />
                       </div>
                       <span className="text-gray-700">{feature.text}</span>
@@ -336,8 +374,8 @@ const PricingSection = () => {
                 <Button
                   className={`w-full py-6 ${
                     plan.name === selectedPlan 
-                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
-                      : 'bg-white border-2 border-brand-primary text-brand-primary hover:bg-brand-light'
+                      ? `${colors.primary} ${colors.primaryHover}` 
+                      : `bg-white border-2 ${colors.border} ${colors.text} ${colors.light}`
                   }`}
                   onClick={() => handleSubscribe(plan.name)}
                 >
