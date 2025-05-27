@@ -227,6 +227,12 @@ export async function main() {
           continue;
         }
 
+        // Check if we claimed at least 5 messages
+        if (claimedMessages.length < 5) {
+          console.log(`[${new Date().toISOString()}] Only claimed ${claimedMessages.length} messages for user ${userId}, skipping processing (minimum 5 required)`);
+          continue;
+        }
+
         console.log(`[${new Date().toISOString()}] Successfully claimed ${claimedMessages.length} messages for user ${userId}`);
 
         // Get user's current summary
