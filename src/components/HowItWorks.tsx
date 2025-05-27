@@ -2,9 +2,12 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 const HowItWorks = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  
   const steps = [
     {
       title: "Set Your Goals",
@@ -28,7 +31,7 @@ const HowItWorks = () => {
     <section id="how-it-works" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">How Coach Call AI Works</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>How Coach Call AI Works</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             A simple, powerful process designed to keep you accountable and help you achieve your goals.
           </p>
@@ -47,8 +50,8 @@ const HowItWorks = () => {
                   
                   {index < steps.length - 1 && (
                     <div className="md:hidden flex justify-center mt-4">
-                      <div className="w-8 h-8 rounded-full bg-brand-light flex items-center justify-center">
-                        <ArrowRight className="w-4 h-4 text-brand-primary" />
+                      <div className={`w-8 h-8 rounded-full ${theme.light} flex items-center justify-center`}>
+                        <ArrowRight className={`w-4 h-4 ${theme.primary}`} />
                       </div>
                     </div>
                   )}
