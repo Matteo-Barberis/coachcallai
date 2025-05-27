@@ -1,3 +1,20 @@
+
+/**
+ * WhatsApp Webhook Handler
+ * 
+ * This edge function handles incoming WhatsApp messages and provides AI-powered responses.
+ * 
+ * Main functionality:
+ * - Validates WhatsApp webhook verification requests
+ * - Processes incoming user messages from WhatsApp
+ * - Checks user subscription status and trial validity
+ * - Generates personalized AI responses using OpenAI based on user's assistant and conversation history
+ * - Detects and stores user achievements mentioned in messages
+ * - Analyzes message importance for summary processing
+ * - Sends responses back to users via WhatsApp API
+ * - Stores all messages (incoming and outgoing) in the database
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
