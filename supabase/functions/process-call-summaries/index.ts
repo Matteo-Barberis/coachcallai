@@ -1,4 +1,5 @@
 
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -156,16 +157,15 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    // Step 1: Get unclaimed unprocessed call log IDs (ordered oldest to newest)
-    console.log(`[${new Date().toISOString()}] Fetching unclaimed unprocessed call logs...`);
+    // Step 1: Get all unclaimed unprocessed call log IDs (ordered oldest to newest)
+    console.log(`[${new Date().toISOString()}] Fetching all unclaimed unprocessed call logs...`);
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
       .select('id, call_summary, call_transcript, user_id')
       .eq('processed_for_summary', false)
       .is('processing_started_at', null)
       .not('call_summary', 'is', null)
-      .order('created_at', { ascending: true })
-      .limit(20); // Limit to prevent one instance from claiming too many
+      .order('created_at', { ascending: true });
 
     if (fetchError) {
       console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
@@ -355,3 +355,4 @@ Deno.serve(async (req) => {
     });
   }
 });
+
