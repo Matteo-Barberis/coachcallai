@@ -9,7 +9,7 @@ import CoachVoiceShowcase from '@/components/CoachVoiceShowcase';
 import CustomUseCaseShowcase from '@/components/custom/CustomUseCaseShowcase';
 import EnhancedTestimonials from '@/components/EnhancedTestimonials';
 import PricingSection from '@/components/PricingSection';
-import FaqSection from '@/components/FaqSection';
+import CustomFaqSection from '@/components/custom/CustomFaqSection';
 import CtaSection from '@/components/CtaSection';
 import Footer from '@/components/Footer';
 import StickyCta from '@/components/StickyCta';
@@ -27,7 +27,7 @@ const CustomLanding = () => {
         <CustomUseCaseShowcase />
         <EnhancedTestimonials />
         <PricingSection />
-        <FaqSection />
+        <CustomFaqSection />
         <CtaSection />
       </main>
       <Footer />
