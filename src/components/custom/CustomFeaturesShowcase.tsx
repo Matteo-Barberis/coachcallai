@@ -43,10 +43,10 @@ const CustomFeaturesShowcase = () => {
   ];
 
   return (
-    <section id="features-showcase" className="py-20 px-4 bg-gray-50">
+    <section id="features-showcase" className="py-20 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
             The AI Companion That's Just a Text or Call Away
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -58,21 +58,21 @@ const CustomFeaturesShowcase = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="bg-white rounded-xl p-8 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 feature-card"
+              className="bg-white rounded-xl p-8 shadow-md border border-orange-100 hover:shadow-lg transition-all duration-300 feature-card"
             >
-              <div className="text-brand-primary mb-4">
+              <div className="text-orange-600 mb-4">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
               <p className="text-gray-600 mb-4">{feature.description}</p>
-              <div className="inline-block bg-brand-light text-brand-primary text-sm px-3 py-1 rounded-full">
+              <div className="inline-block bg-orange-100 text-orange-600 text-sm px-3 py-1 rounded-full">
                 {feature.highlight}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-gray-100">
+        <div className="bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-orange-100">
           <div className="text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-bold mb-4">The Problem with Modern Chatbots</h3>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">

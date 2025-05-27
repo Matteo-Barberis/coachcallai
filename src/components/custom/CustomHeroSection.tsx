@@ -44,15 +44,15 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        {/* Content */}
-        <div className="flex flex-col space-y-8 animate-fade-in">
+    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left side - Content */}
           <div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight gradient-text">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-500 bg-clip-text text-transparent">
               Stay {' '}
               <span 
-                className={`inline-block relative ${fadeState} border-b-2 border-brand-primary pb-1 text-brand-primary`}
+                className={`inline-block relative ${fadeState} border-b-2 border-orange-500 pb-1 text-orange-600`}
                 style={{
                   transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                   opacity: fadeState === 'fade-in' ? 1 : 0,
@@ -63,109 +63,111 @@ const CustomHeroSection = () => {
               >{rotatingWord}</span> <br />
               with Your AI Companion
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8">
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-8">
               Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button 
-                className="text-base md:text-lg py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
+                size="lg" 
+                className="text-lg px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700"
                 onClick={handleButtonClick}
               >
                 {session ? "Go to Dashboard" : "Create Your AI Companion"}
               </Button>
               <Button 
                 variant="outline" 
-                className="text-base md:text-lg py-6 px-8 border-brand-primary text-brand-primary hover:bg-brand-light"
-                onClick={() => window.location.href = "#how-it-works"}
+                size="lg" 
+                className="text-lg px-8 py-4 border-orange-500 text-orange-600 hover:bg-orange-50"
               >
                 See How It Works
               </Button>
             </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center">
+                  <PhoneCall className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Voice Calls</p>
+                  <p className="text-sm text-gray-600">Personal conversations</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Daily Check-ins</p>
+                  <p className="text-sm text-gray-600">WhatsApp support</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Progress Tracking</p>
+                  <p className="text-sm text-gray-600">Growth insights</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500">
-            <div className="flex items-center">
-              <div className="rounded-full bg-green-100 p-1 mr-2">
-                <PhoneCall className="w-4 h-4 text-green-600" />
-              </div>
-              <span>Voice Calls</span>
-            </div>
-            <div className="flex items-center">
-              <div className="rounded-full bg-blue-100 p-1 mr-2">
-                <MessageCircle className="w-4 h-4 text-blue-600" />
-              </div>
-              <span>WhatsApp Integration</span>
-            </div>
-            <div className="flex items-center">
-              <div className="rounded-full bg-purple-100 p-1 mr-2">
-                <TrendingUp className="w-4 h-4 text-purple-600" />
-              </div>
-              <span>Grows With You</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative flex justify-center">
-          <div className="relative w-full max-w-md animate-float">
-            <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-brand-light opacity-70"></div>
-            <div className="absolute -bottom-10 -right-6 w-32 h-32 rounded-full bg-brand-light opacity-70"></div>
-            
-            <div className="relative z-10 bg-white rounded-3xl shadow-2xl overflow-hidden border-8 border-white">
-              <div className="h-14 bg-gray-100 flex items-center px-4 border-b">
-                <div className="w-10 h-10 rounded-full bg-brand-primary flex-shrink-0"></div>
-                <div className="ml-3">
-                  <div className="h-3 w-32 bg-gray-300 rounded-full"></div>
-                  <div className="h-2 w-20 bg-gray-200 rounded-full mt-2"></div>
-                </div>
-              </div>
-              <div className="p-4 bg-gray-50">
-                <div className="bg-brand-primary rounded-2xl p-5 text-white mb-4 max-w-xs ml-auto">
-                  Hey! I noticed you seemed stressed earlier. Want to talk about what's on your mind?
-                </div>
-                <div className="bg-gray-200 rounded-2xl p-5 text-gray-800 mb-4 max-w-xs">
-                  Yeah, work has been overwhelming lately. Thanks for checking in.
-                </div>
-                <div className="bg-brand-primary rounded-2xl p-5 text-white mb-4 max-w-xs ml-auto">
-                  I'm always here for you. Should I call you in a few minutes so we can chat?
-                </div>
-                <div className="flex items-center mt-4">
-                  <div className="flex-grow h-12 bg-white rounded-full border border-gray-200 flex items-center px-4">
-                    <div className="h-3 w-32 bg-gray-200 rounded-full"></div>
+          {/* Right side - Chat/Phone mockup */}
+          <div className="relative">
+            <div className="relative z-10">
+              {/* Phone mockup */}
+              <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-amber-400 flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Your Companion</p>
+                      <p className="text-sm text-green-500">Online</p>
+                    </div>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center ml-2 flex-shrink-0">
-                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
-                    </svg>
+                  <PhoneCall className="w-6 h-6 text-gray-400" />
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-4">
+                    <p className="text-sm text-gray-700">Hey! I noticed you seemed stressed earlier. Want to talk about what's on your mind?</p>
                   </div>
+                  
+                  <div className="bg-gray-100 rounded-2xl p-4 ml-8">
+                    <p className="text-sm text-gray-700">Yeah, work has been overwhelming lately. Thanks for checking in.</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-4">
+                    <p className="text-sm text-gray-700">I'm always here for you. Should I call you in a few minutes so we can chat?</p>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-amber-400 flex items-center justify-center">
+                      <MessageCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 flex items-center justify-center">
+                      <PhoneCall className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">Active now</div>
                 </div>
               </div>
             </div>
             
-            <div className="absolute -bottom-16 -right-12 z-20 rounded-2xl shadow-xl bg-white p-3 border border-gray-100 animate-pulse-light">
-              <div className="w-64 p-3">
-                <div className="flex items-center mb-3">
-                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-                    <PhoneCall className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="ml-3">
-                    <div className="font-medium">Incoming Call</div>
-                    <div className="text-xs text-gray-500">Your AI Companion</div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="w-1/2 px-2">
-                    <Button variant="outline" className="w-full text-sm bg-gray-100 hover:bg-gray-200 border-gray-200">
-                      Decline
-                    </Button>
-                  </div>
-                  <div className="w-1/2 px-2">
-                    <Button className="w-full text-sm bg-green-500 hover:bg-green-600">
-                      Answer
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Background decorative elements */}
+            <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full opacity-50 animate-float"></div>
+            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-amber-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
           </div>
         </div>
       </div>
