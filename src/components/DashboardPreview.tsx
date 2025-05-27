@@ -18,17 +18,20 @@ const DashboardPreview = () => {
     if (location.pathname === '/mindfulness') {
       return {
         gradient: 'bg-gradient-to-r from-purple-600 to-pink-600',
-        hover: 'hover:from-purple-700 hover:to-pink-700'
+        hover: 'hover:from-purple-700 hover:to-pink-700',
+        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
       };
     } else if (location.pathname === '/custom') {
       return {
         gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
-        hover: 'hover:from-orange-700 hover:to-amber-700'
+        hover: 'hover:from-orange-700 hover:to-amber-700',
+        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
       };
     } else {
       return {
         gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-        hover: 'hover:from-blue-700 hover:to-indigo-700'
+        hover: 'hover:from-blue-700 hover:to-indigo-700',
+        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
       };
     }
   };
@@ -43,7 +46,7 @@ const DashboardPreview = () => {
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Track Your Journey</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Track Your Journey</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Every conversation with your coach becomes part of your progress story. Watch as daily achievements transform into lasting change.
           </p>
