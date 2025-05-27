@@ -2,8 +2,11 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Sunrise, Heart, Star, Flower2 } from 'lucide-react';
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessUseCaseShowcase = () => {
+  const theme = useTheme();
+
   const useCases = [
     {
       icon: Sunrise,
@@ -35,7 +38,7 @@ const MindfulnessUseCaseShowcase = () => {
     <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
             Real Stories of Transformation
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -49,12 +52,12 @@ const MindfulnessUseCaseShowcase = () => {
               <CardContent className="p-8">
                 <div className="flex items-start mb-6">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center mr-4 flex-shrink-0">
-                    <useCase.icon className="w-6 h-6 text-purple-600" />
+                    <useCase.icon className={`w-6 h-6 ${theme.primary}`} />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2 text-gray-900">{useCase.title}</h3>
                     <p className="text-gray-600 mb-4">{useCase.description}</p>
-                    <blockquote className="text-purple-700 italic border-l-4 border-purple-200 pl-4">
+                    <blockquote className={`${theme.primary} italic border-l-4 border-purple-200 pl-4`}>
                       "{useCase.quote}"
                     </blockquote>
                   </div>

@@ -6,8 +6,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessFaqSection = () => {
+  const theme = useTheme();
+
   const faqs = [
     {
       question: "How can an AI companion help with mindfulness and well-being?",
@@ -39,7 +42,7 @@ const MindfulnessFaqSection = () => {
     <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
             Questions About Your Mindful Journey
           </h2>
           <p className="text-lg text-gray-600">
@@ -54,7 +57,7 @@ const MindfulnessFaqSection = () => {
               value={`item-${index}`}
               className="border border-purple-100 rounded-lg px-6 bg-purple-50/30"
             >
-              <AccordionTrigger className="text-left hover:text-purple-600 transition-colors">
+              <AccordionTrigger className={`text-left ${theme.hover} transition-colors`}>
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-gray-600 pt-4">

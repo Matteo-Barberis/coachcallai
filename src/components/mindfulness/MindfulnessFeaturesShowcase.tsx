@@ -2,8 +2,11 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Sun, Star, Flower2, Sparkles, Smile } from 'lucide-react';
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessFeaturesShowcase = () => {
+  const theme = useTheme();
+
   const features = [
     {
       icon: Heart,
@@ -41,7 +44,7 @@ const MindfulnessFeaturesShowcase = () => {
     <section id="features-showcase" className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
             Nurture Your Inner Light
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -54,7 +57,7 @@ const MindfulnessFeaturesShowcase = () => {
             <Card key={index} className="border border-purple-100 hover:border-purple-200 transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-8">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center mb-6">
-                  <feature.icon className="w-6 h-6 text-purple-600" />
+                  <feature.icon className={`w-6 h-6 ${theme.primary}`} />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">{feature.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{feature.description}</p>

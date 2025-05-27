@@ -3,9 +3,11 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessCtaSection = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleGetStarted = () => {
     navigate('/auth/sign-up');

@@ -3,9 +3,11 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleGetStarted = () => {
     navigate('/auth/sign-up');
@@ -31,7 +33,7 @@ const MindfulnessHeroSection = () => {
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
             

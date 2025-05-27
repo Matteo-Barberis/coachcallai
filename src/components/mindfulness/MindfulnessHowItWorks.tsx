@@ -1,8 +1,11 @@
 
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useTheme } from "@/hooks/useTheme";
 
 const MindfulnessHowItWorks = () => {
+  const theme = useTheme();
+
   const steps = [
     {
       title: "Create Your Peaceful Companion",
@@ -26,7 +29,7 @@ const MindfulnessHowItWorks = () => {
     <section id="how-it-works" className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
             Your Journey to Inner Peace
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -47,8 +50,8 @@ const MindfulnessHowItWorks = () => {
                   
                   {index < steps.length - 1 && (
                     <div className="md:hidden flex justify-center mt-4">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                        <ArrowRight className="w-4 h-4 text-purple-600" />
+                      <div className={`w-8 h-8 rounded-full ${theme.bg} flex items-center justify-center`}>
+                        <ArrowRight className={`w-4 h-4 ${theme.primary}`} />
                       </div>
                     </div>
                   )}
