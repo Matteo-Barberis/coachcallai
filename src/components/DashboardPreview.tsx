@@ -1,16 +1,39 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const DashboardPreview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   
   const handleSignupNavigation = () => {
     navigate('/auth/sign-up');
   };
+
+  // Determine colors based on current route
+  const getColors = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        gradient: 'bg-gradient-to-r from-purple-600 to-pink-600',
+        hover: 'hover:from-purple-700 hover:to-pink-700'
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
+        hover: 'hover:from-orange-700 hover:to-amber-700'
+      };
+    } else {
+      return {
+        gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+        hover: 'hover:from-blue-700 hover:to-indigo-700'
+      };
+    }
+  };
+
+  const colors = getColors();
 
   const videoUrl = isMobile
     ? "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/images//progress_mobile.mp4"
@@ -52,7 +75,7 @@ const DashboardPreview = () => {
             Our intelligent system automatically captures achievements from your conversations and phone calls, building a visual record of your progress over time.
           </p>
           <Button 
-            className="text-base py-6 px-8 bg-brand-primary hover:bg-brand-primary/90"
+            className={`text-base py-6 px-8 ${colors.gradient} ${colors.hover}`}
             onClick={handleSignupNavigation}
           >
             Experience Your Progress Dashboard

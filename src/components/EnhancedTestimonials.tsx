@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
+import { useLocation } from "react-router-dom";
 import { 
   Carousel,
   CarouselContent,
@@ -11,6 +12,36 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const EnhancedTestimonials = () => {
+  const location = useLocation();
+  
+  // Determine colors based on current route
+  const getColors = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        gradient: 'bg-gradient-to-r from-purple-600 to-pink-600',
+        primary: 'text-purple-600',
+        light: 'bg-purple-50',
+        lightText: 'text-purple-600'
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
+        primary: 'text-orange-600',
+        light: 'bg-orange-50',
+        lightText: 'text-orange-600'
+      };
+    } else {
+      return {
+        gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+        primary: 'text-blue-600',
+        light: 'bg-blue-50',
+        lightText: 'text-blue-600'
+      };
+    }
+  };
+
+  const colors = getColors();
+
   const testimonials = [
     {
       name: "Olivia Nichols",
@@ -71,7 +102,7 @@ const EnhancedTestimonials = () => {
                           {testimonial.image ? (
                             <AvatarImage src={testimonial.image} alt={testimonial.name} />
                           ) : (
-                            <AvatarFallback className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white">
+                            <AvatarFallback className={colors.gradient + " text-white"}>
                               {testimonial.name.charAt(0)}
                             </AvatarFallback>
                           )}
@@ -83,7 +114,7 @@ const EnhancedTestimonials = () => {
                       </div>
                       
                       <div className="pt-3 border-t border-gray-100">
-                        <div className="bg-brand-light text-brand-primary text-sm px-3 py-1 rounded-full inline-block">
+                        <div className={`${colors.light} ${colors.lightText} text-sm px-3 py-1 rounded-full inline-block`}>
                           Achievement: {testimonial.achievement}
                         </div>
                       </div>
