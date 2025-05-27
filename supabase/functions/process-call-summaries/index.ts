@@ -119,6 +119,23 @@ export async function main() {
     );
     console.log(`[${new Date().toISOString()}] Supabase client created successfully`);
 
+    // Step 0: Release stale claims (processing_started_at older than 15 minutes but not processed)
+    console.log(`[${new Date().toISOString()}] Releasing stale claims...`);
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    
+    const { data: staleClaims, error: staleError } = await supabaseClient
+      .from('call_logs')
+      .update({ processing_started_at: null })
+      .lt('processing_started_at', fifteenMinutesAgo)
+      .eq('processed_for_summary', false)
+      .select('id');
+
+    if (staleError) {
+      console.error(`[${new Date().toISOString()}] Error releasing stale claims:`, staleError);
+    } else {
+      console.log(`[${new Date().toISOString()}] Released ${staleClaims?.length || 0} stale claims`);
+    }
+
     // Fetch the user_summary_update prompt from database
     console.log(`[${new Date().toISOString()}] Fetching user_summary_update prompt from database...`);
     const { data: promptData, error: promptError } = await supabaseClient
@@ -139,14 +156,16 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    // Step 1: Get all unprocessed call log IDs (ordered oldest to newest)
-    console.log(`[${new Date().toISOString()}] Fetching unprocessed call logs...`);
+    // Step 1: Get unclaimed unprocessed call log IDs (ordered oldest to newest)
+    console.log(`[${new Date().toISOString()}] Fetching unclaimed unprocessed call logs...`);
     const { data: unprocessedLogs, error: fetchError } = await supabaseClient
       .from('call_logs')
       .select('id, call_summary, call_transcript, user_id')
       .eq('processed_for_summary', false)
+      .is('processing_started_at', null)
       .not('call_summary', 'is', null)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .limit(20); // Limit to prevent one instance from claiming too many
 
     if (fetchError) {
       console.error(`[${new Date().toISOString()}] Error fetching unprocessed call logs:`, fetchError);
@@ -154,41 +173,45 @@ export async function main() {
     }
 
     if (!unprocessedLogs || unprocessedLogs.length === 0) {
-      console.log(`[${new Date().toISOString()}] No unprocessed call logs found`);
+      console.log(`[${new Date().toISOString()}] No unclaimed unprocessed call logs found`);
       return { message: 'No call logs to process', results: [] };
     }
 
-    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs.length} unprocessed call logs`);
+    console.log(`[${new Date().toISOString()}] Found ${unprocessedLogs.length} unclaimed unprocessed call logs`);
 
     const results = [];
-    let processedCount = 0;
-    let aiProcessedCount = 0; // Track actual AI processing
+    let aiProcessedCount = 0;
 
-    // Step 2: Loop through each call log ID
+    // Step 2: Process each call log with claiming mechanism
     for (let i = 0; i < unprocessedLogs.length; i++) {
       const logId = unprocessedLogs[i].id;
       const userId = unprocessedLogs[i].user_id;
       console.log(`[${new Date().toISOString()}] Processing call log ${i + 1}/${unprocessedLogs.length}, ID: ${logId}`);
 
       try {
-        // Step 3: Check if this log is still unprocessed (prevents race conditions)
-        const { data: currentLog, error: checkError } = await supabaseClient
+        // Step 3: Try to claim this record by setting processing_started_at
+        const now = new Date().toISOString();
+        const { data: claimResult, error: claimError } = await supabaseClient
           .from('call_logs')
-          .select('id, call_summary, call_transcript, processed_for_summary, user_id')
+          .update({ processing_started_at: now })
           .eq('id', logId)
           .eq('processed_for_summary', false)
+          .is('processing_started_at', null)
           .not('call_summary', 'is', null)
-          .maybeSingle();
+          .select('id, call_summary, call_transcript, user_id');
 
-        if (checkError) {
-          console.error(`[${new Date().toISOString()}] Error checking call log ${logId}:`, checkError);
+        if (claimError) {
+          console.error(`[${new Date().toISOString()}] Error claiming call log ${logId}:`, claimError);
           continue;
         }
 
-        if (!currentLog) {
-          console.log(`[${new Date().toISOString()}] Call log ${logId} already processed or no longer available, skipping`);
+        if (!claimResult || claimResult.length === 0) {
+          console.log(`[${new Date().toISOString()}] Call log ${logId} already claimed by another instance, skipping`);
           continue;
         }
+
+        const currentLog = claimResult[0];
+        console.log(`[${new Date().toISOString()}] Successfully claimed call log ${logId}`);
 
         if (!userId) {
           console.error(`[${new Date().toISOString()}] No user_id found for call log ${logId}`);
@@ -196,7 +219,7 @@ export async function main() {
           // Mark as processed to avoid infinite retry
           await supabaseClient
             .from('call_logs')
-            .update({ processed_for_summary: true })
+            .update({ processed_for_summary: true, processing_started_at: null })
             .eq('id', logId);
           
           continue;
@@ -211,6 +234,11 @@ export async function main() {
 
         if (profileError) {
           console.error(`[${new Date().toISOString()}] Error fetching user profile for ${userId}:`, profileError);
+          // Release claim on error
+          await supabaseClient
+            .from('call_logs')
+            .update({ processing_started_at: null })
+            .eq('id', logId);
           continue;
         }
 
@@ -241,7 +269,7 @@ export async function main() {
             console.error(`[${new Date().toISOString()}] Error updating user summary for user ${userId}:`, updateError);
           } else {
             console.log(`[${new Date().toISOString()}] Successfully updated user summary for user ${userId}`);
-            aiProcessedCount++; // Increment only when AI processing and update succeeded
+            aiProcessedCount++;
             results.push({
               user_id: userId,
               call_log_id: logId,
@@ -250,7 +278,7 @@ export async function main() {
           }
         } else {
           console.log(`[${new Date().toISOString()}] No summary update needed for call log ${logId}`);
-          aiProcessedCount++; // Still processed by AI, just no update needed
+          aiProcessedCount++;
           results.push({
             user_id: userId,
             call_log_id: logId,
@@ -258,19 +286,21 @@ export async function main() {
           });
         }
 
-        // Mark log as processed
+        // Mark log as processed and clear claim
         console.log(`[${new Date().toISOString()}] Marking call log ${logId} as processed for summary...`);
         
         const { error: updateLogError } = await supabaseClient
           .from('call_logs')
-          .update({ processed_for_summary: true })
+          .update({ 
+            processed_for_summary: true,
+            processing_started_at: null
+          })
           .eq('id', logId);
 
         if (updateLogError) {
           console.error(`[${new Date().toISOString()}] Error marking call log ${logId} as processed for summary:`, updateLogError);
         } else {
           console.log(`[${new Date().toISOString()}] Successfully marked call log ${logId} as processed for summary`);
-          processedCount++;
         }
         
         console.log(`[${new Date().toISOString()}] Completed processing for call log ${logId}`);
@@ -278,6 +308,17 @@ export async function main() {
       } catch (error) {
         console.error(`[${new Date().toISOString()}] Error processing call log ${logId}:`, error);
         console.error(`[${new Date().toISOString()}] Error stack:`, error.stack);
+        
+        // Release claim on error
+        try {
+          await supabaseClient
+            .from('call_logs')
+            .update({ processing_started_at: null })
+            .eq('id', logId);
+          console.log(`[${new Date().toISOString()}] Released claim for call log ${logId} due to error`);
+        } catch (releaseError) {
+          console.error(`[${new Date().toISOString()}] Error releasing claim for call log ${logId}:`, releaseError);
+        }
       }
     }
 
