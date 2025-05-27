@@ -561,6 +561,7 @@ export type Database = {
           created_at: string
           id: string
           is_important: boolean | null
+          processing_started_at: string | null
           summary_processed: boolean | null
           type: string
           user_id: string | null
@@ -570,6 +571,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_important?: boolean | null
+          processing_started_at?: string | null
           summary_processed?: boolean | null
           type: string
           user_id?: string | null
@@ -579,6 +581,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_important?: boolean | null
+          processing_started_at?: string | null
           summary_processed?: boolean | null
           type?: string
           user_id?: string | null
