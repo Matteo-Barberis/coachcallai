@@ -55,10 +55,10 @@ serve(async (req) => {
       console.log('Filtering calls based on user subscription status...');
       
       filteredData = await Promise.all(data.map(async (call) => {
-        // Get user profile with subscription information
+        // Get user profile with subscription information and user_summary
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('subscription_status, trial_start_date')
+          .select('subscription_status, trial_start_date, user_summary')
           .eq('id', call.user_id)
           .single();
           
@@ -69,6 +69,7 @@ serve(async (req) => {
         
         const subscriptionStatus = profileData?.subscription_status;
         const trialStartDate = profileData?.trial_start_date;
+        const userSummary = profileData?.user_summary || '';
         
         // Check if subscription is active or trial is valid (within 7 days)
         let isValid = subscriptionStatus === 'active';
@@ -85,6 +86,8 @@ serve(async (req) => {
         
         if (isValid) {
           console.log(`Including call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
+          // Add user_summary to the call object so it can be used later
+          call.user_summary = userSummary;
           return call;
         } else {
           console.log(`Excluding call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
@@ -254,7 +257,8 @@ serve(async (req) => {
                 "assistant_behaviour": assistantBehavior,
                 "template_instructions": templateInstructions,
                 "coaching_guidelines": coachingGuidelines,
-                "assistant_name": assistantName
+                "assistant_name": assistantName,
+                "user_summary": call.user_summary || ""
               },
               "maxDurationSeconds": 120,
               "firstMessage": "" // Empty string as requested
@@ -266,6 +270,7 @@ serve(async (req) => {
           console.log(`Template Instructions: ${templateInstructions}`);
           console.log(`Coaching Guidelines: ${coachingGuidelines}`);
           console.log(`Custom Instructions: ${customInstructions}`);
+          console.log(`User Summary: ${call.user_summary || 'No summary available'}`);
           console.log(`Using empty string as greeting`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Assistant behavior: ${assistantBehavior}`);
