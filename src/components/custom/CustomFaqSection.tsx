@@ -6,8 +6,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTheme } from "@/hooks/useTheme";
 
 const CustomFaqSection = () => {
+  const theme = useTheme();
+  
   const faqs = [
     {
       question: "How do I create my perfect AI companion?",
@@ -52,19 +55,19 @@ const CustomFaqSection = () => {
   ];
 
   return (
-    <section id="faq" className="py-20 px-4 bg-gradient-to-br from-orange-50 to-amber-50">
+    <section id="faq" className={`py-20 px-4 ${theme.bg}`}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Frequently Asked Questions</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Frequently Asked Questions</h2>
           <p className="text-lg text-gray-600">
             Everything you need to know about creating your AI companion
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="bg-white rounded-xl shadow-sm border border-orange-100 px-6">
+        <Accordion type="single" collapsible className={`bg-white rounded-xl shadow-sm border ${theme.border} px-6`}>
           {faqs.map((faq, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left py-5 text-lg font-medium hover:text-orange-600 transition-colors">
+              <AccordionTrigger className={`text-left py-5 text-lg font-medium ${theme.lightText} transition-colors`}>
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-gray-600 pb-5">

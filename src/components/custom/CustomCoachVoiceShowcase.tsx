@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -6,7 +7,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
 import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 // Hardcoded accountability mode ID as requested
 const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
@@ -35,38 +37,7 @@ const CustomCoachVoiceShowcase = () => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Determine colors based on current route
-  const getColors = () => {
-    if (location.pathname === '/mindfulness') {
-      return {
-        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent',
-        primary: 'text-purple-600',
-        border: 'border-purple-600',
-        bg: 'bg-purple-50',
-        hover: 'hover:bg-purple-50'
-      };
-    } else if (location.pathname === '/custom') {
-      return {
-        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent',
-        primary: 'text-orange-600',
-        border: 'border-orange-600',
-        bg: 'bg-orange-50',
-        hover: 'hover:bg-orange-50'
-      };
-    } else {
-      return {
-        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
-        primary: 'text-blue-600',
-        border: 'border-blue-600',
-        bg: 'bg-blue-50',
-        hover: 'hover:bg-blue-50'
-      };
-    }
-  };
-
-  const colors = getColors();
+  const theme = useTheme();
   
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
@@ -154,7 +125,7 @@ const CustomCoachVoiceShowcase = () => {
     <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Choose Your Perfect AI Companion</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Choose Your Perfect AI Companion</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose a coach with a voice and personality that resonates with you or create your own
           </p>
@@ -170,9 +141,9 @@ const CustomCoachVoiceShowcase = () => {
               
               <div className="bg-white p-6 rounded-lg border border-gray-100">
                 <div className="flex items-center mb-6">
-                  <Avatar className={`h-16 w-16 mr-4 border-2 ${colors.border} bg-gray-100 flex items-center justify-center`}>
+                  <Avatar className={`h-16 w-16 mr-4 border-2 ${theme.border} bg-gray-100 flex items-center justify-center`}>
                     <AvatarFallback>
-                      <UserRound className={`h-10 w-10 ${colors.primary}`} />
+                      <UserRound className={`h-10 w-10 ${theme.primary}`} />
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -201,7 +172,7 @@ const CustomCoachVoiceShowcase = () => {
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                      <h5 className={`font-semibold ${colors.primary}`}>
+                      <h5 className={`font-semibold ${theme.primary}`}>
                         {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
                       </h5>
                       <p className="text-gray-600 mt-1">
@@ -219,7 +190,7 @@ const CustomCoachVoiceShowcase = () => {
                     onClick={handlePlaySampleCall}
                     variant="outline" 
                     size="sm"
-                    className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${colors.border} ${colors.primary} ${colors.hover} mx-auto sm:mx-0`}
+                    className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${theme.border} ${theme.primary} ${theme.hover} mx-auto sm:mx-0`}
                     disabled={!audioLoaded}
                   >
                     {isPlaying ? (
@@ -236,7 +207,7 @@ const CustomCoachVoiceShowcase = () => {
                 {isPlaying && (
                   <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className={`h-full ${colors.primary === 'text-orange-600' ? 'bg-orange-600' : colors.primary === 'text-purple-600' ? 'bg-purple-600' : 'bg-blue-600'} animate-progress`}></div>
+                      <div className={`h-full ${theme.progressBg} animate-progress`}></div>
                     </div>
                   </div>
                 )}

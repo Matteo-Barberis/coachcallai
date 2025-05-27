@@ -5,12 +5,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
+import { useTheme } from "@/hooks/useTheme";
 
 const CustomHeroSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { session } = useSessionContext();
   const location = useLocation();
+  const theme = useTheme();
   const [rotatingWord, setRotatingWord] = useState("Connected");
   const [fadeState, setFadeState] = useState("fade-in");
   const rotatingWords = ["Connected", "Supported", "Understood", "Heard", "Guided", "Comforted", "Empowered"];
@@ -44,15 +46,15 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+    <section className={`pt-20 pb-16 px-4 ${theme.bg}`}>
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-500 bg-clip-text text-transparent">
+            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Stay {' '}
               <span 
-                className={`inline-block relative ${fadeState} border-b-2 border-orange-500 pb-1 text-orange-600`}
+                className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
                 style={{
                   transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                   opacity: fadeState === 'fade-in' ? 1 : 0,
@@ -71,7 +73,7 @@ const CustomHeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button 
                 size="lg" 
-                className="text-lg px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700"
+                className={`text-lg px-8 py-4 ${theme.gradient} hover:opacity-90`}
                 onClick={handleButtonClick}
               >
                 {session ? "Go to Dashboard" : "Create Your AI Companion"}
@@ -79,7 +81,7 @@ const CustomHeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="text-lg px-8 py-4 border-orange-500 text-orange-600 hover:bg-orange-50"
+                className={`text-lg px-8 py-4 ${theme.border} ${theme.primary} ${theme.hover}`}
               >
                 See How It Works
               </Button>
@@ -87,7 +89,7 @@ const CustomHeroSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
                   <PhoneCall className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -97,7 +99,7 @@ const CustomHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
                   <MessageCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -107,7 +109,7 @@ const CustomHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -125,7 +127,7 @@ const CustomHeroSection = () => {
               <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-amber-400 flex items-center justify-center">
+                    <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -137,7 +139,7 @@ const CustomHeroSection = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-4">
+                  <div className={`${theme.light} rounded-2xl p-4`}>
                     <p className="text-sm text-gray-700">Hey! I noticed you seemed stressed earlier. Want to talk about what's on your mind?</p>
                   </div>
                   
@@ -145,17 +147,17 @@ const CustomHeroSection = () => {
                     <p className="text-sm text-gray-700">Yeah, work has been overwhelming lately. Thanks for checking in.</p>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-orange-100 to-amber-100 rounded-2xl p-4">
+                  <div className={`${theme.light} rounded-2xl p-4`}>
                     <p className="text-sm text-gray-700">I'm always here for you. Should I call you in a few minutes so we can chat?</p>
                   </div>
                 </div>
                 
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-amber-400 flex items-center justify-center">
+                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
                       <MessageCircle className="w-4 h-4 text-white" />
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-400 to-yellow-400 flex items-center justify-center">
+                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
                       <PhoneCall className="w-4 h-4 text-white" />
                     </div>
                   </div>
@@ -165,9 +167,9 @@ const CustomHeroSection = () => {
             </div>
             
             {/* Background decorative elements */}
-            <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full opacity-50 animate-float"></div>
-            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-amber-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
+            <div className={`absolute top-4 right-4 w-20 h-20 ${theme.light} rounded-full opacity-50 animate-float`}></div>
+            <div className={`absolute bottom-8 left-4 w-16 h-16 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '2s' }}></div>
+            <div className={`absolute top-1/2 -left-4 w-12 h-12 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '4s' }}></div>
           </div>
         </div>
       </div>
