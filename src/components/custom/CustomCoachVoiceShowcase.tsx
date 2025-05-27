@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -42,15 +41,27 @@ const CustomCoachVoiceShowcase = () => {
   const getColors = () => {
     if (location.pathname === '/mindfulness') {
       return {
-        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent',
+        primary: 'text-purple-600',
+        border: 'border-purple-600',
+        bg: 'bg-purple-50',
+        hover: 'hover:bg-purple-50'
       };
     } else if (location.pathname === '/custom') {
       return {
-        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
+        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent',
+        primary: 'text-orange-600',
+        border: 'border-orange-600',
+        bg: 'bg-orange-50',
+        hover: 'hover:bg-orange-50'
       };
     } else {
       return {
-        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
+        primary: 'text-blue-600',
+        border: 'border-blue-600',
+        bg: 'bg-blue-50',
+        hover: 'hover:bg-blue-50'
       };
     }
   };
@@ -159,9 +170,9 @@ const CustomCoachVoiceShowcase = () => {
               
               <div className="bg-white p-6 rounded-lg border border-gray-100">
                 <div className="flex items-center mb-6">
-                  <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
+                  <Avatar className={`h-16 w-16 mr-4 border-2 ${colors.border} bg-gray-100 flex items-center justify-center`}>
                     <AvatarFallback>
-                      <UserRound className="h-10 w-10 text-brand-primary" />
+                      <UserRound className={`h-10 w-10 ${colors.primary}`} />
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -190,7 +201,7 @@ const CustomCoachVoiceShowcase = () => {
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                      <h5 className="font-semibold text-brand-primary">
+                      <h5 className={`font-semibold ${colors.primary}`}>
                         {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
                       </h5>
                       <p className="text-gray-600 mt-1">
@@ -208,7 +219,7 @@ const CustomCoachVoiceShowcase = () => {
                     onClick={handlePlaySampleCall}
                     variant="outline" 
                     size="sm"
-                    className="h-12 w-12 mb-3 sm:mb-0 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light mx-auto sm:mx-0"
+                    className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${colors.border} ${colors.primary} ${colors.hover} mx-auto sm:mx-0`}
                     disabled={!audioLoaded}
                   >
                     {isPlaying ? (
@@ -225,7 +236,7 @@ const CustomCoachVoiceShowcase = () => {
                 {isPlaying && (
                   <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-primary animate-progress"></div>
+                      <div className={`h-full ${colors.primary === 'text-orange-600' ? 'bg-orange-600' : colors.primary === 'text-purple-600' ? 'bg-purple-600' : 'bg-blue-600'} animate-progress`}></div>
                     </div>
                   </div>
                 )}
