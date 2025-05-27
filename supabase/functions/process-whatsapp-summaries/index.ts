@@ -1,3 +1,4 @@
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -155,11 +156,10 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    // Step 1: Find users who have 5+ unclaimed unprocessed important messages using direct aggregation
+    // Step 1: Find users who have 5+ unclaimed unprocessed important messages
     console.log(`[${new Date().toISOString()}] Finding users with 5+ unclaimed unprocessed important messages...`);
     
-    // Use a single query with aggregation to directly get users with 5+ messages
-    const { data: eligibleUsersData, error: usersError } = await supabaseClient
+    const { data: userCounts, error: usersError } = await supabaseClient
       .from('whatsapp_messages')
       .select('user_id')
       .eq('is_important', true)
@@ -172,14 +172,14 @@ export async function main() {
       throw usersError;
     }
 
-    if (!eligibleUsersData || eligibleUsersData.length === 0) {
+    if (!userCounts || userCounts.length === 0) {
       console.log(`[${new Date().toISOString()}] No unclaimed unprocessed important messages found`);
       return { message: 'No WhatsApp messages to process', results: [] };
     }
 
-    // Count messages per user and filter those with 5+ (keeping this temporarily until we create the SQL function)
+    // Count messages per user and filter those with 5+
     const userMessageCounts: Record<string, number> = {};
-    eligibleUsersData.forEach(msg => {
+    userCounts.forEach(msg => {
       if (msg.user_id) {
         userMessageCounts[msg.user_id] = (userMessageCounts[msg.user_id] || 0) + 1;
       }
