@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import CoachSelect from "@/components/CoachSelect";
 import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Hardcoded accountability mode ID as requested
 const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
@@ -36,6 +36,26 @@ const CustomCoachVoiceShowcase = () => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine colors based on current route
+  const getColors = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
+      };
+    } else {
+      return {
+        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+      };
+    }
+  };
+
+  const colors = getColors();
   
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
@@ -123,7 +143,7 @@ const CustomCoachVoiceShowcase = () => {
     <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Choose Your Perfect AI Companion</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Choose Your Perfect AI Companion</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose a coach with a voice and personality that resonates with you or create your own
           </p>

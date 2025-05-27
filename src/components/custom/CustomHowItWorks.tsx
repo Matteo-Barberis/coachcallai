@@ -1,8 +1,29 @@
-
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useLocation } from "react-router-dom";
 
 const CustomHowItWorks = () => {
+  const location = useLocation();
+
+  // Determine colors based on current route
+  const getColors = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
+      };
+    } else {
+      return {
+        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+      };
+    }
+  };
+
+  const colors = getColors();
+
   const steps = [
     {
       title: "Design Your Companion",
@@ -26,7 +47,7 @@ const CustomHowItWorks = () => {
     <section id="how-it-works" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">How Your AI Companion Works</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>How Your AI Companion Works</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Create your perfect AI companion in minutes and start experiencing genuine connection and support.
           </p>

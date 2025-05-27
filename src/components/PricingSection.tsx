@@ -53,7 +53,8 @@ const PricingSection = () => {
         border: 'border-purple-600',
         ring: 'ring-purple-600',
         light: 'bg-purple-50',
-        text: 'text-purple-600'
+        text: 'text-purple-600',
+        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
       };
     } else if (location.pathname === '/custom') {
       return {
@@ -63,7 +64,8 @@ const PricingSection = () => {
         border: 'border-orange-600',
         ring: 'ring-orange-600',
         light: 'bg-orange-50',
-        text: 'text-orange-600'
+        text: 'text-orange-600',
+        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
       };
     } else {
       return {
@@ -73,7 +75,8 @@ const PricingSection = () => {
         border: 'border-brand-primary',
         ring: 'ring-brand-primary',
         light: 'bg-brand-light',
-        text: 'text-brand-primary'
+        text: 'text-brand-primary',
+        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
       };
     }
   };
@@ -234,7 +237,7 @@ const PricingSection = () => {
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Simple, Transparent Pricing</h2>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Simple, Transparent Pricing</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto"></p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -264,7 +267,7 @@ const PricingSection = () => {
     <section id="pricing" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Simple, Transparent Pricing</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Simple, Transparent Pricing</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             
           </p>
