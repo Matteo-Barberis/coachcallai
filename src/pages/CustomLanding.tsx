@@ -10,7 +10,7 @@ import CustomUseCaseShowcase from '@/components/custom/CustomUseCaseShowcase';
 import EnhancedTestimonials from '@/components/EnhancedTestimonials';
 import PricingSection from '@/components/PricingSection';
 import CustomFaqSection from '@/components/custom/CustomFaqSection';
-import CtaSection from '@/components/CtaSection';
+import CustomCtaSection from '@/components/custom/CustomCtaSection';
 import Footer from '@/components/Footer';
 import StickyCta from '@/components/StickyCta';
 
@@ -28,7 +28,7 @@ const CustomLanding = () => {
         <EnhancedTestimonials />
         <PricingSection />
         <CustomFaqSection />
-        <CtaSection />
+        <CustomCtaSection />
       </main>
       <Footer />
       <StickyCta />
