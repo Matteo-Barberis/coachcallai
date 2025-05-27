@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SessionProvider } from "./context/SessionContext";
 import Index from "./pages/Index";
 import CustomLanding from "./pages/CustomLanding";
+import MindfulnessLanding from "./pages/MindfulnessLanding";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
@@ -34,6 +35,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/custom" element={<CustomLanding />} />
+            <Route path="/mindfulness" element={<MindfulnessLanding />} />
             <Route path="/auth/:view" element={<Auth />} />
             <Route path="/auth/update-password" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
