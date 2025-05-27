@@ -1,4 +1,3 @@
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
 // Immediate logging at the top level of the file
@@ -156,45 +155,24 @@ export async function main() {
 
     console.log(`[${new Date().toISOString()}] Successfully fetched user_summary_update prompt`);
 
-    // Step 1: Find users who have 5+ unclaimed unprocessed important messages
-    console.log(`[${new Date().toISOString()}] Finding users with 5+ unclaimed unprocessed important messages...`);
+    // Step 1: Find users who have 5+ unclaimed unprocessed important messages using database function
+    console.log(`[${new Date().toISOString()}] Finding users with 5+ unclaimed unprocessed important messages using database function...`);
     
-    const { data: userCounts, error: usersError } = await supabaseClient
-      .from('whatsapp_messages')
-      .select('user_id')
-      .eq('is_important', true)
-      .eq('summary_processed', false)
-      .is('processing_started_at', null)
-      .not('user_id', 'is', null);
+    const { data: eligibleUsers, error: usersError } = await supabaseClient
+      .rpc('get_users_with_min_unclaimed_messages', { min_count: 5 });
 
     if (usersError) {
-      console.error(`[${new Date().toISOString()}] Error fetching unprocessed messages:`, usersError);
+      console.error(`[${new Date().toISOString()}] Error fetching users with sufficient unclaimed messages:`, usersError);
       throw usersError;
     }
 
-    if (!userCounts || userCounts.length === 0) {
-      console.log(`[${new Date().toISOString()}] No unclaimed unprocessed important messages found`);
+    if (!eligibleUsers || eligibleUsers.length === 0) {
+      console.log(`[${new Date().toISOString()}] No users with sufficient unclaimed messages (5+) found`);
       return { message: 'No WhatsApp messages to process', results: [] };
     }
 
-    // Count messages per user and filter those with 5+
-    const userMessageCounts: Record<string, number> = {};
-    userCounts.forEach(msg => {
-      if (msg.user_id) {
-        userMessageCounts[msg.user_id] = (userMessageCounts[msg.user_id] || 0) + 1;
-      }
-    });
-
-    const eligibleUserIds = Object.entries(userMessageCounts)
-      .filter(([_, count]) => count >= 5)
-      .map(([userId, _]) => userId);
-
+    const eligibleUserIds = eligibleUsers.map(user => user.user_id);
     console.log(`[${new Date().toISOString()}] Found ${eligibleUserIds.length} users with 5+ unclaimed unprocessed important messages`);
-
-    if (eligibleUserIds.length === 0) {
-      console.log(`[${new Date().toISOString()}] No users with sufficient unclaimed messages (5+) found`);
-      return { message: 'No users with enough unclaimed messages to process', results: [] };
-    }
 
     const results = [];
     let processedUsersCount = 0;

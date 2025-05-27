@@ -616,6 +616,13 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_users_with_min_unclaimed_messages: {
+        Args: { min_count: number }
+        Returns: {
+          user_id: string
+          message_count: number
+        }[]
+      }
       initialize_mode_preferences: {
         Args: { user_id_param: string }
         Returns: undefined
