@@ -6,8 +6,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTheme } from "@/hooks/useTheme";
 
 const FaqSection = () => {
+  const theme = useTheme();
+
   const faqs = [
     {
       question: "How does Coach Call AI make phone calls?",
@@ -51,7 +54,7 @@ const FaqSection = () => {
     <section id="faq" className="py-20 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Frequently Asked Questions</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Frequently Asked Questions</h2>
           <p className="text-lg text-gray-600">
             Everything you need to know about Coach Call AI
           </p>
@@ -60,7 +63,7 @@ const FaqSection = () => {
         <Accordion type="single" collapsible className="bg-white rounded-xl shadow-sm border border-gray-100 px-6">
           {faqs.map((faq, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left py-5 text-lg font-medium hover:text-brand-primary">
+              <AccordionTrigger className={`text-left py-5 text-lg font-medium ${theme.hover} ${theme.lightText}`}>
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-gray-600 pb-5">
