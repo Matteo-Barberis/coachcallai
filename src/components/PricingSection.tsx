@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
@@ -8,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { useSessionContext } from '@/context/SessionContext';
+import { useTheme } from '@/hooks/useTheme';
 
 interface PlanFeature {
   text: string;
@@ -42,46 +44,7 @@ const PricingSection = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const { session } = useSessionContext();
-
-  // Determine colors based on current route
-  const getColors = () => {
-    if (location.pathname === '/mindfulness') {
-      return {
-        gradient: 'bg-gradient-to-r from-purple-600 to-pink-600',
-        primary: 'bg-purple-600',
-        primaryHover: 'hover:bg-purple-600/90',
-        border: 'border-purple-600',
-        ring: 'ring-purple-600',
-        light: 'bg-purple-50',
-        text: 'text-purple-600',
-        titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'
-      };
-    } else if (location.pathname === '/custom') {
-      return {
-        gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
-        primary: 'bg-orange-600',
-        primaryHover: 'hover:bg-orange-600/90',
-        border: 'border-orange-600',
-        ring: 'ring-orange-600',
-        light: 'bg-orange-50',
-        text: 'text-orange-600',
-        titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent'
-      };
-    } else {
-      return {
-        gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-        primary: 'bg-brand-primary',
-        primaryHover: 'hover:bg-brand-primary/90',
-        border: 'border-brand-primary',
-        ring: 'ring-brand-primary',
-        light: 'bg-brand-light',
-        text: 'text-brand-primary',
-        titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
-      };
-    }
-  };
-
-  const colors = getColors();
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
@@ -137,8 +100,8 @@ const PricingSection = () => {
               features: formattedFeatures,
               popular: index === 1,
               colorClass: index === 1 
-                ? colors.border 
-                : `border-gray-200 hover:${colors.border}`
+                ? theme.border 
+                : `border-gray-200 hover:${theme.border}`
             };
           });
           
@@ -162,7 +125,7 @@ const PricingSection = () => {
     };
 
     fetchSubscriptionPlans();
-  }, [colors.border]);
+  }, [theme.border]);
 
   const handleSubscribe = (plan: string) => {
     if (session) {
@@ -192,7 +155,7 @@ const PricingSection = () => {
           { text: "Email support" }
         ],
         popular: false,
-        colorClass: `border-gray-200 hover:${colors.border}`
+        colorClass: `border-gray-200 hover:${theme.border}`
       },
       medium: {
         name: "Medium",
@@ -208,7 +171,7 @@ const PricingSection = () => {
           { text: "Habit streak tracking" }
         ],
         popular: true,
-        colorClass: colors.border
+        colorClass: theme.border
       },
       pro: {
         name: "Pro",
@@ -224,7 +187,7 @@ const PricingSection = () => {
           { text: "Dedicated account manager" }
         ],
         popular: false,
-        colorClass: `border-gray-200 hover:${colors.border}`
+        colorClass: `border-gray-200 hover:${theme.border}`
       }
     };
   };
@@ -237,7 +200,7 @@ const PricingSection = () => {
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Simple, Transparent Pricing</h2>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Simple, Transparent Pricing</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto"></p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -267,7 +230,7 @@ const PricingSection = () => {
     <section id="pricing" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${colors.titleGradient}`}>Simple, Transparent Pricing</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Simple, Transparent Pricing</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             
           </p>
@@ -295,11 +258,12 @@ const PricingSection = () => {
                 return (
                   <div
                     key={key}
-                    className={`rounded-2xl shadow-md p-8 border-2 ${colors.border} ${colors.ring} ring-4 ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
+                    className={`rounded-2xl shadow-md p-8 border-2 ${theme.border} ring-4 ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
+                    style={{ ringColor: `${theme.border.replace('border-', '')}` }}
                   >
                     {plan.popular && (
                       <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
-                        <Badge variant="default" className={`${colors.primary} text-white px-4 py-1`}>
+                        <Badge variant="default" className={`${theme.progressBg} text-white px-4 py-1`}>
                           Most Popular
                         </Badge>
                       </div>
@@ -316,7 +280,7 @@ const PricingSection = () => {
                     <ul className="space-y-3 mb-8 flex-grow">
                       {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start">
-                          <div className={`mr-3 mt-1 ${colors.text}`}>
+                          <div className={`mr-3 mt-1 ${theme.primary}`}>
                             <Check className="w-5 h-5" />
                           </div>
                           <span className="text-gray-700">{feature.text}</span>
@@ -325,7 +289,7 @@ const PricingSection = () => {
                     </ul>
                     
                     <Button
-                      className={`w-full py-6 ${colors.primary} ${colors.primaryHover}`}
+                      className={`w-full py-6 ${theme.gradient} hover:opacity-90`}
                       onClick={() => handleSubscribe(plan.name)}
                     >
                       Get Started
@@ -343,13 +307,14 @@ const PricingSection = () => {
                 key={key}
                 className={`rounded-2xl shadow-md p-8 border-2 ${
                   plan.name === selectedPlan 
-                    ? `relative ${colors.border} ${colors.ring} ring-4 ring-opacity-20` 
+                    ? `relative ${theme.border} ring-4 ring-opacity-20` 
                     : `${plan.colorClass}`
                 } bg-white flex flex-col h-full`}
+                style={plan.name === selectedPlan ? { ringColor: `${theme.border.replace('border-', '')}` } : {}}
               >
                 {plan.popular && (
                   <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
-                    <Badge variant="default" className={`${colors.primary} text-white px-4 py-1`}>
+                    <Badge variant="default" className={`${theme.progressBg} text-white px-4 py-1`}>
                       Most Popular
                     </Badge>
                   </div>
@@ -366,7 +331,7 @@ const PricingSection = () => {
                 <ul className="space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start">
-                      <div className={`mr-3 mt-1 ${colors.text}`}>
+                      <div className={`mr-3 mt-1 ${theme.primary}`}>
                         <Check className="w-5 h-5" />
                       </div>
                       <span className="text-gray-700">{feature.text}</span>
@@ -377,8 +342,8 @@ const PricingSection = () => {
                 <Button
                   className={`w-full py-6 ${
                     plan.name === selectedPlan 
-                      ? `${colors.primary} ${colors.primaryHover}` 
-                      : `bg-white border-2 ${colors.border} ${colors.text} ${colors.light}`
+                      ? `${theme.gradient} hover:opacity-90` 
+                      : `bg-white border-2 ${theme.border} ${theme.primary} ${theme.hover}`
                   }`}
                   onClick={() => handleSubscribe(plan.name)}
                 >
