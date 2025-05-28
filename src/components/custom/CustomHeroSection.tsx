@@ -87,14 +87,14 @@ const CustomHeroSection = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
                 <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Voice Calls</p>
-                  <p className="text-sm text-gray-600 hidden sm:block md:block">Personal conversations</p>
+                  <p className="text-sm text-gray-600">Personal conversations</p>
                 </div>
               </div>
               
@@ -104,7 +104,7 @@ const CustomHeroSection = () => {
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Daily Check-ins</p>
-                  <p className="text-sm text-gray-600 hidden sm:block md:block">WhatsApp support</p>
+                  <p className="text-sm text-gray-600">WhatsApp support</p>
                 </div>
               </div>
               
@@ -114,7 +114,7 @@ const CustomHeroSection = () => {
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Progress Tracking</p>
-                  <p className="text-sm text-gray-600 hidden sm:block md:block">Growth insights</p>
+                  <p className="text-sm text-gray-600">Growth insights</p>
                 </div>
               </div>
             </div>
