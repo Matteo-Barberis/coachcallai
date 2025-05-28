@@ -37,7 +37,11 @@ const MindfulnessHeroSection = () => {
               <Button size="lg" className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
                 {session ? "Go to Dashboard" : "Start Your Journey"}
               </Button>
-              <Button variant="outline" size="lg" className="text-base md:text-lg py-6 px-8">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
+              >
                 See How It Works
               </Button>
             </div>
