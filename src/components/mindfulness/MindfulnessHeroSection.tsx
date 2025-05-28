@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
@@ -56,8 +55,8 @@ const MindfulnessHeroSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                  <PhoneCall className="w-3 h-3 text-white" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                  <PhoneCall className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Voice Calls</p>
@@ -66,8 +65,8 @@ const MindfulnessHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-3 h-3 text-white" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Daily Check-ins</p>
@@ -76,8 +75,8 @@ const MindfulnessHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-3 h-3 text-white" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Progress Tracking</p>
