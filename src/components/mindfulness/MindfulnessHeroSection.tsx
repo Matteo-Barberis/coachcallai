@@ -14,7 +14,7 @@ const MindfulnessHeroSection = () => {
   };
   
   return (
-    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
