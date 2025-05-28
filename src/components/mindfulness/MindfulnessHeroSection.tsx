@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
@@ -14,11 +13,11 @@ const MindfulnessHeroSection = () => {
   };
 
   return (
-    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
-          <div>
+          <div className="flex flex-col space-y-8 animate-fade-in">
             <div className="flex mb-6">
               <div className="flex space-x-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
@@ -33,55 +32,59 @@ const MindfulnessHeroSection = () => {
               </div>
             </div>
             
-            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">
+            <p className="text-lg md:text-xl text-gray-600 mb-8">
               Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button 
                 size="lg" 
-                className="text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`}
                 onClick={handleGetStarted}
               >
                 Start Your Journey
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
+              >
                 Watch Demo
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                  <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-6">
+              <div className="flex items-center space-x-1 sm:space-x-3">
+                <div className="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                  <PhoneCall className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Voice Calls</p>
-                  <p className="text-sm text-gray-600">Guided meditations</p>
+                  <p className="font-semibold text-gray-900 text-xs sm:text-sm">Voice Calls</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">Guided meditations</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              <div className="flex items-center space-x-1 sm:space-x-3">
+                <div className="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Daily Check-ins</p>
-                  <p className="text-sm text-gray-600">WhatsApp reminders</p>
+                  <p className="font-semibold text-gray-900 text-xs sm:text-sm">Daily Check-ins</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">WhatsApp reminders</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              <div className="flex items-center space-x-1 sm:space-x-3">
+                <div className="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Progress Tracking</p>
-                  <p className="text-sm text-gray-600">Mindfulness insights</p>
+                  <p className="font-semibold text-gray-900 text-xs sm:text-sm">Progress Tracking</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">Mindfulness insights</p>
                 </div>
               </div>
             </div>
