@@ -3,19 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
+
 const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  
   const handleGetStarted = () => {
     navigate('/auth/sign-up');
   };
-  return <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+  
+  return (
+    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            
-            
             <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
@@ -33,7 +35,30 @@ const MindfulnessHeroSection = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Mobile: Horizontal row layout like accountability page */}
+            <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500 md:hidden">
+              <div className="flex items-center">
+                <div className="rounded-full bg-green-100 p-1 mr-2">
+                  <PhoneCall className="w-4 h-4 text-green-600" />
+                </div>
+                <span>Voice Calls</span>
+              </div>
+              <div className="flex items-center">
+                <div className="rounded-full bg-blue-100 p-1 mr-2">
+                  <MessageCircle className="w-4 h-4 text-blue-600" />
+                </div>
+                <span>Daily Check-ins</span>
+              </div>
+              <div className="flex items-center">
+                <div className="rounded-full bg-purple-100 p-1 mr-2">
+                  <TrendingUp className="w-4 h-4 text-purple-600" />
+                </div>
+                <span>Progress Tracking</span>
+              </div>
+            </div>
+
+            {/* Medium and Large: Grid layout */}
+            <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                   <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
@@ -136,15 +161,13 @@ const MindfulnessHeroSection = () => {
             
             {/* Background decorative elements */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full opacity-50 animate-float"></div>
-            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{
-            animationDelay: '2s'
-          }}></div>
-            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{
-            animationDelay: '4s'
-          }}></div>
+            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default MindfulnessHeroSection;
