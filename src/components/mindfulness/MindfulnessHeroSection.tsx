@@ -102,6 +102,7 @@ const MindfulnessHeroSection = () => {
                       <p className="text-sm text-green-500">Online</p>
                     </div>
                   </div>
+                  <PhoneCall className="w-6 h-6 text-gray-400" />
                 </div>
                 
                 <div className="space-y-4">
@@ -117,11 +118,8 @@ const MindfulnessHeroSection = () => {
                     <p className="text-sm text-gray-700">Beautiful! Let's carry that gratitude with us. Would you like a 5-minute mindfulness exercise? ✨</p>
                   </div>
                 </div>
-              </div>
-
-              {/* Incoming call section - positioned outside the phone mockup */}
-              <div className="absolute -bottom-16 -right-12 z-20 rounded-2xl shadow-xl bg-white p-3 border border-gray-100 animate-pulse-light">
-                <div className="w-64 p-3">
+                
+                <div className="mt-6 rounded-2xl shadow-xl bg-white p-3 border border-gray-100">
                   <div className="flex items-center mb-3">
                     <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
                       <PhoneCall className="w-4 h-4 text-white" />
