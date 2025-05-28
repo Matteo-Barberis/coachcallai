@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
@@ -13,12 +14,12 @@ const MindfulnessHeroSection = () => {
   };
   
   return (
-    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
             
@@ -27,10 +28,10 @@ const MindfulnessHeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
+              <Button size="lg" className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
                 Start Your Journey
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
+              <Button variant="outline" size="lg" className="text-base md:text-lg py-6 px-8">
                 Watch Demo
               </Button>
             </div>
