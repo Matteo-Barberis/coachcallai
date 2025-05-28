@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -116,68 +117,78 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="relative flex justify-center">
-          <div className="relative w-full max-w-md animate-float">
-            <div className={`absolute -top-6 -left-6 w-24 h-24 rounded-full ${theme.light} opacity-70`}></div>
-            <div className={`absolute -bottom-10 -right-6 w-32 h-32 rounded-full ${theme.light} opacity-70`}></div>
-            
-            <div className="relative z-10 bg-white rounded-3xl shadow-2xl overflow-hidden border-8 border-white">
-              <div className="h-14 bg-gray-100 flex items-center px-4 border-b">
-                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex-shrink-0`}></div>
-                <div className="ml-3">
-                  <div className="h-3 w-32 bg-gray-300 rounded-full"></div>
-                  <div className="h-2 w-20 bg-gray-200 rounded-full mt-2"></div>
+        {/* Right side - Chat/Phone mockup */}
+        <div className="relative">
+          <div className="relative z-10">
+            {/* Phone mockup */}
+            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                    <MessageCircle className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Coach Call AI</p>
+                    <p className="text-sm text-green-500">Online</p>
+                  </div>
+                </div>
+                <PhoneCall className="w-6 h-6 text-gray-400" />
+              </div>
+              
+              <div className="space-y-4">
+                <div className={`${theme.light} rounded-2xl p-4`}>
+                  <p className="text-sm text-gray-700">Hey! How's your progress with the 5K training? I noticed you missed yesterday's run.</p>
+                </div>
+                
+                <div className="bg-gray-100 rounded-2xl p-4 ml-8">
+                  <p className="text-sm text-gray-700">I got caught up with work yesterday. Planning to catch up today!</p>
+                </div>
+                
+                <div className={`${theme.light} rounded-2xl p-4`}>
+                  <p className="text-sm text-gray-700">Great! I'll call you at 6pm to confirm. Does that work for you?</p>
                 </div>
               </div>
-              <div className="p-4 bg-gray-50">
-                <div className={`${theme.gradient} rounded-2xl p-5 text-white mb-4 max-w-xs ml-auto`}>
-                  Hey! How's your progress with the 5K training? I noticed you missed yesterday's run.
+              
+              <div className="mt-4 flex items-center">
+                <div className="flex-grow h-10 bg-gray-50 rounded-full border border-gray-200 flex items-center px-3">
+                  <div className="h-2 w-20 bg-gray-300 rounded-full"></div>
                 </div>
-                <div className="bg-gray-200 rounded-2xl p-5 text-gray-800 mb-4 max-w-xs">
-                  I got caught up with work yesterday. Planning to catch up today!
-                </div>
-                <div className={`${theme.gradient} rounded-2xl p-5 text-white mb-4 max-w-xs ml-auto`}>
-                  Great! I'll call you at 6pm to confirm. Does that work for you?
-                </div>
-                <div className="flex items-center mt-4">
-                  <div className="flex-grow h-12 bg-white rounded-full border border-gray-200 flex items-center px-4">
-                    <div className="h-3 w-32 bg-gray-200 rounded-full"></div>
-                  </div>
-                  <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center ml-2 flex-shrink-0`}>
-                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-16 -right-12 z-20 rounded-2xl shadow-xl bg-white p-3 border border-gray-100 animate-pulse-light">
-              <div className="w-64 p-3">
-                <div className="flex items-center mb-3">
-                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-                    <PhoneCall className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="ml-3">
-                    <div className="font-medium">Incoming Call</div>
-                    <div className="text-xs text-gray-500">Coach Call AI</div>
-                  </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="w-1/2 px-2">
-                    <Button variant="outline" className="w-full text-sm bg-gray-100 hover:bg-gray-200 border-gray-200">
-                      Decline
-                    </Button>
-                  </div>
-                  <div className="w-1/2 px-2">
-                    <Button className="w-full text-sm bg-green-500 hover:bg-green-600">
-                      Answer
-                    </Button>
-                  </div>
+                <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center ml-2 flex-shrink-0`}>
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
+          
+          {/* Incoming Call Notification */}
+          <div className="absolute -bottom-12 -right-8 z-20 rounded-2xl shadow-xl bg-white p-3 border border-gray-100 animate-pulse-light">
+            <div className="w-56 p-3">
+              <div className="flex items-center mb-3">
+                <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                  <PhoneCall className="w-4 h-4 text-white" />
+                </div>
+                <div className="ml-3">
+                  <div className="font-medium text-sm">Incoming Call</div>
+                  <div className="text-xs text-gray-500">Coach Call AI</div>
+                </div>
+              </div>
+              <div className="flex justify-between gap-2">
+                <Button variant="outline" className="flex-1 text-xs bg-gray-100 hover:bg-gray-200 border-gray-200 h-8">
+                  Decline
+                </Button>
+                <Button className="flex-1 text-xs bg-green-500 hover:bg-green-600 h-8">
+                  Answer
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Background decorative elements */}
+          <div className={`absolute top-4 right-4 w-20 h-20 ${theme.light} rounded-full opacity-50 animate-float`}></div>
+          <div className={`absolute bottom-8 left-4 w-16 h-16 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '2s' }}></div>
+          <div className={`absolute top-1/2 -left-4 w-12 h-12 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '4s' }}></div>
         </div>
       </div>
     </section>
