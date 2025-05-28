@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -130,7 +131,7 @@ const CustomHeroSection = () => {
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Your Companion</p>
+                      <p className="font-semibold text-gray-900">Coach Call AI</p>
                       <p className="text-sm text-green-500">Online</p>
                     </div>
                   </div>
@@ -151,16 +152,38 @@ const CustomHeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex space-x-2">
-                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
-                      <MessageCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
-                      <PhoneCall className="w-4 h-4 text-white" />
-                    </div>
+                <div className="mt-4 flex items-center">
+                  <div className="flex-grow h-10 bg-gray-50 rounded-full border border-gray-200 flex items-center px-3">
+                    <div className="h-2 w-20 bg-gray-300 rounded-full"></div>
                   </div>
-                  <div className="text-xs text-gray-500">Active now</div>
+                  <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center ml-2 flex-shrink-0`}>
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Incoming Call Notification */}
+            <div className="absolute -bottom-12 -right-8 z-20 rounded-2xl shadow-xl bg-white p-3 border border-gray-100 animate-pulse-light">
+              <div className="w-56 p-3">
+                <div className="flex items-center mb-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                    <PhoneCall className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="font-medium text-sm">Incoming Call</div>
+                    <div className="text-xs text-gray-500">Coach Call AI</div>
+                  </div>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <Button variant="outline" className="flex-1 text-xs bg-gray-100 hover:bg-gray-200 border-gray-200 h-8">
+                    Decline
+                  </Button>
+                  <Button className="flex-1 text-xs bg-green-500 hover:bg-green-600 h-8">
+                    Answer
+                  </Button>
                 </div>
               </div>
             </div>
