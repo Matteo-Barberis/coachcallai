@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -6,6 +5,7 @@ import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 import { useTheme } from '@/hooks/useTheme';
+import ModeSwitcher from '@/components/ModeSwitcher';
 
 const HeroSection = () => {
   const { toast } = useToast();
@@ -61,6 +61,7 @@ const HeroSection = () => {
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           <div>
+            <ModeSwitcher />
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
               Stay {' '}
               <span 

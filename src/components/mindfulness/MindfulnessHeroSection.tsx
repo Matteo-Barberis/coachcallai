@@ -5,6 +5,7 @@ import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-r
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { useSessionContext } from '@/context/SessionContext';
+import ModeSwitcher from '@/components/ModeSwitcher';
 
 const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const MindfulnessHeroSection = () => {
           {/* Left side - Content */}
           <div className="flex flex-col space-y-8 animate-fade-in">
             <div>
+              <ModeSwitcher />
               <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
                 Your Personal AI Companion for Inner Peace
               </h1>
