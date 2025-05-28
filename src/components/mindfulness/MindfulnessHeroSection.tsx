@@ -28,11 +28,11 @@ const MindfulnessHeroSection = () => {
           <div className="flex flex-col space-y-8 animate-fade-in">
             <div>
               <ModeSwitcher />
-              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
                 Your Personal AI Companion for Inner Peace
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-600 mb-8">
+              <p className="text-lg md:text-xl text-gray-600 mb-8">
                 Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
               </p>
               
