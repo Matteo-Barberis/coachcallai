@@ -219,10 +219,10 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Background decorative elements */}
-          <div className={`absolute top-4 right-4 w-20 h-20 ${theme.light} rounded-full opacity-50 animate-float`}></div>
-          <div className={`absolute bottom-8 left-4 w-16 h-16 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '2s' }}></div>
-          <div className={`absolute top-1/2 -left-4 w-12 h-12 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '4s' }}></div>
+          {/* Background decorative elements - Indigo/Purple theme */}
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50 animate-float"></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-violet-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-violet-200 to-indigo-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
         </div>
       </div>
     </section>
