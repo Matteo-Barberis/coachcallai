@@ -89,8 +89,8 @@ const CustomHeroSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
-                  <PhoneCall className="w-5 h-5 text-white" />
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                  <PhoneCall className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Voice Calls</p>
@@ -99,8 +99,8 @@ const CustomHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
-                  <MessageCircle className="w-5 h-5 text-white" />
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Daily Check-ins</p>
@@ -109,8 +109,8 @@ const CustomHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
-                  <TrendingUp className="w-5 h-5 text-white" />
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Progress Tracking</p>
