@@ -4,13 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
+import { useSessionContext } from '@/context/SessionContext';
 
 const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { session } = useSessionContext();
   
   const handleGetStarted = () => {
-    navigate('/auth/sign-up');
+    if (session) {
+      navigate('/dashboard');
+    } else {
+      navigate('/auth/sign-up');
+    }
   };
   
   return (
@@ -29,10 +35,10 @@ const MindfulnessHeroSection = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button size="lg" className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
-                Start Your Journey
+                {session ? "Go to Dashboard" : "Start Your Journey"}
               </Button>
               <Button variant="outline" size="lg" className="text-base md:text-lg py-6 px-8">
-                Watch Demo
+                See How It Works
               </Button>
             </div>
             
