@@ -24,26 +24,29 @@ const MindfulnessHeroSection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
-          <div>
-            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
-              Your Personal AI Companion for Inner Peace
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">
-              Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button size="lg" className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
-                {session ? "Go to Dashboard" : "Start Your Journey"}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
-              >
-                See How It Works
-              </Button>
+          <div className="flex flex-col space-y-8 animate-fade-in">
+            <div>
+              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+                Your Personal AI Companion for Inner Peace
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-gray-600 mb-8">
+                Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
+                  {session ? "Go to Dashboard" : "Start Your Journey"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
+                  onClick={() => window.location.href = "#how-it-works"}
+                >
+                  See How It Works
+                </Button>
+              </div>
             </div>
             
             {/* Mobile: Horizontal row layout like accountability page */}
