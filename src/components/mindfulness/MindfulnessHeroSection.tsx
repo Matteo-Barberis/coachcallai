@@ -18,33 +18,58 @@ const MindfulnessHeroSection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
-          <div>
-            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
-              Your Personal AI Companion for Inner Peace
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 mb-8">
-              Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button 
-                size="lg" 
-                className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" 
-                onClick={handleGetStarted}
-              >
-                Start Your Journey
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="text-base md:text-lg py-6 px-8"
-              >
-                Watch Demo
-              </Button>
+          <div className="flex flex-col space-y-8 animate-fade-in">
+            <div>
+              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+                Your Personal AI Companion for Inner Peace
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-gray-600 mb-8">
+                Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 mb-12">
+                <Button 
+                  size="lg" 
+                  className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" 
+                  onClick={handleGetStarted}
+                >
+                  Start Your Journey
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="text-base md:text-lg py-6 px-8"
+                >
+                  Watch Demo
+                </Button>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Mobile: Horizontal row layout */}
+            <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500 md:hidden">
+              <div className="flex items-center">
+                <div className="rounded-full bg-green-100 p-1 mr-2">
+                  <PhoneCall className="w-4 h-4 text-green-600" />
+                </div>
+                <span>Voice Calls</span>
+              </div>
+              <div className="flex items-center">
+                <div className="rounded-full bg-blue-100 p-1 mr-2">
+                  <MessageCircle className="w-4 h-4 text-blue-600" />
+                </div>
+                <span>Daily Check-ins</span>
+              </div>
+              <div className="flex items-center">
+                <div className="rounded-full bg-purple-100 p-1 mr-2">
+                  <TrendingUp className="w-4 h-4 text-purple-600" />
+                </div>
+                <span>Progress Tracking</span>
+              </div>
+            </div>
+
+            {/* Medium and Large: Grid layout */}
+            <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                   <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
@@ -145,7 +170,7 @@ const MindfulnessHeroSection = () => {
               </div>
             </div>
             
-            {/* Background decorative elements */}
+            {/* Background decorative elements - BUBBLE EFFECTS */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full opacity-50 animate-float"></div>
             <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
             <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
