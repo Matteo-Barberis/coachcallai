@@ -1,25 +1,22 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
-
 const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  
   const handleGetStarted = () => {
     navigate('/auth/sign-up');
   };
-  
-  return (
-    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+  return <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+            
+            
+            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
             
@@ -28,18 +25,10 @@ const MindfulnessHeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button 
-                size="lg" 
-                className="text-base md:text-lg py-6 px-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" 
-                onClick={handleGetStarted}
-              >
+              <Button size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
                 Start Your Journey
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="text-base md:text-lg py-6 px-8"
-              >
+              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
                 Watch Demo
               </Button>
             </div>
@@ -147,13 +136,15 @@ const MindfulnessHeroSection = () => {
             
             {/* Background decorative elements */}
             <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full opacity-50 animate-float"></div>
-            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
+            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{
+            animationDelay: '2s'
+          }}></div>
+            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{
+            animationDelay: '4s'
+          }}></div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default MindfulnessHeroSection;
