@@ -99,7 +99,7 @@ const CustomHeroSection = () => {
                 <div className="rounded-full bg-blue-100 p-1 mr-2">
                   <MessageCircle className="w-4 h-4 text-blue-600" />
                 </div>
-                <span>Daily Check-ins</span>
+                <span>WhatsApp Integration</span>
               </div>
               <div className="flex items-center">
                 <div className="rounded-full bg-purple-100 p-1 mr-2">
