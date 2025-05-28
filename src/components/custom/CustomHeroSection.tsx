@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -89,30 +88,30 @@ const CustomHeroSection = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <PhoneCall className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Voice Calls</p>
                   <p className="text-sm text-gray-600">Personal conversations</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Daily Check-ins</p>
                   <p className="text-sm text-gray-600">WhatsApp support</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-gray-900">Progress Tracking</p>
                   <p className="text-sm text-gray-600">Growth insights</p>
                 </div>
