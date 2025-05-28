@@ -52,20 +52,20 @@ const MindfulnessHeroSection = () => {
             {/* Mobile: Horizontal row layout like accountability page */}
             <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500 md:hidden">
               <div className="flex items-center">
-                <div className="rounded-full bg-green-100 p-1 mr-2">
-                  <PhoneCall className="w-4 h-4 text-green-600" />
+                <div className={`rounded-full ${theme.light} border border-gray-300 p-1 mr-2`}>
+                  <PhoneCall className={`w-4 h-4 ${theme.primary}`} />
                 </div>
                 <span>Voice Calls</span>
               </div>
               <div className="flex items-center">
-                <div className="rounded-full bg-blue-100 p-1 mr-2">
-                  <MessageCircle className="w-4 h-4 text-blue-600" />
+                <div className={`rounded-full ${theme.light} border border-gray-300 p-1 mr-2`}>
+                  <MessageCircle className={`w-4 h-4 ${theme.primary}`} />
                 </div>
                 <span>WhatsApp Integration</span>
               </div>
               <div className="flex items-center">
-                <div className="rounded-full bg-purple-100 p-1 mr-2">
-                  <TrendingUp className="w-4 h-4 text-purple-600" />
+                <div className={`rounded-full ${theme.light} border border-gray-300 p-1 mr-2`}>
+                  <TrendingUp className={`w-4 h-4 ${theme.primary}`} />
                 </div>
                 <span>Progress Tracking</span>
               </div>
