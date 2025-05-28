@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -131,7 +130,7 @@ const CustomHeroSection = () => {
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">Coach Call AI</p>
+                      <p className="font-semibold text-gray-900">Your Companion</p>
                       <p className="text-sm text-green-500">Online</p>
                     </div>
                   </div>
@@ -152,28 +151,16 @@ const CustomHeroSection = () => {
                   </div>
                 </div>
                 
-                <div className="mt-6 rounded-2xl shadow-xl bg-white p-3 border border-gray-100">
-                  <div className="flex items-center mb-3">
-                    <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex space-x-2">
+                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
+                      <MessageCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center`}>
                       <PhoneCall className="w-4 h-4 text-white" />
                     </div>
-                    <div className="ml-3">
-                      <div className="font-medium">Incoming Call</div>
-                      <div className="text-xs text-gray-500">Coach Call AI</div>
-                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <div className="w-1/2 px-2">
-                      <Button variant="outline" className="w-full text-sm bg-gray-100 hover:bg-gray-200 border-gray-200">
-                        Decline
-                      </Button>
-                    </div>
-                    <div className="w-1/2 px-2">
-                      <Button className="w-full text-sm bg-green-500 hover:bg-green-600">
-                        Answer
-                      </Button>
-                    </div>
-                  </div>
+                  <div className="text-xs text-gray-500">Active now</div>
                 </div>
               </div>
             </div>
