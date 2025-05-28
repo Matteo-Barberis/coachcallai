@@ -14,13 +14,11 @@ import FeaturesShowcase from '@/components/FeaturesShowcase';
 import DashboardPreview from '@/components/DashboardPreview';
 import UseCaseShowcase from '@/components/UseCaseShowcase';
 import CoachVoiceShowcase from '@/components/CoachVoiceShowcase';
-import ModeSwitcher from '@/components/ModeSwitcher';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <ModeSwitcher />
       <main>
         <HeroSection />
         <FeaturesShowcase />
