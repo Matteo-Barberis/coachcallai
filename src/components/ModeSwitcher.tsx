@@ -10,7 +10,7 @@ const ModeSwitcher = () => {
 
   const modes = [
     { key: 'accountability', label: 'ACCOUNTABILITY', path: '/' },
-    { key: 'custom', label: 'MINDFULNESS', path: '/custom' },
+    { key: 'custom', label: 'CUSTOM', path: '/custom' },
     { key: 'mindfulness', label: 'MINDFULNESS', path: '/mindfulness' }
   ];
 
