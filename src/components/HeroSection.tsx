@@ -95,7 +95,8 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500">
+          {/* Mobile: Horizontal row layout */}
+          <div className="flex items-center space-x-4 text-sm md:text-base text-gray-500 md:hidden">
             <div className="flex items-center">
               <div className="rounded-full bg-green-100 p-1 mr-2">
                 <PhoneCall className="w-4 h-4 text-green-600" />
@@ -113,6 +114,39 @@ const HeroSection = () => {
                 <TrendingUp className="w-4 h-4 text-purple-600" />
               </div>
               <span>Progress Tracking</span>
+            </div>
+          </div>
+
+          {/* Medium and Large: Grid layout */}
+          <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="flex items-center space-x-3">
+              <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
+                <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900">Voice Calls</p>
+                <p className="text-sm text-gray-600">Phone call check-ins</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
+                <MessageCircle className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900">Daily Check-ins</p>
+                <p className="text-sm text-gray-600">WhatsApp integration</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
+                <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900">Progress Tracking</p>
+                <p className="text-sm text-gray-600">Growth insights</p>
+              </div>
             </div>
           </div>
         </div>
