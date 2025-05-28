@@ -10,7 +10,7 @@ const ModeSwitcher = () => {
 
   const modes = [
     { key: 'accountability', label: 'ACCOUNTABILITY', path: '/' },
-    { key: 'custom', label: 'CHAT', path: '/custom' },
+    { key: 'custom', label: 'CUSTOM', path: '/custom' },
     { key: 'mindfulness', label: 'MINDFULNESS', path: '/mindfulness' }
   ];
 
@@ -23,13 +23,13 @@ const ModeSwitcher = () => {
   const currentMode = getCurrentMode();
 
   return (
-    <div className="flex items-center space-x-8 text-sm font-medium text-gray-500 mb-8">
+    <div className="flex items-center space-x-8 text-sm font-semibold text-gray-400 mb-8 tracking-wide">
       {modes.map((mode) => (
         <button
           key={mode.key}
           onClick={() => navigate(mode.path)}
-          className={`relative pb-2 transition-colors hover:text-gray-700 ${
-            currentMode === mode.key ? 'text-gray-900' : ''
+          className={`relative pb-2 transition-colors hover:text-gray-600 ${
+            currentMode === mode.key ? 'text-gray-800' : ''
           }`}
         >
           {mode.label}
