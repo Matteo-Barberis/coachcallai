@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
@@ -259,7 +258,6 @@ const PricingSection = () => {
                   <div
                     key={key}
                     className={`rounded-2xl shadow-md p-8 border-2 ${theme.border} ring-4 ring-opacity-20 bg-white flex flex-col h-full max-w-md w-full relative`}
-                    style={{ ringColor: `${theme.border.replace('border-', '')}` }}
                   >
                     {plan.popular && (
                       <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
@@ -310,7 +308,6 @@ const PricingSection = () => {
                     ? `relative ${theme.border} ring-4 ring-opacity-20` 
                     : `${plan.colorClass}`
                 } bg-white flex flex-col h-full`}
-                style={plan.name === selectedPlan ? { ringColor: `${theme.border.replace('border-', '')}` } : {}}
               >
                 {plan.popular && (
                   <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">

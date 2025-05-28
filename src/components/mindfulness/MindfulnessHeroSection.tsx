@@ -16,7 +16,7 @@ const MindfulnessHeroSection = () => {
   return (
     <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
             <div className="flex mb-6">

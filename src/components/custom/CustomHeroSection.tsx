@@ -48,7 +48,7 @@ const CustomHeroSection = () => {
   return (
     <section className={`pt-20 pb-16 px-4 ${theme.bg}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
             <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
