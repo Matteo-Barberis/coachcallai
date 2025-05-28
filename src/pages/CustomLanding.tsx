@@ -13,11 +13,13 @@ import CustomFaqSection from '@/components/custom/CustomFaqSection';
 import CustomCtaSection from '@/components/custom/CustomCtaSection';
 import Footer from '@/components/Footer';
 import StickyCta from '@/components/StickyCta';
+import ModeSwitcher from '@/components/ModeSwitcher';
 
 const CustomLanding = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      <ModeSwitcher />
       <main>
         <CustomHeroSection />
         <CustomFeaturesShowcase />

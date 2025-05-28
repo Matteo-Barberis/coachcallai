@@ -13,11 +13,13 @@ import MindfulnessFaqSection from '@/components/mindfulness/MindfulnessFaqSectio
 import MindfulnessCtaSection from '@/components/mindfulness/MindfulnessCtaSection';
 import Footer from '@/components/Footer';
 import StickyCta from '@/components/StickyCta';
+import ModeSwitcher from '@/components/ModeSwitcher';
 
 const MindfulnessLanding = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      <ModeSwitcher />
       <main>
         <MindfulnessHeroSection />
         <MindfulnessFeaturesShowcase />
