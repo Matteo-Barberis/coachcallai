@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
@@ -54,34 +53,34 @@ const MindfulnessHeroSection = () => {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                  <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="grid grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-2 md:gap-6">
+              <div className="flex md:items-center space-x-2 md:space-x-3 flex-col md:flex-row items-center md:items-center text-center md:text-left">
+                <div className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 mb-1 md:mb-0">
+                  <PhoneCall className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Voice Calls</p>
-                  <p className="text-sm text-gray-600">Guided meditations</p>
+                  <p className="text-xs md:text-base md:font-semibold text-gray-900">Voice Calls</p>
+                  <p className="text-sm text-gray-600 hidden md:block">Guided meditations</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              <div className="flex md:items-center space-x-2 md:space-x-3 flex-col md:flex-row items-center md:items-center text-center md:text-left">
+                <div className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0 mb-1 md:mb-0">
+                  <MessageCircle className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Daily Check-ins</p>
-                  <p className="text-sm text-gray-600">WhatsApp reminders</p>
+                  <p className="text-xs md:text-base md:font-semibold text-gray-900">Daily Check-ins</p>
+                  <p className="text-sm text-gray-600 hidden md:block">WhatsApp reminders</p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
+              <div className="flex md:items-center space-x-2 md:space-x-3 flex-col md:flex-row items-center md:items-center text-center md:text-left">
+                <div className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0 mb-1 md:mb-0">
+                  <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900">Progress Tracking</p>
-                  <p className="text-sm text-gray-600">Mindfulness insights</p>
+                  <p className="text-xs md:text-base md:font-semibold text-gray-900">Progress Tracking</p>
+                  <p className="text-sm text-gray-600 hidden md:block">Mindfulness insights</p>
                 </div>
               </div>
             </div>
