@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
@@ -13,12 +14,12 @@ const MindfulnessHeroSection = () => {
   };
   
   return (
-    <section className="pt-20 pb-16 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Your Personal AI Companion for Inner Peace
             </h1>
             
@@ -27,10 +28,10 @@ const MindfulnessHeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={handleGetStarted}>
+              <Button size="lg" className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`} onClick={handleGetStarted}>
                 Start Your Journey
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-4">
+              <Button variant="outline" size="lg" className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}>
                 Watch Demo
               </Button>
             </div>
@@ -60,7 +61,7 @@ const MindfulnessHeroSection = () => {
             {/* Medium and Large: Grid layout */}
             <div className="hidden md:grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <PhoneCall className="w-3 h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
@@ -70,7 +71,7 @@ const MindfulnessHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <MessageCircle className="w-3 h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
@@ -80,7 +81,7 @@ const MindfulnessHeroSection = () => {
               </div>
               
               <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
+                <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${theme.gradient} flex items-center justify-center flex-shrink-0`}>
                   <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-white" />
                 </div>
                 <div className="min-w-0">
@@ -98,7 +99,7 @@ const MindfulnessHeroSection = () => {
               <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center">
+                    <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
                       <MessageCircle className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -110,7 +111,7 @@ const MindfulnessHeroSection = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4">
+                  <div className={`${theme.light} rounded-2xl p-4`}>
                     <p className="text-sm text-gray-700">Good morning! Take a moment to breathe deeply and set a positive intention for your day. What are you grateful for today? 🌸</p>
                   </div>
                   
@@ -118,7 +119,7 @@ const MindfulnessHeroSection = () => {
                     <p className="text-sm text-gray-700">I'm grateful for this peaceful morning and the opportunity to start fresh</p>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-4">
+                  <div className={`${theme.light} rounded-2xl p-4`}>
                     <p className="text-sm text-gray-700">Beautiful! Let's carry that gratitude with us. Would you like a 5-minute mindfulness exercise? ✨</p>
                   </div>
                 </div>
@@ -127,7 +128,7 @@ const MindfulnessHeroSection = () => {
                   <div className="flex-grow h-10 bg-gray-50 rounded-full border border-gray-200 flex items-center px-3">
                     <div className="h-2 w-20 bg-gray-300 rounded-full"></div>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center ml-2 flex-shrink-0">
+                  <div className={`w-8 h-8 rounded-full ${theme.gradient} flex items-center justify-center ml-2 flex-shrink-0`}>
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd"></path>
                     </svg>
@@ -160,9 +161,9 @@ const MindfulnessHeroSection = () => {
             </div>
             
             {/* Background decorative elements */}
-            <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full opacity-50 animate-float"></div>
-            <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-pink-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-orange-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
+            <div className={`absolute top-4 right-4 w-20 h-20 ${theme.light} rounded-full opacity-50 animate-float`}></div>
+            <div className={`absolute bottom-8 left-4 w-16 h-16 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '2s' }}></div>
+            <div className={`absolute top-1/2 -left-4 w-12 h-12 ${theme.light} rounded-full opacity-50 animate-float`} style={{ animationDelay: '4s' }}></div>
           </div>
         </div>
       </div>

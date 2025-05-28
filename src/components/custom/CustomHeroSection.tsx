@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -45,12 +46,12 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className={`pt-20 pb-16 px-4 ${theme.bg}`}>
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left side - Content */}
           <div>
-            <h1 className={`text-4xl md:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 ${theme.titleGradient}`}>
               Stay {' '}
               <span 
                 className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
@@ -72,7 +73,7 @@ const CustomHeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button 
                 size="lg" 
-                className={`text-lg px-8 py-4 ${theme.gradient} hover:opacity-90`}
+                className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`}
                 onClick={handleButtonClick}
               >
                 {session ? "Go to Dashboard" : "Create Your AI Companion"}
@@ -80,7 +81,7 @@ const CustomHeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className={`text-lg px-8 py-4 ${theme.border} ${theme.primary} ${theme.hover}`}
+                className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
               >
                 See How It Works
               </Button>
