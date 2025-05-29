@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { UserRound, LayoutDashboard, User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+
 const UserMenu = () => {
   const {
     session,
@@ -28,14 +29,16 @@ const UserMenu = () => {
     navigate('/auth/sign-up');
   };
   if (!session) {
-    return <div className="flex space-x-2">
+    return (
+      <div className="flex space-x-2">
         <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
           Sign In
         </Button>
-        <Button onClick={handleGetStarted} className="bg-black">
+        <Button onClick={handleGetStarted} className="bg-brand-primary text-black hover:bg-brand-primary/90">
           Get Started
         </Button>
-      </div>;
+      </div>
+    );
   }
   return <div className="flex items-center space-x-4">
       {!isOnDashboard && <Button variant="outline" onClick={() => navigate('/dashboard')}>
@@ -69,4 +72,5 @@ const UserMenu = () => {
       </DropdownMenu>
     </div>;
 };
+
 export default UserMenu;

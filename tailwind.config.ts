@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,13 +62,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for Coach Call AI - Updated to black primary
+				// Custom colors for Coach Call AI - Updated to gray-700 primary
 				brand: {
-					primary: "#000000", // Black
+					primary: "#374151", // gray-700
 					secondary: "#333333", // Dark Gray
 					accent: "#666666", // Medium Gray
 					light: "#F5F5F5", // Light Gray
-					dark: "#000000", // Black
+					dark: "#374151", // gray-700
 				}
 			},
 			borderRadius: {
