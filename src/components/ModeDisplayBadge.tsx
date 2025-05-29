@@ -54,6 +54,19 @@ const ModeDisplayBadge = ({ modeId }: ModeDisplayBadgeProps) => {
     navigate('/account');
   };
 
+  const getBadgeStyles = (modeName: string) => {
+    switch (modeName.toLowerCase()) {
+      case 'mindfulness':
+        return 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700';
+      case 'accountability':
+        return 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700';
+      case 'custom':
+        return 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700';
+      default:
+        return 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700';
+    }
+  };
+
   if (loading) {
     return (
       <Badge variant="outline" className="ml-3 animate-pulse">
@@ -66,8 +79,7 @@ const ModeDisplayBadge = ({ modeId }: ModeDisplayBadgeProps) => {
     <Tooltip>
       <TooltipTrigger asChild>
         <Badge 
-          variant="outline" 
-          className="ml-3 cursor-pointer hover:bg-gray-100 transition-colors"
+          className={`ml-3 cursor-pointer transition-colors ${getBadgeStyles(modeName)}`}
           onClick={handleClick}
         >
           {modeName}
