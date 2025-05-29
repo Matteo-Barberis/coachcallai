@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -39,7 +38,7 @@ const UserMenu = () => {
         <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
           Sign In
         </Button>
-        <Button className="bg-gray-800 hover:bg-gray-700 text-white" onClick={handleGetStarted}>
+        <Button className="bg-brand-primary hover:bg-brand-primary/90" onClick={handleGetStarted}>
           Get Started
         </Button>
       </div>
