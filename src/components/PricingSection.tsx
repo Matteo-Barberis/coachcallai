@@ -45,6 +45,25 @@ const PricingSection = () => {
   const { session } = useSessionContext();
   const theme = useTheme();
 
+  const getDescriptions = () => {
+    if (location.pathname === '/custom') {
+      return {
+        medium: "For those committed to consistent personal growth",
+        pro: "Comprehensive solution for serious life transformation"
+      };
+    } else if (location.pathname === '/mindfulness') {
+      return {
+        medium: "For those committed to consistent mindfulness practice",
+        pro: "Comprehensive solution for serious inner development"
+      };
+    } else {
+      return {
+        medium: "For those committed to consistent accountability",
+        pro: "Comprehensive accountability solution for serious achievers"
+      };
+    }
+  };
+
   useEffect(() => {
     const fetchSubscriptionPlans = async () => {
       try {
@@ -61,6 +80,7 @@ const PricingSection = () => {
 
         if (data) {
           const formattedPlans: Record<string, Plan> = {};
+          const descriptions = getDescriptions();
           
           data.forEach((plan: SubscriptionPlan, index: number) => {
             const planKey = plan.name.toLowerCase().replace(/\s+/g, '_');
@@ -91,10 +111,19 @@ const PricingSection = () => {
               }
             }
             
+            let description = plan.description || `Perfect for ${plan.name.toLowerCase()} users`;
+            
+            // Override specific plan descriptions based on mode
+            if (plan.name === 'Medium') {
+              description = descriptions.medium;
+            } else if (plan.name === 'Pro') {
+              description = descriptions.pro;
+            }
+            
             formattedPlans[planKey] = {
               id: plan.id,
               name: plan.name,
-              description: plan.description || `Perfect for ${plan.name.toLowerCase()} users`,
+              description,
               price: plan.price,
               features: formattedFeatures,
               popular: index === 1,
@@ -124,7 +153,7 @@ const PricingSection = () => {
     };
 
     fetchSubscriptionPlans();
-  }, [theme.border]);
+  }, [theme.border, location.pathname]);
 
   const handleSubscribe = (plan: string) => {
     if (session) {
@@ -141,6 +170,8 @@ const PricingSection = () => {
   };
 
   const getFallbackPlans = () => {
+    const descriptions = getDescriptions();
+    
     return {
       starter: {
         name: "Starter",
@@ -158,7 +189,7 @@ const PricingSection = () => {
       },
       medium: {
         name: "Medium",
-        description: "For those committed to consistent accountability",
+        description: descriptions.medium,
         price: 39,
         features: [
           { text: "Daily WhatsApp check-ins" },
@@ -174,7 +205,7 @@ const PricingSection = () => {
       },
       pro: {
         name: "Pro",
-        description: "Comprehensive accountability solution for serious achievers",
+        description: descriptions.pro,
         price: 99,
         features: [
           { text: "Everything in Medium plan" },
