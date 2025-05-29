@@ -9,7 +9,7 @@ const Header = () => {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const isHomePage = location.pathname === '/';
+  const isLandingPage = ['/', '/accountability', '/mindfulness'].includes(location.pathname);
 
   const handleEarlyAccess = () => {
     navigate('/onboarding');
@@ -25,7 +25,7 @@ const Header = () => {
           <span className="font-bold text-lg md:text-xl text-gray-900">Coach Call AI</span>
         </Link>
         
-        {isHomePage && (
+        {isLandingPage && (
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features-showcase" className="text-gray-600 hover:text-brand-primary transition-colors">Features</a>
             <a href="#how-it-works" className="text-gray-600 hover:text-brand-primary transition-colors">How It Works</a>
