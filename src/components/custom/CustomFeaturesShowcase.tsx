@@ -61,7 +61,7 @@ const CustomFeaturesShowcase = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className={`bg-white rounded-xl p-8 shadow-md border ${theme.border} hover:shadow-lg transition-all duration-300 feature-card`}
+              className={`bg-white rounded-xl p-8 shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300 feature-card`}
             >
               <div className={theme.lightText}>
                 {feature.icon}
@@ -75,7 +75,7 @@ const CustomFeaturesShowcase = () => {
           ))}
         </div>
 
-        <div className={`bg-white rounded-2xl p-8 md:p-12 shadow-lg border ${theme.border}`}>
+        <div className={`bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-gray-200`}>
           <div className="text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-bold mb-4">The Problem with Modern Chatbots</h3>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
