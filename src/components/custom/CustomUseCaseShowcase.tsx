@@ -57,7 +57,7 @@ const CustomUseCaseShowcase = () => {
 
   // Render a card (used for both mobile and desktop)
   const renderCard = (useCase, index) => (
-    <Card key={index} className={`border ${theme.border} hover:shadow-md transition-shadow duration-300 h-full`}>
+    <Card key={index} className="border border-gray-200 hover:shadow-md transition-shadow duration-300 h-full">
       <CardHeader className="pb-2">
         <div className="mb-3">{useCase.icon}</div>
         <CardTitle className="text-xl">{useCase.title}</CardTitle>
