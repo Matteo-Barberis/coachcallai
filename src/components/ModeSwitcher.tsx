@@ -9,15 +9,15 @@ const ModeSwitcher = () => {
   const theme = useTheme();
 
   const modes = [
-    { key: 'accountability', label: 'ACCOUNTABILITY', path: '/' },
-    { key: 'custom', label: 'CUSTOM', path: '/custom' },
+    { key: 'custom', label: 'CUSTOM', path: '/' },
+    { key: 'accountability', label: 'ACCOUNTABILITY', path: '/accountability' },
     { key: 'mindfulness', label: 'MINDFULNESS', path: '/mindfulness' }
   ];
 
   const getCurrentMode = () => {
     if (location.pathname === '/mindfulness') return 'mindfulness';
-    if (location.pathname === '/custom') return 'custom';
-    return 'accountability';
+    if (location.pathname === '/accountability') return 'accountability';
+    return 'custom';
   };
 
   const currentMode = getCurrentMode();

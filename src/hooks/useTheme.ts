@@ -8,10 +8,10 @@ export const useTheme = (): ThemeColors => {
   const getCurrentTheme = (): ThemeKey => {
     if (location.pathname === '/mindfulness') {
       return 'mindfulness';
-    } else if (location.pathname === '/custom') {
-      return 'custom';
-    } else {
+    } else if (location.pathname === '/accountability') {
       return 'accountability';
+    } else {
+      return 'custom';
     }
   };
 
