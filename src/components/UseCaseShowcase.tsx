@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sun, Moon, Calendar, Dumbbell, Clock, Brain } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "@/hooks/useTheme";
 import { 
   Carousel,
   CarouselContent,
@@ -13,6 +13,8 @@ import {
 
 const UseCaseShowcase = () => {
   const isMobile = useIsMobile();
+  const theme = useTheme();
+  
   const useCases = [
     {
       icon: <Sun className="h-8 w-8 text-orange-500" />,
@@ -72,7 +74,7 @@ const UseCaseShowcase = () => {
     <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">How People Use Coach Call AI</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>How People Use Coach Call AI</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover how our AI coach adapts to different goals and lifestyles for maximum accountability.
           </p>
