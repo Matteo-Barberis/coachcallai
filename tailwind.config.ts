@@ -65,7 +65,7 @@ export default {
 				},
 				// Custom colors for Coach Call AI
 				brand: {
-					primary: "#000000", // Changed from #374151 to black
+					primary: "#000000", // Changed from #4F46E5 to black
 					secondary: "#8B5CF6", // Violet
 					accent: "#06B6D4", // Cyan
 					light: "#E0E7FF", // Light Indigo
