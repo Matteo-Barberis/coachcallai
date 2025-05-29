@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -53,19 +52,19 @@ const StickyCta = () => {
       return {
         text: "Join our mindful community",
         buttonText: "Start Your Journey",
-        buttonClass: "bg-purple-600 hover:bg-purple-700"
+        buttonClass: theme.gradient
       };
     } else if (location.pathname === '/accountability') {
       return {
         text: "Join our community of goal-oriented people",
         buttonText: session ? "Go to Dashboard" : "Get Your First AI Call",
-        buttonClass: "bg-brand-primary hover:bg-brand-primary/90"
+        buttonClass: theme.gradient
       };
     } else {
       return {
         text: "Create your perfect AI companion",
         buttonText: "Create Your AI Companion",
-        buttonClass: "bg-orange-600 hover:bg-orange-700"
+        buttonClass: theme.gradient
       };
     }
   };
@@ -101,7 +100,7 @@ const StickyCta = () => {
           </p>
         </div>
         <Button 
-          className={`text-base py-4 px-6 text-white whitespace-nowrap ${content.buttonClass}`}
+          className={`text-base py-4 px-6 text-white whitespace-nowrap ${content.buttonClass} hover:opacity-90`}
           onClick={handleButtonClick}
         >
           {content.buttonText}
