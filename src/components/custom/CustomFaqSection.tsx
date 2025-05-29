@@ -64,7 +64,7 @@ const CustomFaqSection = () => {
           </p>
         </div>
 
-        <Accordion type="single" collapsible className={`bg-white rounded-xl shadow-sm border ${theme.border} px-6`}>
+        <Accordion type="single" collapsible className="bg-white rounded-xl shadow-sm border border-gray-100 px-6">
           {faqs.map((faq, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger className={`text-left py-5 text-lg font-medium ${theme.lightText} transition-colors`}>
