@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,7 +65,7 @@ export default {
 				},
 				// Custom colors for Coach Call AI
 				brand: {
-					primary: "#374151", // Changed from #000000 to gray-700
+					primary: "#000000", // Changed from #374151 to black
 					secondary: "#8B5CF6", // Violet
 					accent: "#06B6D4", // Cyan
 					light: "#E0E7FF", // Light Indigo
