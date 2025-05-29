@@ -1,30 +1,26 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import UserMenu from "@/components/UserMenu";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useTheme } from "@/hooks/useTheme";
 
 const Header = () => {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const theme = useTheme();
   const isHomePage = location.pathname === '/';
   const isAccountabilityPage = location.pathname === '/accountability';
   const isMindfulnessPage = location.pathname === '/mindfulness';
   
   const showNavigation = isHomePage || isAccountabilityPage || isMindfulnessPage;
-  
-  // Use theme background on accountability and mindfulness pages
-  const headerBgClass = (isAccountabilityPage || isMindfulnessPage) ? theme.bg : '';
 
   const handleEarlyAccess = () => {
     navigate('/onboarding');
   };
 
   return (
-    <header className={`py-4 px-4 md:px-6 w-full z-10 ${headerBgClass}`}>
+    <header className="py-4 px-4 md:px-6 w-full z-10">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
           <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center">
