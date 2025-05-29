@@ -15,7 +15,7 @@ const DashboardPreview = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Track Your Journey</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">Every conversation with your companion becomes part of your progress story. Watch as daily achievements transform into lasting change.</p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">Every conversation with your coach becomes part of your progress story. Watch as daily achievements transform into lasting change.</p>
         </div>
         
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
