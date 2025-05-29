@@ -49,6 +49,12 @@ type Mode = {
 
 const Account = () => {
   const { session, loading, userProfile, refreshProfile } = useSessionContext();
+  
+  // Move authentication check to the absolute top
+  if (!loading && !session) {
+    return <Navigate to="/auth/sign-in" replace />;
+  }
+
   const { toast } = useToast();
   const [phone, setPhone] = useState('');
   const [initialPhone, setInitialPhone] = useState('');
@@ -70,10 +76,6 @@ const Account = () => {
   const [showModeChangeDialog, setShowModeChangeDialog] = useState(false);
   const [newModeId, setNewModeId] = useState<string | null>(null);
   const [updatingMode, setUpdatingMode] = useState(false);
-
-  if (!loading && !session) {
-    return <Navigate to="/auth/sign-in" replace />;
-  }
 
   useEffect(() => {
     if (session?.user?.id) {

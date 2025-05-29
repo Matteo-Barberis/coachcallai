@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +15,14 @@ type OnboardingData = {
 };
 
 const Onboarding = () => {
+  const { session, loading, refreshProfile } = useSessionContext();
+  
+  // Move authentication check to the absolute top
+  if (!loading && !session) {
+    window.location.href = '/auth/sign-in';
+    return null;
+  }
+
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     modeId: '',
@@ -26,7 +33,6 @@ const Onboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, refreshProfile } = useSessionContext();
 
   // Check if we should load saved data from localStorage
   useEffect(() => {

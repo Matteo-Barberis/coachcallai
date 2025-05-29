@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -20,15 +19,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Dashboard = () => {
   const { session, loading, userProfile } = useSessionContext();
+  
+  // Move authentication check to the absolute top
+  if (!loading && !session) {
+    return <Navigate to="/auth/sign-in" replace />;
+  }
+
   const navigate = useNavigate();
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
   const [isCallingDemo, setIsCallingDemo] = useState(false);
   const [lastDemoCallAt, setLastDemoCallAt] = useState<string | null>(null);
   const { toast } = useToast();
-
-  if (!loading && !session) {
-    return <Navigate to="/auth/sign-in" replace />;
-  }
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
