@@ -1,20 +1,15 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
-
 const MindfulnessCtaSection = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-
   const handleGetStarted = () => {
     navigate('/auth/sign-up');
   };
-
-  return (
-    <section className="py-20 px-4 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500">
+  return <section className="py-20 px-4 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500">
       <div className="max-w-4xl mx-auto text-center">
         <div className="flex justify-center mb-6">
           <div className="flex space-x-4">
@@ -39,20 +34,10 @@ const MindfulnessCtaSection = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <Button 
-            size="lg" 
-            className="text-lg px-8 py-4 bg-white text-purple-600 hover:bg-gray-100"
-            onClick={handleGetStarted}
-          >
+          <Button size="lg" className="text-lg px-8 py-4 bg-white text-purple-600 hover:bg-gray-100" onClick={handleGetStarted}>
             Start Your Free Trial
           </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="text-lg px-8 py-4 border-white text-white hover:bg-white/10"
-          >
-            Learn More
-          </Button>
+          
         </div>
         
         <div className="flex justify-center items-center space-x-8 text-sm text-white/80">
@@ -70,8 +55,6 @@ const MindfulnessCtaSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default MindfulnessCtaSection;
