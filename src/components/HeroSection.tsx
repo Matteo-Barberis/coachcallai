@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -156,7 +157,7 @@ const HeroSection = () => {
         <div className="relative">
           <div className="relative z-10">
             {/* Phone mockup */}
-            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto animate-float">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
@@ -220,10 +221,12 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Background decorative elements - Indigo/Purple theme */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50 animate-float"></div>
-          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-violet-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-violet-200 to-indigo-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
+          {/* Background decorative elements - Indigo/Purple theme with enhanced floating */}
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-violet-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-violet-200 to-indigo-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
+          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-purple-300 to-violet-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
         </div>
       </div>
     </section>

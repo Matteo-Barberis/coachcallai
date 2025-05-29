@@ -149,7 +149,7 @@ const CustomHeroSection = () => {
         <div className="relative">
           <div className="relative z-10">
             {/* Phone mockup */}
-            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto animate-float">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
@@ -213,10 +213,12 @@ const CustomHeroSection = () => {
             </div>
           </div>
           
-          {/* Background decorative elements - Orange/Amber theme */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full opacity-50 animate-float"></div>
-          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-amber-200 to-yellow-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full opacity-50 animate-float" style={{ animationDelay: '4s' }}></div>
+          {/* Background decorative elements - Orange/Amber theme with enhanced floating */}
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-amber-200 to-yellow-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
+          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-orange-300 to-amber-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-amber-300 to-yellow-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
         </div>
       </div>
     </section>
