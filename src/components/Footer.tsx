@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PhoneCall, MessageCircle, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -9,8 +10,8 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-10 mb-16">
           <div className="md:col-span-1">
             <div className="flex items-center space-x-2 mb-6">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-gray-800 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">C</span>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary flex items-center justify-center">
+                <span className="text-black font-bold text-xl">C</span>
               </div>
               <span className="font-bold text-xl text-gray-900">Coach Call AI</span>
             </div>
