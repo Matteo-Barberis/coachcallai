@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Star } from 'lucide-react';
 import { 
@@ -10,9 +9,29 @@ import {
 } from "@/components/ui/carousel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from '@/hooks/useTheme';
+import { useLocation } from 'react-router-dom';
 
 const EnhancedTestimonials = () => {
   const theme = useTheme();
+  const location = useLocation();
+
+  const getContent = () => {
+    if (location.pathname === '/custom') {
+      return {
+        subtitle: "Real stories from real people who have transformed their life with Coach Call AI."
+      };
+    } else if (location.pathname === '/mindfulness') {
+      return {
+        subtitle: "Real stories from real people who have transformed their inner selves with Coach Call AI."
+      };
+    } else {
+      return {
+        subtitle: "Real stories from real people who have transformed their accountability with Coach Call AI."
+      };
+    }
+  };
+
+  const content = getContent();
 
   const testimonials = [
     {
@@ -47,7 +66,7 @@ const EnhancedTestimonials = () => {
         <div className="text-center mb-16">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>What Our Users Say</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Real stories from real people who have transformed their accountability with Coach Call AI.
+            {content.subtitle}
           </p>
         </div>
 
