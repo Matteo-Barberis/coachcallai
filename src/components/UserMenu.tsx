@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -6,7 +5,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { UserRound, LayoutDashboard, User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
 const UserMenu = () => {
   const {
     session,
@@ -34,7 +32,7 @@ const UserMenu = () => {
         <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
           Sign In
         </Button>
-        <Button onClick={handleGetStarted} className="bg-brand-primary text-black hover:bg-brand-primary/90">
+        <Button onClick={handleGetStarted} className="bg-black">
           Get Started
         </Button>
       </div>;
