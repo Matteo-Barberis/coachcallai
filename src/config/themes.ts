@@ -1,4 +1,5 @@
 
+
 export const themes = {
   mindfulness: {
     titleGradient: 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent',
@@ -14,19 +15,6 @@ export const themes = {
     hoverPrimary: 'hover:text-purple-700'
   },
   custom: {
-    titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
-    gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-    primary: 'text-blue-600',
-    border: 'border-blue-600',
-    bg: 'bg-blue-50',
-    hover: 'hover:bg-blue-50',
-    light: 'bg-blue-50',
-    lightText: 'text-blue-600',
-    progressBg: 'bg-blue-600',
-    darkGradient: 'bg-gradient-to-r from-blue-700 to-indigo-700',
-    hoverPrimary: 'hover:text-blue-700'
-  },
-  accountability: {
     titleGradient: 'bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent',
     gradient: 'bg-gradient-to-r from-indigo-600 to-purple-600',
     primary: 'text-indigo-600',
@@ -38,8 +26,22 @@ export const themes = {
     progressBg: 'bg-indigo-600',
     darkGradient: 'bg-gradient-to-r from-indigo-700 to-purple-700',
     hoverPrimary: 'hover:text-indigo-700'
+  },
+  accountability: {
+    titleGradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
+    gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+    primary: 'text-blue-600',
+    border: 'border-blue-600',
+    bg: 'bg-blue-50',
+    hover: 'hover:bg-blue-50',
+    light: 'bg-blue-50',
+    lightText: 'text-blue-600',
+    progressBg: 'bg-blue-600',
+    darkGradient: 'bg-gradient-to-r from-blue-700 to-indigo-700',
+    hoverPrimary: 'hover:text-blue-700'
   }
 } as const;
 
 export type ThemeKey = keyof typeof themes;
 export type ThemeColors = typeof themes[ThemeKey];
+

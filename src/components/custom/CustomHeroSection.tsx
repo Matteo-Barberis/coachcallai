@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -47,7 +46,7 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-blue-50/30 via-indigo-50/40 to-blue-100/60">
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-indigo-50/30 via-purple-50/40 to-indigo-100/60">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
@@ -213,12 +212,12 @@ const CustomHeroSection = () => {
             </div>
           </div>
           
-          {/* Background decorative elements - Blue theme with enhanced floating */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
-          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-indigo-200 to-blue-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-blue-300 to-indigo-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
-          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-indigo-300 to-blue-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
-          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
+          {/* Background decorative elements - Indigo/Purple theme with enhanced floating */}
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-indigo-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
+          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-purple-300 to-indigo-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
         </div>
       </div>
     </section>
