@@ -22,6 +22,12 @@ const ModeSwitcher = () => {
 
   const currentMode = getCurrentMode();
 
+  const getUnderlineColor = (mode) => {
+    if (mode === 'mindfulness') return 'bg-purple-600';
+    if (mode === 'accountability') return 'bg-blue-600';
+    return theme.progressBg; // Uses theme color for custom mode
+  };
+
   return (
     <div className="flex items-center space-x-8 text-sm font-medium text-gray-500 mb-8">
       {modes.map((mode) => (
@@ -35,11 +41,7 @@ const ModeSwitcher = () => {
           {mode.label}
           {currentMode === mode.key && (
             <div 
-              className={`absolute bottom-0 left-0 right-0 h-0.5 ${
-                mode.key === 'mindfulness' ? 'bg-purple-600' :
-                mode.key === 'custom' ? 'bg-orange-600' :
-                'bg-indigo-600'
-              }`}
+              className={`absolute bottom-0 left-0 right-0 h-0.5 ${getUnderlineColor(mode.key)}`}
             />
           )}
         </button>
