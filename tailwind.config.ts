@@ -63,13 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for Coach Call AI - Updated to black primary
+				// Custom colors for Coach Call AI
 				brand: {
-					primary: "#000000", // Black
-					secondary: "#333333", // Dark Gray
-					accent: "#666666", // Medium Gray
-					light: "#F5F5F5", // Light Gray
-					dark: "#000000", // Black
+					primary: "#4F46E5", // Indigo
+					secondary: "#8B5CF6", // Violet
+					accent: "#06B6D4", // Cyan
+					light: "#E0E7FF", // Light Indigo
+					dark: "#1E1B4B", // Dark Indigo
 				}
 			},
 			borderRadius: {
