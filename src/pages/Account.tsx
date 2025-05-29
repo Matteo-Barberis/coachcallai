@@ -476,6 +476,39 @@ const Account = () => {
     { code: '+65', country: 'Singapore' },
   ];
 
+  const getModePlanDescriptions = (planName: string) => {
+    const currentMode = modes.find(mode => mode.id === selectedModeId)?.name?.toLowerCase() || 'custom';
+    
+    switch (currentMode) {
+      case 'mindfulness':
+        if (planName.toLowerCase().includes('basic') || planName.toLowerCase().includes('starter')) {
+          return 'Perfect for beginning your mindfulness journey';
+        } else if (planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('premium')) {
+          return 'Advanced mindfulness coaching for deeper transformation';
+        } else {
+          return 'Comprehensive mindfulness solution for inner peace';
+        }
+      
+      case 'accountability':
+        if (planName.toLowerCase().includes('basic') || planName.toLowerCase().includes('starter')) {
+          return 'For those committed to consistent accountability';
+        } else if (planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('premium')) {
+          return 'Advanced accountability for high performers';
+        } else {
+          return 'Comprehensive solution for serious achievers';
+        }
+      
+      default: // custom mode
+        if (planName.toLowerCase().includes('basic') || planName.toLowerCase().includes('starter')) {
+          return 'Personalized coaching tailored to your unique goals';
+        } else if (planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('premium')) {
+          return 'Advanced custom coaching for ambitious individuals';
+        } else {
+          return 'Complete custom solution for your success';
+        }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -620,7 +653,7 @@ const Account = () => {
                           className="border rounded-lg p-4 flex flex-col"
                         >
                           <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                          <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                          <p className="text-sm text-gray-600 mb-4">{getModePlanDescriptions(plan.name)}</p>
                           <div className="text-2xl font-bold mb-4">${plan.price.toFixed(2)}<span className="text-sm font-normal text-gray-500">/{plan.interval}</span></div>
                           <div className="flex-grow">
                             <h4 className="font-medium mb-2">Features:</h4>
