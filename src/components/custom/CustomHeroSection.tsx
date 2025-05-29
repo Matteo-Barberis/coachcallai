@@ -47,7 +47,7 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 bg-white overflow-hidden">
+    <section className={`pt-12 pb-16 px-4 md:pt-20 md:pb-24 ${theme.bg} overflow-hidden`}>
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
@@ -74,7 +74,7 @@ const CustomHeroSection = () => {
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
-                className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90 text-white`}
+                className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`}
                 onClick={handleButtonClick}
               >
                 {session ? "Go to Dashboard" : "Create Your AI Companion"}
@@ -149,7 +149,7 @@ const CustomHeroSection = () => {
         <div className="relative">
           <div className="relative z-10">
             {/* Phone mockup */}
-            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto animate-float border border-gray-100">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto animate-float">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center`}>
@@ -164,7 +164,7 @@ const CustomHeroSection = () => {
               </div>
               
               <div className="space-y-4">
-                <div className={`${theme.light} rounded-2xl p-4 border ${theme.border}`}>
+                <div className={`${theme.light} rounded-2xl p-4`}>
                   <p className="text-sm text-gray-700">Hey! I noticed you seemed stressed earlier. Want to talk about what's on your mind?</p>
                 </div>
                 
@@ -172,7 +172,7 @@ const CustomHeroSection = () => {
                   <p className="text-sm text-gray-700">Yeah, work has been overwhelming lately. Thanks for checking in.</p>
                 </div>
                 
-                <div className={`${theme.light} rounded-2xl p-4 border ${theme.border}`}>
+                <div className={`${theme.light} rounded-2xl p-4`}>
                   <p className="text-sm text-gray-700">I'm always here for you. Should I call you in a few minutes so we can chat?</p>
                 </div>
               </div>
@@ -213,12 +213,12 @@ const CustomHeroSection = () => {
             </div>
           </div>
           
-          {/* Background decorative elements - Unified indigo/blue theme */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
-          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-indigo-200 to-blue-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
-          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-indigo-200 to-blue-200 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
-          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
+          {/* Background decorative elements - Orange/Amber theme with enhanced floating */}
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-orange-200 to-amber-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-amber-200 to-yellow-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-yellow-200 to-orange-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
+          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-orange-300 to-amber-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-amber-300 to-yellow-300 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
         </div>
       </div>
     </section>
