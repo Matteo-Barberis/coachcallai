@@ -19,7 +19,7 @@ const Header = () => {
     <header className="py-4 px-4 md:px-6 w-full z-10">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center">
             <span className="text-white font-bold text-xl">C</span>
           </div>
           <span className="font-bold text-lg md:text-xl text-gray-900">Coach Call AI</span>
