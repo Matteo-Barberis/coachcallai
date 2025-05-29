@@ -35,7 +35,7 @@ const MindfulnessUseCaseShowcase = () => {
   ];
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
+    <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
@@ -48,16 +48,16 @@ const MindfulnessUseCaseShowcase = () => {
         
         <div className="grid md:grid-cols-2 gap-8">
           {useCases.map((useCase, index) => (
-            <Card key={index} className="border border-purple-100 bg-white hover:shadow-lg transition-all duration-300">
+            <Card key={index} className={`border ${theme.border} border-opacity-20 bg-white hover:shadow-lg transition-all duration-300`}>
               <CardContent className="p-8">
                 <div className="flex items-start mb-6">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 flex items-center justify-center mr-4 flex-shrink-0">
-                    <useCase.icon className={`w-6 h-6 ${theme.primary}`} />
+                  <div className={`w-12 h-12 rounded-full ${theme.gradient} flex items-center justify-center mr-4 flex-shrink-0`}>
+                    <useCase.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2 text-gray-900">{useCase.title}</h3>
                     <p className="text-gray-600 mb-4">{useCase.description}</p>
-                    <blockquote className={`${theme.primary} italic border-l-4 border-purple-200 pl-4`}>
+                    <blockquote className={`${theme.primary} italic border-l-4 ${theme.border} pl-4`}>
                       "{useCase.quote}"
                     </blockquote>
                   </div>

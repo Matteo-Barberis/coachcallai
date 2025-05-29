@@ -26,7 +26,7 @@ const MindfulnessHowItWorks = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
+    <section id="how-it-works" className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>
@@ -39,12 +39,15 @@ const MindfulnessHowItWorks = () => {
 
         <div className="relative">
           {/* Desktop Connection Line */}
-          <div className="hidden md:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-purple-200 to-pink-200 z-0"></div>
+          <div className={`hidden md:block absolute top-24 left-0 right-0 h-1 ${theme.gradient} opacity-20 z-0`}></div>
           
           <div className="grid md:grid-cols-4 gap-10">
             {steps.map((step, index) => (
               <div key={index} className="relative z-10">
-                <div className="bg-white rounded-2xl shadow-md p-8 border border-purple-100 h-full flex flex-col">
+                <div className={`bg-white rounded-2xl shadow-md p-8 border ${theme.border} border-opacity-20 h-full flex flex-col hover:shadow-lg transition-shadow`}>
+                  <div className={`w-12 h-12 rounded-full ${theme.gradient} flex items-center justify-center mb-4 text-white font-bold text-lg`}>
+                    {index + 1}
+                  </div>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">{step.title}</h3>
                   <p className="text-gray-600 mb-4 flex-grow">{step.description}</p>
                   
