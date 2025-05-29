@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useSessionContext } from '@/context/SessionContext';
@@ -11,12 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 const UserMenu = () => {
   const { session, signOut } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
   const isOnDashboard = location.pathname === '/dashboard';
 
   const handleSignOut = async () => {
@@ -38,7 +41,7 @@ const UserMenu = () => {
         <Button variant="outline" onClick={() => window.location.href = "/auth/sign-in"}>
           Sign In
         </Button>
-        <Button className="bg-brand-primary hover:bg-brand-primary/90" onClick={handleGetStarted}>
+        <Button className={theme.brandPrimary} onClick={handleGetStarted}>
           Get Started
         </Button>
       </div>
