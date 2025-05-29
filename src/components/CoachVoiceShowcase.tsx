@@ -8,6 +8,7 @@ import CoachSelect from "@/components/CoachSelect";
 import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 // Hardcoded accountability mode ID as requested
 const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
@@ -36,6 +37,7 @@ const CoachVoiceShowcase = () => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
   
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
@@ -123,7 +125,7 @@ const CoachVoiceShowcase = () => {
     <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Meet Your Personal AI Coach</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Meet Your Personal AI Coach</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose a coach with a voice and personality that resonates with you. Listen to samples below.
           </p>
@@ -139,9 +141,9 @@ const CoachVoiceShowcase = () => {
               
               <div className="bg-white p-6 rounded-lg border border-gray-100">
                 <div className="flex items-center mb-6">
-                  <Avatar className="h-16 w-16 mr-4 border-2 border-brand-primary bg-gray-100 flex items-center justify-center">
+                  <Avatar className={`h-16 w-16 mr-4 border-2 ${theme.border} bg-gray-100 flex items-center justify-center`}>
                     <AvatarFallback>
-                      <UserRound className="h-10 w-10 text-brand-primary" />
+                      <UserRound className={`h-10 w-10 ${theme.primary}`} />
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -170,7 +172,7 @@ const CoachVoiceShowcase = () => {
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                      <h5 className="font-semibold text-brand-primary">
+                      <h5 className={`font-semibold ${theme.primary}`}>
                         {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
                       </h5>
                       <p className="text-gray-600 mt-1">
@@ -188,7 +190,7 @@ const CoachVoiceShowcase = () => {
                     onClick={handlePlaySampleCall}
                     variant="outline" 
                     size="sm"
-                    className="h-12 w-12 mb-3 sm:mb-0 rounded-full border-brand-primary text-brand-primary hover:bg-brand-light mx-auto sm:mx-0"
+                    className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${theme.border} ${theme.primary} ${theme.hover} mx-auto sm:mx-0`}
                     disabled={!audioLoaded}
                   >
                     {isPlaying ? (
@@ -205,7 +207,7 @@ const CoachVoiceShowcase = () => {
                 {isPlaying && (
                   <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-primary animate-progress"></div>
+                      <div className={`h-full ${theme.progressBg} animate-progress`}></div>
                     </div>
                   </div>
                 )}
