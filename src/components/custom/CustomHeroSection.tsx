@@ -47,7 +47,7 @@ const CustomHeroSection = () => {
   };
 
   return (
-    <section className={`pt-12 pb-16 px-4 md:pt-20 md:pb-24 ${theme.bg} overflow-hidden`}>
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-indigo-50/30 via-orange-50/40 to-orange-100/60">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
