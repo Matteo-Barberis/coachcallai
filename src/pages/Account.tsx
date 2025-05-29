@@ -500,11 +500,11 @@ const Account = () => {
       
       default: // custom mode
         if (planName.toLowerCase().includes('basic') || planName.toLowerCase().includes('starter')) {
-          return 'Personalized coaching tailored to your unique goals';
+          return 'Your reliable companion for everyday conversations';
         } else if (planName.toLowerCase().includes('pro') || planName.toLowerCase().includes('premium')) {
-          return 'Advanced custom coaching for ambitious individuals';
+          return 'Enhanced companion experience with more features';
         } else {
-          return 'Complete custom solution for your success';
+          return 'Complete companion solution for your journey';
         }
     }
   };
