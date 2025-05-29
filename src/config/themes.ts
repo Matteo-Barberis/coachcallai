@@ -14,17 +14,17 @@ export const themes = {
     hoverPrimary: 'hover:text-purple-700'
   },
   custom: {
-    titleGradient: 'bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent',
-    gradient: 'bg-gradient-to-r from-orange-600 to-amber-600',
-    primary: 'text-orange-600',
-    border: 'border-orange-600',
-    bg: 'bg-orange-50',
-    hover: 'hover:bg-orange-50',
-    light: 'bg-orange-50',
-    lightText: 'text-orange-600',
-    progressBg: 'bg-orange-600',
-    darkGradient: 'bg-gradient-to-r from-orange-700 to-amber-700',
-    hoverPrimary: 'hover:text-orange-700'
+    titleGradient: 'bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent',
+    gradient: 'bg-gradient-to-r from-gray-700 to-gray-600',
+    primary: 'text-gray-700',
+    border: 'border-gray-700',
+    bg: 'bg-gray-50',
+    hover: 'hover:bg-gray-50',
+    light: 'bg-gray-50',
+    lightText: 'text-gray-700',
+    progressBg: 'bg-gray-700',
+    darkGradient: 'bg-gradient-to-r from-gray-800 to-gray-700',
+    hoverPrimary: 'hover:text-gray-800'
   },
   accountability: {
     titleGradient: 'bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent',

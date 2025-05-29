@@ -1,18 +1,17 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 import { useTheme } from "@/hooks/useTheme";
+
 const CustomCtaSection = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const {
-    session
-  } = useSessionContext();
+  const { session } = useSessionContext();
   const theme = useTheme();
+
   const handleButtonClick = () => {
     if (session) {
       navigate('/dashboard');
@@ -20,7 +19,9 @@ const CustomCtaSection = () => {
       navigate('/auth/sign-up');
     }
   };
-  return <section className={`py-20 px-4 ${theme.gradient}`}>
+
+  return (
+    <section className={`py-20 px-4 ${theme.gradient}`}>
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
           Never Feel Alone Again
@@ -31,10 +32,9 @@ const CustomCtaSection = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-          <Button size="lg" className={`text-lg px-8 py-4 bg-white ${theme.primary} hover:bg-gray-100`} onClick={handleButtonClick}>
+          <Button size="lg" className={`text-lg px-8 py-4 bg-white text-black hover:bg-gray-100`} onClick={handleButtonClick}>
             Create Your AI Companion
           </Button>
-          
         </div>
         
         <div className="flex justify-center items-center space-x-8 text-sm text-white/80">
@@ -52,6 +52,8 @@ const CustomCtaSection = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default CustomCtaSection;
