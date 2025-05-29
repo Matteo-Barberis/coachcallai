@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useTheme } from "@/hooks/useTheme";
 
 const StickyCta = () => {
   const { toast } = useToast();
@@ -12,6 +13,7 @@ const StickyCta = () => {
   const navigate = useNavigate();
   const { session } = useSessionContext();
   const location = useLocation();
+  const theme = useTheme();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +48,30 @@ const StickyCta = () => {
     }
   };
 
+  const getContent = () => {
+    if (location.pathname === '/mindfulness') {
+      return {
+        text: "Join our mindful community",
+        buttonText: "Start Your Journey",
+        buttonClass: "bg-purple-600 hover:bg-purple-700"
+      };
+    } else if (location.pathname === '/custom') {
+      return {
+        text: "Create your perfect AI companion",
+        buttonText: "Create Your AI Companion",
+        buttonClass: "bg-orange-600 hover:bg-orange-700"
+      };
+    } else {
+      return {
+        text: "Join our community of goal-oriented people",
+        buttonText: session ? "Go to Dashboard" : "Get Your First AI Call",
+        buttonClass: "bg-brand-primary hover:bg-brand-primary/90"
+      };
+    }
+  };
+
+  const content = getContent();
+
   return (
     <div 
       className={`fixed bottom-0 left-0 right-0 z-40 bg-white shadow-md border-t border-gray-200 transition-all duration-300 transform ${
@@ -71,14 +97,14 @@ const StickyCta = () => {
             </Avatar>
           </div>
           <p className="font-medium text-gray-700">
-            Join our community of goal-oriented people
+            {content.text}
           </p>
         </div>
         <Button 
-          className="text-base py-4 px-6 bg-brand-primary hover:bg-brand-primary/90 whitespace-nowrap"
+          className={`text-base py-4 px-6 text-white whitespace-nowrap ${content.buttonClass}`}
           onClick={handleButtonClick}
         >
-          {location.pathname === "/" && session ? "Go to Dashboard" : "Get Your First AI Call"}
+          {content.buttonText}
         </Button>
       </div>
     </div>
