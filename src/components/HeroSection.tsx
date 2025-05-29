@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,7 +15,7 @@ const HeroSection = () => {
   const theme = useTheme();
   const [rotatingWord, setRotatingWord] = useState("Accountable");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Accountable", "Mindful", "Motivated", "Focused", "Consistent", "Productive", "Happy"];
+  const rotatingWords = ["Accountable", "Productive", "Motivated", "Focused", "Consistent"];
   
   useEffect(() => {
     const interval = setInterval(() => {
