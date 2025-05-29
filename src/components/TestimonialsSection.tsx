@@ -1,8 +1,11 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
+import { useTheme } from "@/hooks/useTheme";
 
 const TestimonialsSection = () => {
+  const theme = useTheme();
+  
   const testimonials = [
     {
       name: "Olivia Nichols",
@@ -31,7 +34,7 @@ const TestimonialsSection = () => {
     <section id="testimonials" className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">What Our Users Say</h2>
+          <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>What Our Users Say</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Real stories from real people who have transformed their accountability with Coach Call AI.
           </p>
@@ -56,7 +59,7 @@ const TestimonialsSection = () => {
               
               <div>
                 <div className="flex items-center mb-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary flex items-center justify-center text-white font-bold">
+                  <div className={`w-10 h-10 rounded-full ${theme.gradient} flex items-center justify-center text-white font-bold`}>
                     {testimonial.name.charAt(0)}
                   </div>
                   <div className="ml-3">
@@ -66,7 +69,7 @@ const TestimonialsSection = () => {
                 </div>
                 
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="bg-brand-light text-brand-primary text-sm px-3 py-1 rounded-full inline-block">
+                  <div className={`${theme.light} ${theme.lightText} text-sm px-3 py-1 rounded-full inline-block`}>
                     Achievement: {testimonial.achievement}
                   </div>
                 </div>
