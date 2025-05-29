@@ -33,10 +33,10 @@ const Header = () => {
         
         {showNavigation && (
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#features-showcase" className={`text-gray-600 ${theme.hoverPrimary} transition-colors`}>Features</a>
-            <a href="#how-it-works" className={`text-gray-600 ${theme.hoverPrimary} transition-colors`}>How It Works</a>
-            <a href="#testimonials" className={`text-gray-600 ${theme.hoverPrimary} transition-colors`}>Testimonials</a>
-            <a href="#pricing" className={`text-gray-600 ${theme.hoverPrimary} transition-colors`}>Pricing</a>
+            <a href="#features-showcase" className="text-gray-600 hover:text-brand-primary transition-colors">Features</a>
+            <a href="#how-it-works" className="text-gray-600 hover:text-brand-primary transition-colors">How It Works</a>
+            <a href="#testimonials" className="text-gray-600 hover:text-brand-primary transition-colors">Testimonials</a>
+            <a href="#pricing" className="text-gray-600 hover:text-brand-primary transition-colors">Pricing</a>
           </nav>
         )}
         
