@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -15,13 +16,13 @@ const DashboardPreview = () => {
   };
   
   const getContent = () => {
-    if (location.pathname === '/custom') {
+    if (location.pathname === '/accountability') {
       return {
-        description: "Every conversation with your companion becomes part of your progress story. Watch as daily achievements transform into lasting change."
+        description: "Every conversation with your coach becomes part of your progress story. Watch as daily achievements transform into lasting change."
       };
     } else {
       return {
-        description: "Every conversation with your coach becomes part of your progress story. Watch as daily achievements transform into lasting change."
+        description: "Every conversation with your companion becomes part of your progress story. Watch as daily achievements transform into lasting change."
       };
     }
   };

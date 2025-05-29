@@ -16,17 +16,17 @@ const EnhancedTestimonials = () => {
   const location = useLocation();
 
   const getContent = () => {
-    if (location.pathname === '/custom') {
-      return {
-        subtitle: "Real stories from real people who have transformed their life with Coach Call AI."
-      };
-    } else if (location.pathname === '/mindfulness') {
+    if (location.pathname === '/mindfulness') {
       return {
         subtitle: "Real stories from real people who have transformed their inner selves with Coach Call AI."
       };
-    } else {
+    } else if (location.pathname === '/accountability') {
       return {
         subtitle: "Real stories from real people who have transformed their accountability with Coach Call AI."
+      };
+    } else {
+      return {
+        subtitle: "Real stories from real people who have transformed their life with Coach Call AI."
       };
     }
   };

@@ -46,20 +46,20 @@ const PricingSection = () => {
   const theme = useTheme();
 
   const getDescriptions = () => {
-    if (location.pathname === '/custom') {
-      return {
-        medium: "For those committed to consistent personal growth",
-        pro: "Comprehensive solution for serious life transformation"
-      };
-    } else if (location.pathname === '/mindfulness') {
+    if (location.pathname === '/mindfulness') {
       return {
         medium: "For those committed to consistent mindfulness practice",
         pro: "Comprehensive solution for serious inner development"
       };
-    } else {
+    } else if (location.pathname === '/accountability') {
       return {
         medium: "For those committed to consistent accountability",
         pro: "Comprehensive accountability solution for serious achievers"
+      };
+    } else {
+      return {
+        medium: "For those committed to consistent personal growth",
+        pro: "Comprehensive solution for serious life transformation"
       };
     }
   };
