@@ -59,7 +59,7 @@ const StickyCta = () => {
       return {
         text: "Join our community of goal-oriented people",
         buttonText: session ? "Go to Dashboard" : "Get Your First AI Call",
-        buttonClass: "bg-brand-primary hover:bg-brand-primary/90"
+        buttonClass: `${theme.gradient} hover:opacity-90`
       };
     } else {
       return {
