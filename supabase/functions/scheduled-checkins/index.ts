@@ -23,9 +23,9 @@ const templateMessages = {
 
 // Regular text messages for within 24h window (with placeholders for user names)
 const regularTextMessages = {
-  'morning': 'Good morning {{name}}! Ready to tackle your goals today? Let me know how I can support you.',
-  'midday': 'Hey {{name}}, it\'s midday already! How\'s your day going so far? Need any help staying on track?',
-  'evening': 'Good evening {{name}}! How did your day go?'
+  'morning': 'Good morning ${name}! Ready to tackle your goals today? Let me know how I can support you.',
+  'midday': 'Hey ${name}, it\'s midday already! How\'s your day going so far? Need any help staying on track?',
+  'evening': 'Good evening ${name}! How did your day go?'
 };
 
 // ChatGPT function schema for generating check-in messages
@@ -250,7 +250,7 @@ serve(async (req) => {
                       messageContent = personalizedMessage;
                     } else {
                       // Fallback to regular text message if ChatGPT fails
-                      const textMessage = regularTextMessages[window.type].replace('{{name}}', userName);
+                      const textMessage = regularTextMessages[window.type].replace('${name}', userName);
                       result = await sendWhatsAppTextMessage(
                         phoneNumber,
                         textMessage,
@@ -390,11 +390,11 @@ async function generatePersonalizedCheckin(
 
     // Replace placeholders in the prompt
     let finalPrompt = promptData.prompt_text
-      .replace('{{bot name}}', 'Coach Call AI Assistant')
-      .replace('{{user name}}', userName)
-      .replace('{{bot behaviour / personality}}', 'Friendly, supportive, and encouraging personal development coach who communicates in a casual, conversational way')
-      .replace('{{user summary}}', userSummary || 'No summary available yet')
-      .replace('{{recent conversation messages}}', formattedMessages || 'No recent messages');
+      .replace('${assistantName}', 'Coach Call AI Assistant')
+      .replace('${userName}', userName)
+      .replace('${assistantPersonality}', 'Friendly, supportive, and encouraging personal development coach who communicates in a casual, conversational way')
+      .replace('${userSummary}', userSummary || 'No summary available yet')
+      .replace('${recentMessages}', formattedMessages || 'No recent messages');
 
     // Call ChatGPT
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
