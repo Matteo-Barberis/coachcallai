@@ -237,7 +237,8 @@ serve(async (req) => {
                       user.id,
                       userName,
                       supabase,
-                      openaiApiKey
+                      openaiApiKey,
+                      window.type // Pass the checkin type (morning, midday, evening)
                     );
                     
                     if (personalizedMessage) {
@@ -354,7 +355,8 @@ async function generatePersonalizedCheckin(
   userId: string,
   userName: string,
   supabase: any,
-  openaiApiKey: string
+  openaiApiKey: string,
+  checkinType: string // Add checkin type parameter
 ): Promise<string | null> {
   try {
     // Fetch the prompt from database
@@ -394,7 +396,8 @@ async function generatePersonalizedCheckin(
       .replace('${userName}', userName)
       .replace('${assistantPersonality}', 'Friendly, supportive, and encouraging personal development coach who communicates in a casual, conversational way')
       .replace('${userSummary}', userSummary || 'No summary available yet')
-      .replace('${recentMessages}', formattedMessages || 'No recent messages');
+      .replace('${recentMessages}', formattedMessages || 'No recent messages')
+      .replace('${checkinTime}', checkinType); // Add checkin time based on type
 
     // Call ChatGPT
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
