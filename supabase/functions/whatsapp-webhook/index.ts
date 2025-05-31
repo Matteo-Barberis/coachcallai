@@ -368,10 +368,12 @@ serve(async (req) => {
         
         console.log(`Successfully created scheduled call with ID: ${scheduledCall.id} and context`);
         
-        // Call the get-scheduled-calls function to trigger the call
+        // Call the get-scheduled-calls function to trigger the call with the specific call ID
         console.log('Calling get-scheduled-calls function to trigger instant call...');
         
-        const { data: callResult, error: callError } = await supabaseClient.functions.invoke('get-scheduled-calls');
+        const { data: callResult, error: callError } = await supabaseClient.functions.invoke('get-scheduled-calls', {
+          body: { callId: scheduledCall.id }
+        });
         
         if (callError) {
           console.error('Error calling get-scheduled-calls function:', callError);
