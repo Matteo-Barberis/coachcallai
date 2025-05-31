@@ -1,3 +1,4 @@
+
 /**
  * WhatsApp Webhook Handler
  * 
@@ -567,8 +568,18 @@ serve(async (req) => {
       }
     ];
 
-    // Create ChatGPT prompt with achievement detection instruction and user summary
-    const prompt = `
+    // Fetch the coaching prompt from the database
+    const { data: promptData, error: promptError } = await supabaseClient
+      .from('system_prompts')
+      .select('prompt_text')
+      .eq('name', 'whatsapp_coaching_response')
+      .maybeSingle();
+
+    if (promptError) {
+      console.error('Error fetching whatsapp_coaching_response prompt:', promptError);
+    }
+
+    let prompt = `
 Your name is: ${assistantName}. ${assistantPersonality ? `Your personality: ${assistantPersonality}.` : ''} 
 The user name is: ${userName}. You are messaging the user on WhatsApp, this is the last message sent by the user: "${messageContent}". 
 
@@ -592,6 +603,20 @@ Types of achievements:
 
 Don't write super long messages — it's WhatsApp, so keep it easy to read. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.
 `;
+
+    // Use database prompt if available, otherwise use fallback
+    if (promptData && promptData.prompt_text) {
+      prompt = promptData.prompt_text
+        .replace('${assistantName}', assistantName)
+        .replace('${assistantPersonality}', assistantPersonality ? `Your personality: ${assistantPersonality}.` : '')
+        .replace('${userName}', userName)
+        .replace('${messageContent}', messageContent)
+        .replace('${userSummary}', userSummary || 'No summary available yet')
+        .replace('${conversationHistoryText}', conversationHistoryText);
+      console.log('Using database prompt for coaching response');
+    } else {
+      console.log('Using fallback prompt for coaching response');
+    }
 
     console.log('Sending prompt to ChatGPT:', prompt);
 
