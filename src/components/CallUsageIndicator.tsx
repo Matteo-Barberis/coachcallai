@@ -29,11 +29,12 @@ const CallUsageIndicator = () => {
         monday.setDate(today.getDate() - daysFromMonday);
         monday.setHours(0, 0, 0, 0);
 
-        // Count calls this week
+        // Count ONLY completed calls this week (matching backend logic)
         const { data: callLogs, error: callError } = await supabase
           .from('call_logs')
           .select('id')
           .eq('user_id', session.user.id)
+          .eq('status', 'completed')
           .gte('created_at', monday.toISOString());
 
         if (callError) {
