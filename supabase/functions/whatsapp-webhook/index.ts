@@ -1,4 +1,3 @@
-
 /**
  * WhatsApp Webhook Handler
  * 
@@ -13,6 +12,7 @@
  * - Analyzes message importance for summary processing
  * - Sends responses back to users via WhatsApp API
  * - Stores all messages (incoming and outgoing) in the database
+ * - Handles "/call" command to trigger instant calls
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -165,7 +165,7 @@ serve(async (req) => {
     
     const { data: profiles, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('id, full_name, current_mode_id, subscription_status, trial_start_date, user_summary')
+      .select('id, full_name, current_mode_id, subscription_status, trial_start_date, user_summary, timezone')
       .filter('phone', 'ilike', `%${from}%`) // Use ilike and % to find the number ignoring the + prefix
       .maybeSingle();
 
@@ -179,6 +179,7 @@ serve(async (req) => {
     const subscriptionStatus = profiles?.subscription_status;
     const trialStartDate = profiles?.trial_start_date;
     const userSummary = profiles?.user_summary;
+    const userTimezone = profiles?.timezone || 'GMT';
     
     // Define default message for when user is not found or inactive
     const defaultMessage = "Sorry, it appears your phone number is either not registered in our system or doesn't have an active subscription. Please visit our website to register or reactivate your subscription.";
@@ -282,7 +283,169 @@ serve(async (req) => {
       );
     }
 
-    // If we get to this point, user exists and has an active subscription or valid trial
+    // Check if this is a "/call" command
+    if (messageContent.trim() === '/call') {
+      console.log(`User ${userId} requested instant call via /call command`);
+      
+      try {
+        // Get current time in user's timezone
+        const now = new Date();
+        const localOptions = { timeZone: userTimezone };
+        const localTimeString = now.toLocaleTimeString('en', localOptions);
+        
+        console.log(`Current time in user timezone ${userTimezone}: ${localTimeString}`);
+        
+        // Parse hours and minutes from local time
+        const timeMatch = localTimeString.match(/(\d+):(\d+):(\d+) (AM|PM)/);
+        
+        if (!timeMatch) {
+          console.error(`Failed to parse local time: ${localTimeString} for timezone ${userTimezone}`);
+          throw new Error('Failed to parse current time');
+        }
+        
+        let hours = parseInt(timeMatch[1]);
+        const minutes = parseInt(timeMatch[2]);
+        const ampm = timeMatch[4];
+        
+        // Convert to 24-hour format
+        if (ampm === 'PM' && hours < 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        
+        // Create time string for database (HH:MM:SS format)
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+        
+        console.log(`Creating scheduled call for time: ${timeString} in timezone ${userTimezone}`);
+        
+        // Create scheduled call record
+        const { data: scheduledCall, error: scheduleError } = await supabaseClient
+          .from('scheduled_calls')
+          .insert({
+            user_id: userId,
+            time: timeString,
+            mode_id: currentModeId,
+            specific_date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
+          })
+          .select()
+          .single();
+          
+        if (scheduleError) {
+          console.error('Error creating scheduled call:', scheduleError);
+          throw new Error(`Failed to create scheduled call: ${scheduleError.message}`);
+        }
+        
+        console.log(`Successfully created scheduled call with ID: ${scheduledCall.id}`);
+        
+        // Call the get-scheduled-calls function to trigger the call
+        console.log('Calling get-scheduled-calls function to trigger instant call...');
+        
+        const { data: callResult, error: callError } = await supabaseClient.functions.invoke('get-scheduled-calls');
+        
+        if (callError) {
+          console.error('Error calling get-scheduled-calls function:', callError);
+        } else {
+          console.log('Successfully triggered get-scheduled-calls function:', callResult);
+        }
+        
+        // Send confirmation message to user
+        const confirmationMessage = "Perfect! I'm setting up your call right now. You should receive a call within the next few minutes.";
+        
+        const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
+        const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+        
+        try {
+          const response = await fetch(whatsappApiUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${whatsappApiToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messaging_product: 'whatsapp',
+              recipient_type: 'individual',
+              to: from,
+              type: 'text',
+              text: {
+                body: confirmationMessage
+              }
+            })
+          });
+          
+          const responseData = await response.json();
+          console.log('WhatsApp API response for call confirmation:', JSON.stringify(responseData));
+          
+          if (!response.ok) {
+            console.error('Error sending WhatsApp confirmation message:', responseData);
+          } else {
+            console.log('Successfully sent WhatsApp call confirmation');
+          }
+        } catch (error) {
+          console.error('Error sending WhatsApp confirmation:', error);
+        }
+        
+        // Store the confirmation message in the database
+        const { error: confirmationInsertError } = await supabaseClient
+          .from('whatsapp_messages')
+          .insert({
+            user_id: userId,
+            content: confirmationMessage,
+            type: 'system'
+          });
+
+        if (confirmationInsertError) {
+          console.error('Error inserting confirmation message:', confirmationInsertError);
+        } else {
+          console.log('Successfully saved confirmation message to database');
+        }
+        
+        return new Response(
+          JSON.stringify({ status: 'success', message: 'Call scheduled and triggered' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        );
+        
+      } catch (callSetupError) {
+        console.error('Error setting up instant call:', callSetupError);
+        
+        // Send error message to user
+        const errorMessage = "Sorry, I encountered an issue setting up your call. Please try again in a moment.";
+        
+        const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
+        const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+        
+        try {
+          await fetch(whatsappApiUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${whatsappApiToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              messaging_product: 'whatsapp',
+              recipient_type: 'individual',
+              to: from,
+              type: 'text',
+              text: {
+                body: errorMessage
+              }
+            })
+          });
+        } catch (error) {
+          console.error('Error sending error message:', error);
+        }
+        
+        return new Response(
+          JSON.stringify({ status: 'error', message: 'Failed to set up call' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200, // Still return 200 to acknowledge receipt
+          }
+        );
+      }
+    }
+
+    // If we get to this point, user exists and has an active subscription or valid trial, and it's not a /call command
 
     // Fetch assistant information from mode preferences based on user's current mode
     let assistantName = "Coach";
@@ -427,7 +590,7 @@ Types of achievements:
 - "milestone": Significant progress markers (e.g., "I completed my first 5K race")
 - "breakthrough": Major transformative accomplishments (e.g., "I finally qualified for the marathon after years of training")
 
-Don’t write super long messages — it’s WhatsApp, so keep it easy to read. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.
+Don't write super long messages — it's WhatsApp, so keep it easy to read. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.
 `;
 
     console.log('Sending prompt to ChatGPT:', prompt);
