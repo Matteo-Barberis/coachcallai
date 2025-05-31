@@ -32,23 +32,101 @@ serve(async (req) => {
       serviceRoleKey
     );
 
-    console.log('Fetching scheduled calls to execute...');
+    // Check if this is an instant call request with a specific call ID
+    let requestBody = null;
+    let specificCallId = null;
     
-    // Call the database function
-    const { data, error } = await supabaseClient.rpc('get_scheduled_calls_to_execute');
-    
-    if (error) {
-      console.error('Error fetching scheduled calls:', error);
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500,
+    if (req.method === 'POST') {
+      try {
+        requestBody = await req.json();
+        specificCallId = requestBody?.callId;
+        if (specificCallId) {
+          console.log(`Processing instant call with specific ID: ${specificCallId}`);
         }
-      );
+      } catch (e) {
+        console.log('No valid JSON body provided, proceeding with scheduled calls');
+      }
     }
 
-    console.log(`Retrieved ${data?.length || 0} scheduled calls`);
+    let data = null;
+    let error = null;
+
+    if (specificCallId) {
+      // Fetch the specific instant call by ID
+      console.log(`Fetching instant call with ID: ${specificCallId}`);
+      const { data: instantCall, error: instantError } = await supabaseClient
+        .from('scheduled_calls')
+        .select(`
+          id, user_id, time, weekday, specific_date, template_id, mode_id, context, created_at,
+          profiles!inner (
+            id, avatar_url, created_at, full_name, phone, phone_verification_code,
+            phone_verification_expires_at, phone_verified, updated_at, timezone
+          )
+        `)
+        .eq('id', specificCallId)
+        .single();
+        
+      if (instantError) {
+        console.error('Error fetching instant call:', instantError);
+        return new Response(
+          JSON.stringify({ error: `Failed to fetch instant call: ${instantError.message}` }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+          }
+        );
+      }
+
+      if (instantCall) {
+        // Transform the data to match the expected format
+        data = [{
+          id: instantCall.id,
+          user_id: instantCall.user_id,
+          time: instantCall.time,
+          weekday: instantCall.weekday,
+          specific_date: instantCall.specific_date,
+          template_id: instantCall.template_id,
+          mode_id: instantCall.mode_id,
+          context: instantCall.context,
+          timezone: instantCall.profiles.timezone,
+          execution_timestamp: new Date().toISOString(), // Current time for instant call
+          profile_id: instantCall.profiles.id,
+          avatar_url: instantCall.profiles.avatar_url,
+          created_at: instantCall.profiles.created_at,
+          full_name: instantCall.profiles.full_name,
+          phone: instantCall.profiles.phone,
+          phone_verification_code: instantCall.profiles.phone_verification_code,
+          phone_verification_expires_at: instantCall.profiles.phone_verification_expires_at,
+          phone_verified: instantCall.profiles.phone_verified,
+          updated_at: instantCall.profiles.updated_at
+        }];
+        console.log(`Retrieved instant call for user: ${instantCall.profiles.full_name}`);
+      } else {
+        console.log(`No instant call found with ID: ${specificCallId}`);
+        data = [];
+      }
+    } else {
+      // Use existing logic for scheduled calls
+      console.log('Fetching scheduled calls to execute...');
+      
+      // Call the database function
+      const result = await supabaseClient.rpc('get_scheduled_calls_to_execute');
+      data = result.data;
+      error = result.error;
+      
+      if (error) {
+        console.error('Error fetching scheduled calls:', error);
+        return new Response(
+          JSON.stringify({ error: error.message }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+          }
+        );
+      }
+
+      console.log(`Retrieved ${data?.length || 0} scheduled calls`);
+    }
     
     // Filter scheduled calls based on user subscription status
     let filteredData = [];
@@ -352,6 +430,21 @@ serve(async (req) => {
               }
             } catch (logError) {
               console.error(`Error logging test call to database:`, logError);
+            }
+          }
+
+          // If this was an instant call (specific call ID), delete the scheduled call record after successful processing
+          if (specificCallId && call.id === specificCallId && (vapiResult?.status === 'queued' || vapiResult?.status === 'TEST_MODE')) {
+            console.log(`Deleting instant call record with ID: ${call.id}`);
+            const { error: deleteError } = await supabaseClient
+              .from('scheduled_calls')
+              .delete()
+              .eq('id', call.id);
+              
+            if (deleteError) {
+              console.error(`Error deleting instant call record:`, deleteError);
+            } else {
+              console.log(`Successfully deleted instant call record`);
             }
           }
           
