@@ -28,6 +28,22 @@ const regularTextMessages = {
   'evening': 'Good evening {{name}}! How did your day go?'
 };
 
+// ChatGPT function schema for generating check-in messages
+const generateCheckinMessageFunction = {
+  name: "generate_checkin_message",
+  description: "Generate a personalized WhatsApp check-in message",
+  parameters: {
+    type: "object",
+    properties: {
+      message: {
+        type: "string",
+        description: "The personalized check-in message to send to the user"
+      }
+    },
+    required: ["message"]
+  }
+};
+
 // Log immediately when the function is loaded
 console.log("Scheduled WhatsApp check-ins function is starting up...");
 
@@ -44,6 +60,7 @@ serve(async (req) => {
     // Get the WhatsApp API token from environment variables
     const whatsappApiToken = Deno.env.get('WHATSAPP_API_TOKEN');
     const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     
     if (!whatsappApiToken) {
       throw new Error('WHATSAPP_API_TOKEN is not set in environment variables');
@@ -51,6 +68,10 @@ serve(async (req) => {
     
     if (!phoneNumberId) {
       throw new Error('WHATSAPP_PHONE_NUMBER_ID is not set in environment variables');
+    }
+
+    if (!openaiApiKey) {
+      throw new Error('OPENAI_API_KEY is not set in environment variables');
     }
 
     // Initialize Supabase client
@@ -128,7 +149,7 @@ serve(async (req) => {
             
             const { data: users, error: usersError } = await supabase
               .from('profiles')
-              .select('id, full_name, phone, timezone')
+              .select('id, full_name, phone, timezone, user_summary')
               .eq('timezone', timezone)
               .not('phone', 'is', null);
             
@@ -171,10 +192,10 @@ serve(async (req) => {
                     // Within 2 hours - skip entirely (user was recently active)
                     console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was within 2h, skipping check-in (recently active)`);
                   } else if (latestMessageTime > twentyFourHoursAgo) {
-                    // Between 2-24 hours - send regular text message
+                    // Between 2-24 hours - send personalized message using ChatGPT
                     shouldSendMessage = true;
                     useTemplate = false;
-                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was between 2-24h, sending regular text message`);
+                    console.log(`[${new Date().toISOString()}] User ${user.id}'s last message was between 2-24h, sending personalized message`);
                   } else if (latestMessageTime > fortyEightHoursAgo) {
                     // Between 24-48 hours - send template message
                     shouldSendMessage = true;
@@ -210,20 +231,39 @@ serve(async (req) => {
                     );
                     messageContent = templateMessages[window.templateId];
                   } else {
-                    // Send regular text message
-                    const textMessage = regularTextMessages[window.type].replace('{{name}}', userName);
-                    result = await sendWhatsAppTextMessage(
-                      phoneNumber,
-                      textMessage,
-                      whatsappApiToken,
-                      phoneNumberId
+                    // Generate personalized message using ChatGPT
+                    const personalizedMessage = await generatePersonalizedCheckin(
+                      user.user_summary,
+                      user.id,
+                      userName,
+                      supabase,
+                      openaiApiKey
                     );
-                    messageContent = textMessage;
+                    
+                    if (personalizedMessage) {
+                      result = await sendWhatsAppTextMessage(
+                        phoneNumber,
+                        personalizedMessage,
+                        whatsappApiToken,
+                        phoneNumberId
+                      );
+                      messageContent = personalizedMessage;
+                    } else {
+                      // Fallback to regular text message if ChatGPT fails
+                      const textMessage = regularTextMessages[window.type].replace('{{name}}', userName);
+                      result = await sendWhatsAppTextMessage(
+                        phoneNumber,
+                        textMessage,
+                        whatsappApiToken,
+                        phoneNumberId
+                      );
+                      messageContent = textMessage;
+                    }
                   }
                   
                   if (result.success) {
                     messagesSent++;
-                    console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber} using ${useTemplate ? 'template' : 'text'} message`);
+                    console.log(`[${new Date().toISOString()}] Successfully sent ${window.type} check-in to ${phoneNumber} using ${useTemplate ? 'template' : 'personalized'} message`);
                     
                     // Store the sent message in the database as a system message
                     if (messageContent) {
@@ -249,7 +289,7 @@ serve(async (req) => {
                     userId: user.id,
                     phone: phoneNumber,
                     timezone: timezone,
-                    template: useTemplate ? window.templateId : 'text_message',
+                    template: useTemplate ? window.templateId : 'personalized_message',
                     result: result.success ? 'sent' : 'failed',
                     error: result.error || null
                   });
@@ -305,6 +345,98 @@ serve(async (req) => {
     );
   }
 });
+
+/**
+ * Generate personalized check-in message using ChatGPT
+ */
+async function generatePersonalizedCheckin(
+  userSummary: string,
+  userId: string,
+  userName: string,
+  supabase: any,
+  openaiApiKey: string
+): Promise<string | null> {
+  try {
+    // Fetch the prompt from database
+    const { data: promptData, error: promptError } = await supabase
+      .from('system_prompts')
+      .select('prompt_text')
+      .eq('name', 'whatsapp_checkin_message')
+      .single();
+
+    if (promptError || !promptData) {
+      console.error('Error fetching checkin prompt:', promptError);
+      return null;
+    }
+
+    // Fetch last 5 messages for context
+    const { data: recentMessages, error: messagesError } = await supabase
+      .from('whatsapp_messages')
+      .select('content, type, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (messagesError) {
+      console.error('Error fetching recent messages:', messagesError);
+      return null;
+    }
+
+    // Format recent messages for the prompt
+    const formattedMessages = recentMessages
+      .reverse() // Show oldest first
+      .map(msg => `${msg.type === 'user' ? userName : 'Assistant'}: ${msg.content}`)
+      .join('\n');
+
+    // Replace placeholders in the prompt
+    let finalPrompt = promptData.prompt_text
+      .replace('{{bot name}}', 'Coach Call AI Assistant')
+      .replace('{{user name}}', userName)
+      .replace('{{bot behaviour / personality}}', 'Friendly, supportive, and encouraging personal development coach who communicates in a casual, conversational way')
+      .replace('{{user summary}}', userSummary || 'No summary available yet')
+      .replace('{{recent conversation messages}}', formattedMessages || 'No recent messages');
+
+    // Call ChatGPT
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: finalPrompt
+          }
+        ],
+        functions: [generateCheckinMessageFunction],
+        function_call: { name: 'generate_checkin_message' },
+        temperature: 0.7,
+        max_tokens: 200
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('ChatGPT API error:', response.status, await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    
+    if (data.choices?.[0]?.message?.function_call?.arguments) {
+      const functionArgs = JSON.parse(data.choices[0].message.function_call.arguments);
+      return functionArgs.message;
+    }
+
+    console.error('Unexpected ChatGPT response format:', data);
+    return null;
+  } catch (error) {
+    console.error('Error generating personalized checkin:', error);
+    return null;
+  }
+}
 
 /**
  * Check if a time falls within a specified window
