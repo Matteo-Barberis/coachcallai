@@ -21,18 +21,20 @@ const CallUsageIndicator = () => {
       if (!session?.user.id || !userProfile) return;
 
       try {
-        // Get current week's Monday
+        // Use the EXACT same week calculation as the backend
         const today = new Date();
-        const currentDay = today.getDay();
-        const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
+        const currentDay = today.getDay(); // This matches PostgreSQL's EXTRACT(DOW FROM CURRENT_TIMESTAMP)
+        const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Convert Sunday=0 to Sunday=6
         const monday = new Date(today);
         monday.setDate(today.getDate() - daysFromMonday);
         monday.setHours(0, 0, 0, 0);
 
-        // Calculate end of week (Sunday 23:59:59.999)
+        // Calculate end of week (Sunday 23:59:59.999) - exactly like backend
         const endOfWeek = new Date(monday);
         endOfWeek.setDate(monday.getDate() + 6);
         endOfWeek.setHours(23, 59, 59, 999);
+
+        console.log('Frontend week range:', monday.toISOString(), 'to', endOfWeek.toISOString());
 
         // Count ONLY completed calls this week (matching backend logic exactly)
         const { data: callLogs, error: callError } = await supabase
@@ -49,6 +51,7 @@ const CallUsageIndicator = () => {
         }
 
         const callsThisWeek = callLogs?.length || 0;
+        console.log('Frontend calls found:', callsThisWeek);
 
         // Determine max calls based on subscription
         let maxCallsPerWeek = 3; // Default for trial
