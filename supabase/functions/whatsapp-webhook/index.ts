@@ -1,4 +1,3 @@
-
 /**
  * WhatsApp Webhook Handler
  * 
@@ -289,6 +288,38 @@ serve(async (req) => {
       console.log(`User ${userId} requested instant call via /call command`);
       
       try {
+        // Fetch the last 5 WhatsApp messages for this user to create context
+        console.log(`Fetching last 5 WhatsApp messages for context creation`);
+        const { data: recentMessages, error: messagesError } = await supabaseClient
+          .from('whatsapp_messages')
+          .select('content, type, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (messagesError) {
+          console.error('Error fetching recent messages:', messagesError);
+        }
+
+        // Format the context from recent messages
+        let callContext = '';
+        if (recentMessages && recentMessages.length > 0) {
+          console.log(`Found ${recentMessages.length} recent messages for context`);
+          const contextMessages = recentMessages
+            .reverse() // Get chronological order
+            .map(msg => {
+              const sender = msg.type === 'user' ? userName : 'Assistant';
+              return `${sender}: ${msg.content}`;
+            })
+            .join('\n');
+          
+          callContext = `CONTEXT:\nYou are calling the user because they requested it during your recent WhatsApp conversation. Refer to the last 5 WhatsApp messages to understand the context, and continue the discussion or assist the user based on what was being talked about.\n\nRecent conversation:\n${contextMessages}`;
+          console.log(`Created call context: ${callContext}`);
+        } else {
+          console.log('No recent messages found for context');
+          callContext = 'CONTEXT:\nYou are calling the user because they requested it during your recent WhatsApp conversation.';
+        }
+
         // Get current time in user's timezone
         const now = new Date();
         const localOptions = { timeZone: userTimezone };
@@ -317,14 +348,15 @@ serve(async (req) => {
         
         console.log(`Creating scheduled call for time: ${timeString} in timezone ${userTimezone}`);
         
-        // Create scheduled call record
+        // Create scheduled call record with context
         const { data: scheduledCall, error: scheduleError } = await supabaseClient
           .from('scheduled_calls')
           .insert({
             user_id: userId,
             time: timeString,
             mode_id: currentModeId,
-            specific_date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
+            specific_date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+            context: callContext
           })
           .select()
           .single();
@@ -334,7 +366,7 @@ serve(async (req) => {
           throw new Error(`Failed to create scheduled call: ${scheduleError.message}`);
         }
         
-        console.log(`Successfully created scheduled call with ID: ${scheduledCall.id}`);
+        console.log(`Successfully created scheduled call with ID: ${scheduledCall.id} and context`);
         
         // Call the get-scheduled-calls function to trigger the call
         console.log('Calling get-scheduled-calls function to trigger instant call...');
