@@ -654,6 +654,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_user_weekly_calls: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       get_users_with_min_unclaimed_messages: {
         Args: { min_count: number }
         Returns: {
