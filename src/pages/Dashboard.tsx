@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -176,12 +177,16 @@ const Dashboard = () => {
             </AlertDescription>
           </Alert>
         )}
+        
+        <div className="flex justify-end mb-4">
+          <CallUsageIndicator />
+        </div>
+        
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between mb-6">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold">Dashboard</h1>
               <ModeDisplayBadge modeId={userProfile?.current_mode_id} />
-              <CallUsageIndicator />
             </div>
             <div className="flex items-center flex-wrap gap-2">
               {/* Explicitly pass the current mode ID to the CoachSelect component */}
