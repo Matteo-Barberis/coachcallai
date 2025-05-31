@@ -29,13 +29,19 @@ const CallUsageIndicator = () => {
         monday.setDate(today.getDate() - daysFromMonday);
         monday.setHours(0, 0, 0, 0);
 
-        // Count ONLY completed calls this week (matching backend logic)
+        // Calculate end of week (Sunday 23:59:59.999)
+        const endOfWeek = new Date(monday);
+        endOfWeek.setDate(monday.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        // Count ONLY completed calls this week (matching backend logic exactly)
         const { data: callLogs, error: callError } = await supabase
           .from('call_logs')
           .select('id')
           .eq('user_id', session.user.id)
           .eq('status', 'completed')
-          .gte('created_at', monday.toISOString());
+          .gte('created_at', monday.toISOString())
+          .lte('created_at', endOfWeek.toISOString());
 
         if (callError) {
           console.error('Error fetching call logs:', callError);
