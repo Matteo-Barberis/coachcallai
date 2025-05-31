@@ -400,6 +400,41 @@ export type Database = {
           },
         ]
       }
+      subscription_plan_limits: {
+        Row: {
+          created_at: string
+          id: string
+          max_call_duration_minutes: number
+          max_calls_per_week: number
+          subscription_plan_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_call_duration_minutes: number
+          max_calls_per_week: number
+          subscription_plan_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_call_duration_minutes?: number
+          max_calls_per_week?: number
+          subscription_plan_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_plan_limits_subscription_plan_id_fkey"
+            columns: ["subscription_plan_id"]
+            isOneToOne: true
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           created_at: string

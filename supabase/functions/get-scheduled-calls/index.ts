@@ -73,16 +73,16 @@ serve(async (req) => {
 
     console.log(`Retrieved ${data?.length || 0} scheduled calls`);
     
-    // Filter scheduled calls based on user subscription status
+    // Filter scheduled calls based on user subscription status and call limits
     let filteredData = [];
     if (data && data.length > 0) {
-      console.log('Filtering calls based on user subscription status...');
+      console.log('Filtering calls based on user subscription status and call limits...');
       
       filteredData = await Promise.all(data.map(async (call) => {
         // Get user profile with subscription information and user_summary
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('subscription_status, trial_start_date, user_summary')
+          .select('subscription_status, trial_start_date, user_summary, subscription_plan_id')
           .eq('id', call.user_id)
           .single();
           
@@ -94,6 +94,7 @@ serve(async (req) => {
         const subscriptionStatus = profileData?.subscription_status;
         const trialStartDate = profileData?.trial_start_date;
         const userSummary = profileData?.user_summary || '';
+        const subscriptionPlanId = profileData?.subscription_plan_id;
         
         // Check if subscription is active or trial is valid (within 7 days)
         let isValid = subscriptionStatus === 'active';
@@ -108,18 +109,78 @@ serve(async (req) => {
           console.log(`User ${call.user_id} trial: Started on ${trialStartDate}, days elapsed: ${diffDays}, valid: ${isValid}`);
         }
         
-        if (isValid) {
-          console.log(`Including call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
-          // Add user_summary to the call object so it can be used later
-          call.user_summary = userSummary;
-          return call;
-        } else {
+        if (!isValid) {
           console.log(`Excluding call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
           return null;
         }
+
+        // Get subscription limits
+        let maxWeeklyCalls = 3; // Default for trial
+        let maxCallDurationMinutes = 2; // Default for trial (120 seconds)
+        
+        if (subscriptionStatus === 'active' && subscriptionPlanId) {
+          console.log(`Fetching subscription limits for plan ${subscriptionPlanId}`);
+          const { data: limitsData, error: limitsError } = await supabaseClient
+            .from('subscription_plan_limits')
+            .select('max_calls_per_week, max_call_duration_minutes')
+            .eq('subscription_plan_id', subscriptionPlanId)
+            .single();
+            
+          if (limitsError) {
+            console.error(`Error fetching subscription limits for plan ${subscriptionPlanId}:`, limitsError);
+            console.log(`Using default limits for user ${call.user_id}`);
+          } else if (limitsData) {
+            maxWeeklyCalls = limitsData.max_calls_per_week;
+            maxCallDurationMinutes = limitsData.max_call_duration_minutes;
+            console.log(`User ${call.user_id} limits: ${maxWeeklyCalls} calls/week, ${maxCallDurationMinutes} minutes/call`);
+          }
+        } else {
+          console.log(`User ${call.user_id} on trial: ${maxWeeklyCalls} calls/week, ${maxCallDurationMinutes} minutes/call`);
+        }
+
+        // Check weekly call count (calendar week: Monday to Sunday)
+        console.log(`Checking weekly call count for user ${call.user_id}`);
+        const startOfWeek = new Date();
+        const dayOfWeek = startOfWeek.getDay();
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Sunday = 0, so we need 6 days back
+        startOfWeek.setDate(startOfWeek.getDate() - daysToMonday);
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        console.log(`Checking calls between ${startOfWeek.toISOString()} and ${endOfWeek.toISOString()}`);
+        
+        const { data: weeklyCallsData, error: weeklyCallsError } = await supabaseClient
+          .from('call_logs')
+          .select('id')
+          .eq('user_id', call.user_id)
+          .eq('status', 'completed')
+          .gte('created_at', startOfWeek.toISOString())
+          .lte('created_at', endOfWeek.toISOString());
+          
+        if (weeklyCallsError) {
+          console.error(`Error fetching weekly calls for user ${call.user_id}:`, weeklyCallsError);
+          return null;
+        }
+        
+        const currentWeeklyCalls = weeklyCallsData?.length || 0;
+        console.log(`User ${call.user_id} has ${currentWeeklyCalls}/${maxWeeklyCalls} calls this week`);
+        
+        if (currentWeeklyCalls >= maxWeeklyCalls) {
+          console.log(`Excluding call ${call.id} for user ${call.user_id}: weekly limit reached (${currentWeeklyCalls}/${maxWeeklyCalls})`);
+          return null;
+        }
+        
+        console.log(`Including call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
+        // Add user_summary and call duration limit to the call object
+        call.user_summary = userSummary;
+        call.max_call_duration_minutes = maxCallDurationMinutes;
+        return call;
       }));
       
-      // Remove null entries (calls that didn't pass the subscription check)
+      // Remove null entries (calls that didn't pass the subscription/limits check)
       filteredData = filteredData.filter(call => call !== null);
       
       console.log(`After filtering: ${filteredData.length} scheduled calls will be processed`);
@@ -265,6 +326,10 @@ serve(async (req) => {
             console.log(`No Vapi assistant ID found for assistant ${assistantId}, using default: ${vapiAssistantId}`);
           }
           
+          // Calculate max duration in seconds from minutes
+          const maxDurationSeconds = call.max_call_duration_minutes * 60;
+          console.log(`Setting max call duration to ${maxDurationSeconds} seconds (${call.max_call_duration_minutes} minutes) for user ${call.user_id}`);
+          
           // Prepare Vapi API call payload with empty string as firstMessage
           const vapiPayload = {
             "assistantId": vapiAssistantId,
@@ -285,7 +350,7 @@ serve(async (req) => {
                 "user_summary": call.user_summary || "",
                 "call_context": call.context || ""
               },
-              "maxDurationSeconds": 120,
+              "maxDurationSeconds": maxDurationSeconds,
               "firstMessage": "" // Empty string as requested
             }
           };
@@ -297,6 +362,7 @@ serve(async (req) => {
           console.log(`Custom Instructions: ${customInstructions}`);
           console.log(`User Summary: ${call.user_summary || 'No summary available'}`);
           console.log(`Call Context: ${call.context || 'No context available'}`);
+          console.log(`Max Duration: ${maxDurationSeconds} seconds (${call.max_call_duration_minutes} minutes)`);
           console.log(`Using empty string as greeting`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Assistant behavior: ${assistantBehavior}`);
