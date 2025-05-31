@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -258,7 +259,8 @@ serve(async (req) => {
                 "template_instructions": templateInstructions,
                 "coaching_guidelines": coachingGuidelines,
                 "assistant_name": assistantName,
-                "user_summary": call.user_summary || ""
+                "user_summary": call.user_summary || "",
+                "call_context": call.context || ""
               },
               "maxDurationSeconds": 120,
               "firstMessage": "" // Empty string as requested
@@ -271,6 +273,7 @@ serve(async (req) => {
           console.log(`Coaching Guidelines: ${coachingGuidelines}`);
           console.log(`Custom Instructions: ${customInstructions}`);
           console.log(`User Summary: ${call.user_summary || 'No summary available'}`);
+          console.log(`Call Context: ${call.context || 'No context available'}`);
           console.log(`Using empty string as greeting`);
           console.log(`Using Vapi assistant ID: ${vapiAssistantId}`);
           console.log(`Assistant behavior: ${assistantBehavior}`);

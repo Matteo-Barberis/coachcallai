@@ -338,6 +338,7 @@ export type Database = {
       }
       scheduled_calls: {
         Row: {
+          context: string | null
           created_at: string | null
           execution_timestamp: string | null
           goal_id: string | null
@@ -350,6 +351,7 @@ export type Database = {
           weekday: number | null
         }
         Insert: {
+          context?: string | null
           created_at?: string | null
           execution_timestamp?: string | null
           goal_id?: string | null
@@ -362,6 +364,7 @@ export type Database = {
           weekday?: number | null
         }
         Update: {
+          context?: string | null
           created_at?: string | null
           execution_timestamp?: string | null
           goal_id?: string | null
