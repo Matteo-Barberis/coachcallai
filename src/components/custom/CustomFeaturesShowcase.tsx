@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PhoneCall, MessageCircle, Heart, Brain, Clock, Zap } from 'lucide-react';
 import { useTheme } from "@/hooks/useTheme";
@@ -33,7 +34,7 @@ const CustomFeaturesShowcase = () => {
     {
       icon: <Clock className="w-8 h-8" />,
       title: "Proactive Check-ins",
-      description: "Your AI companion reaches out regularly to see how your day is going, offering support before you even need to ask.",
+      description: "Your AI companion reaches out regularly on WhatsApp to see how your day is going, offering support before you even need to ask.",
       highlight: "Reaches out first"
     },
     {
