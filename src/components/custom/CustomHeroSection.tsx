@@ -6,24 +6,22 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from '@/context/SessionContext';
 import { useTheme } from "@/hooks/useTheme";
 import ModeSwitcher from '@/components/ModeSwitcher';
+
 const CustomHeroSection = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const {
-    session
-  } = useSessionContext();
+  const { session } = useSessionContext();
   const location = useLocation();
   const theme = useTheme();
   const [rotatingWord, setRotatingWord] = useState("Connected");
   const [fadeState, setFadeState] = useState("fade-in");
   const rotatingWords = ["Connected", "Supported", "Understood", "Heard", "Guided", "Comforted", "Empowered"];
+  
   useEffect(() => {
     const interval = setInterval(() => {
       // First fade out
       setFadeState("fade-out");
-
+      
       // Then change word and fade in
       setTimeout(() => {
         setRotatingWord(prevWord => {
@@ -33,10 +31,12 @@ const CustomHeroSection = () => {
         });
         setFadeState("fade-in");
       }, 300); // This should match the transition duration
+      
     }, 3000); // Slightly longer display time for better readability
-
+    
     return () => clearInterval(interval);
   }, []);
+
   const handleButtonClick = () => {
     if (session) {
       navigate('/dashboard');
@@ -44,7 +44,9 @@ const CustomHeroSection = () => {
       navigate('/auth/sign-up');
     }
   };
-  return <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-indigo-50/30 via-purple-50/40 to-indigo-100/60 py-[24px]">
+
+  return (
+    <section className="pt-12 pb-16 px-4 md:pt-20 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-indigo-50/30 via-purple-50/40 to-indigo-100/60">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         {/* Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
@@ -52,13 +54,16 @@ const CustomHeroSection = () => {
             <ModeSwitcher />
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
               Stay {' '}
-              <span className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`} style={{
-              transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
-              opacity: fadeState === 'fade-in' ? 1 : 0,
-              transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text'
-            }}>{rotatingWord}</span> <br />
+              <span 
+                className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
+                style={{
+                  transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+                  opacity: fadeState === 'fade-in' ? 1 : 0,
+                  transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                }}
+              >{rotatingWord}</span> <br />
               with Your AI Companion
             </h1>
             
@@ -67,10 +72,17 @@ const CustomHeroSection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`} onClick={handleButtonClick}>
+              <Button 
+                className={`text-base md:text-lg py-6 px-8 ${theme.gradient} hover:opacity-90`}
+                onClick={handleButtonClick}
+              >
                 {session ? "Go to Dashboard" : "Create Your AI Companion"}
               </Button>
-              <Button variant="outline" className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`} onClick={() => window.location.href = "#how-it-works"}>
+              <Button 
+                variant="outline" 
+                className={`text-base md:text-lg py-6 px-8 ${theme.border} ${theme.primary} ${theme.hover}`}
+                onClick={() => window.location.href = "#how-it-works"}
+              >
                 See How It Works
               </Button>
             </div>
@@ -201,27 +213,15 @@ const CustomHeroSection = () => {
           </div>
           
           {/* Background decorative elements - Indigo/Purple theme with enhanced floating */}
-          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50" style={{
-          animation: 'float 8s ease-in-out infinite'
-        }}></div>
-          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-indigo-300 rounded-full opacity-50" style={{
-          animation: 'float 8s ease-in-out infinite',
-          animationDelay: '2s'
-        }}></div>
-          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full opacity-50" style={{
-          animation: 'float 8s ease-in-out infinite',
-          animationDelay: '4s'
-        }}></div>
-          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-purple-300 to-indigo-400 rounded-full opacity-40" style={{
-          animation: 'float 10s ease-in-out infinite',
-          animationDelay: '1s'
-        }}></div>
-          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40" style={{
-          animation: 'float 10s ease-in-out infinite',
-          animationDelay: '3s'
-        }}></div>
+          <div className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite' }}></div>
+          <div className="absolute bottom-8 left-4 w-16 h-16 bg-gradient-to-r from-purple-200 to-indigo-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full opacity-50" style={{ animation: 'float 8s ease-in-out infinite', animationDelay: '4s' }}></div>
+          <div className="absolute top-8 left-8 w-8 h-8 bg-gradient-to-r from-purple-300 to-indigo-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-4 right-8 w-6 h-6 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40" style={{ animation: 'float 10s ease-in-out infinite', animationDelay: '3s' }}></div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default CustomHeroSection;
