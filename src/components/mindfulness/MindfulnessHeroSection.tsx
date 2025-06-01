@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart, Star, Sun, PhoneCall, MessageCircle, TrendingUp } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
@@ -11,6 +10,29 @@ const MindfulnessHeroSection = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { session } = useSessionContext();
+  const [rotatingWord, setRotatingWord] = useState("Inner Peace");
+  const [fadeState, setFadeState] = useState("fade-in");
+  const rotatingWords = ["Inner Peace", "Self Love", "Mindfulness"];
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // First fade out
+      setFadeState("fade-out");
+      
+      // Then change word and fade in
+      setTimeout(() => {
+        setRotatingWord(prevWord => {
+          const currentIndex = rotatingWords.indexOf(prevWord);
+          const nextIndex = (currentIndex + 1) % rotatingWords.length;
+          return rotatingWords[nextIndex];
+        });
+        setFadeState("fade-in");
+      }, 300); // This should match the transition duration
+      
+    }, 3000); // Slightly longer display time for better readability
+    
+    return () => clearInterval(interval);
+  }, []);
   
   const handleGetStarted = () => {
     if (session) {
@@ -29,7 +51,17 @@ const MindfulnessHeroSection = () => {
             <div>
               <ModeSwitcher />
               <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
-                Your Personal AI Companion for Inner Peace
+                Your Personal AI Companion for {' '}
+                <span 
+                  className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
+                  style={{
+                    transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
+                    opacity: fadeState === 'fade-in' ? 1 : 0,
+                    transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                  }}
+                >{rotatingWord}</span>
               </h1>
               
               <p className="text-lg md:text-xl text-gray-600 mb-8">
