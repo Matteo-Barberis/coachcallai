@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { PhoneCall, MessageCircle, Heart, Brain, Shield, Zap } from 'lucide-react';
+import { PhoneCall, MessageCircle, Heart, Brain, Clock, Zap } from 'lucide-react';
 import { useTheme } from "@/hooks/useTheme";
 
 const CustomFeaturesShowcase = () => {
@@ -32,10 +31,10 @@ const CustomFeaturesShowcase = () => {
       highlight: "Learns from every chat"
     },
     {
-      icon: <Shield className="w-8 h-8" />,
-      title: "Private & Secure",
-      description: "Your conversations stay between you and your AI companion. No data selling, no privacy concerns — just genuine support.",
-      highlight: "Your data stays yours"
+      icon: <Clock className="w-8 h-8" />,
+      title: "Proactive Check-ins",
+      description: "Your AI companion reaches out regularly to see how your day is going, offering support before you even need to ask.",
+      highlight: "Reaches out first"
     },
     {
       icon: <Zap className="w-8 h-8" />,
