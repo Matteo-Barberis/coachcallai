@@ -29,23 +29,28 @@ const ModeSwitcher = () => {
   };
 
   return (
-    <div className="flex items-center space-x-8 text-sm font-medium text-gray-500 mb-8">
-      {modes.map((mode) => (
-        <button
-          key={mode.key}
-          onClick={() => navigate(mode.path)}
-          className={`relative pb-2 transition-colors hover:text-gray-700 ${
-            currentMode === mode.key ? 'text-gray-900' : ''
-          }`}
-        >
-          {mode.label}
-          {currentMode === mode.key && (
-            <div 
-              className={`absolute bottom-0 left-0 right-0 h-0.5 ${getUnderlineColor(mode.key)}`}
-            />
-          )}
-        </button>
-      ))}
+    <div className="mb-8">
+      <div className="flex items-center justify-center space-x-8 text-sm font-medium text-gray-500">
+        {modes.map((mode) => (
+          <button
+            key={mode.key}
+            onClick={() => navigate(mode.path)}
+            className={`relative pb-2 transition-colors hover:text-gray-700 ${
+              currentMode === mode.key ? 'text-gray-900' : ''
+            }`}
+          >
+            {mode.label}
+            {currentMode === mode.key && (
+              <div 
+                className={`absolute bottom-0 left-0 right-0 h-0.5 ${getUnderlineColor(mode.key)}`}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+      <div className="text-center mt-2">
+        <span className="text-xs text-gray-400 font-normal">3 modes available • switch anytime!</span>
+      </div>
     </div>
   );
 };
