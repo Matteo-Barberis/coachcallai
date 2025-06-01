@@ -147,17 +147,3 @@
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
-
-/* Mobile sticky CTA with safe area support */
-.sticky-cta-mobile {
-  bottom: env(safe-area-inset-bottom, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Ensure proper viewport handling on mobile */
-@supports (height: 100dvh) {
-  .min-h-screen {
-    min-height: 100dvh;
-  }
-}
-
