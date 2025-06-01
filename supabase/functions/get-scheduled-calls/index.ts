@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.0";
 
@@ -75,10 +74,12 @@ serve(async (req) => {
     
     // Filter scheduled calls based on user subscription status and call limits
     let filteredData = [];
+    let limitExceededUsers = []; // Track users who exceeded limits
+    
     if (data && data.length > 0) {
       console.log('Filtering calls based on user subscription status and call limits...');
       
-      filteredData = await Promise.all(data.map(async (call) => {
+      const processingResults = await Promise.all(data.map(async (call) => {
         // Get user profile with subscription information and user_summary
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
@@ -88,7 +89,7 @@ serve(async (req) => {
           
         if (profileError) {
           console.error(`Error fetching profile data for user ${call.user_id}:`, profileError);
-          return null;
+          return { call: null, limitExceeded: false };
         }
         
         const subscriptionStatus = profileData?.subscription_status;
@@ -111,7 +112,7 @@ serve(async (req) => {
         
         if (!isValid) {
           console.log(`Excluding call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
-          return null;
+          return { call: null, limitExceeded: false };
         }
 
         // Get subscription limits
@@ -138,52 +139,52 @@ serve(async (req) => {
           console.log(`User ${call.user_id} on trial: ${maxWeeklyCalls} calls/week, ${maxCallDurationMinutes} minutes/call`);
         }
 
-        // Check weekly call count (calendar week: Monday to Sunday)
+        // Check weekly call count using the same function as frontend
         console.log(`Checking weekly call count for user ${call.user_id}`);
-        const startOfWeek = new Date();
-        const dayOfWeek = startOfWeek.getDay();
-        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Sunday = 0, so we need 6 days back
-        startOfWeek.setDate(startOfWeek.getDate() - daysToMonday);
-        startOfWeek.setHours(0, 0, 0, 0);
-        
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(endOfWeek.getDate() + 6);
-        endOfWeek.setHours(23, 59, 59, 999);
-        
-        console.log(`Checking calls between ${startOfWeek.toISOString()} and ${endOfWeek.toISOString()}`);
-        
-        const { data: weeklyCallsData, error: weeklyCallsError } = await supabaseClient
-          .from('call_logs')
-          .select('id')
-          .eq('user_id', call.user_id)
-          .eq('status', 'completed')
-          .gte('created_at', startOfWeek.toISOString())
-          .lte('created_at', endOfWeek.toISOString());
+        const { data: currentWeeklyCalls, error: weeklyCallsError } = await supabaseClient.rpc('get_user_weekly_calls', {
+          p_user_id: call.user_id
+        });
           
         if (weeklyCallsError) {
           console.error(`Error fetching weekly calls for user ${call.user_id}:`, weeklyCallsError);
-          return null;
+          return { call: null, limitExceeded: false };
         }
         
-        const currentWeeklyCalls = weeklyCallsData?.length || 0;
         console.log(`User ${call.user_id} has ${currentWeeklyCalls}/${maxWeeklyCalls} calls this week`);
         
         if (currentWeeklyCalls >= maxWeeklyCalls) {
           console.log(`Excluding call ${call.id} for user ${call.user_id}: weekly limit reached (${currentWeeklyCalls}/${maxWeeklyCalls})`);
-          return null;
+          return { 
+            call: null, 
+            limitExceeded: true, 
+            userId: call.user_id, 
+            currentCalls: currentWeeklyCalls, 
+            maxCalls: maxWeeklyCalls 
+          };
         }
         
         console.log(`Including call ${call.id} for user ${call.user_id} with subscription status: ${subscriptionStatus}`);
         // Add user_summary and call duration limit to the call object
         call.user_summary = userSummary;
         call.max_call_duration_minutes = maxCallDurationMinutes;
-        return call;
+        return { call, limitExceeded: false };
       }));
       
-      // Remove null entries (calls that didn't pass the subscription/limits check)
-      filteredData = filteredData.filter(call => call !== null);
+      // Separate successful calls from limit exceeded users
+      processingResults.forEach(result => {
+        if (result.call) {
+          filteredData.push(result.call);
+        } else if (result.limitExceeded) {
+          limitExceededUsers.push({
+            userId: result.userId,
+            currentCalls: result.currentCalls,
+            maxCalls: result.maxCalls
+          });
+        }
+      });
       
       console.log(`After filtering: ${filteredData.length} scheduled calls will be processed`);
+      console.log(`Users who exceeded limits: ${limitExceededUsers.length}`);
     }
     
     // Get Vapi API Key from environment
@@ -511,9 +512,30 @@ serve(async (req) => {
       });
     }
     
-    // Return the filtered data
+    // Determine response status
+    let responseStatus = {
+      success: true,
+      reason: "calls_scheduled",
+      calls_processed: filteredData.length,
+      limit_exceeded_users: limitExceededUsers
+    };
+
+    // If this was a specific call request and it was filtered out due to limits
+    if (specificCallId && filteredData.length === 0 && limitExceededUsers.length > 0) {
+      responseStatus = {
+        success: false,
+        reason: "weekly_limit_exceeded",
+        calls_processed: 0,
+        limit_exceeded_users: limitExceededUsers
+      };
+    }
+    
+    // Return the filtered data with status
     return new Response(
-      JSON.stringify({ data: filteredData }),
+      JSON.stringify({ 
+        data: filteredData,
+        status: responseStatus
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,

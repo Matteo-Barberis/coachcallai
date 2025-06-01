@@ -377,12 +377,30 @@ serve(async (req) => {
         
         if (callError) {
           console.error('Error calling get-scheduled-calls function:', callError);
-        } else {
-          console.log('Successfully triggered get-scheduled-calls function:', callResult);
+          throw new Error(`Failed to trigger call: ${callError.message}`);
         }
         
-        // Send confirmation message to user
-        const confirmationMessage = "Perfect! I'm setting up your call right now. You should receive a call within the next few minutes.";
+        console.log('Get-scheduled-calls function response:', callResult);
+        
+        // Check the response status to determine what message to send
+        let confirmationMessage = "Perfect! I'm setting up your call right now. You should receive a call within the next few minutes.";
+        
+        if (callResult?.status && !callResult.status.success) {
+          if (callResult.status.reason === 'weekly_limit_exceeded') {
+            const limitInfo = callResult.status.limit_exceeded_users?.[0];
+            if (limitInfo) {
+              confirmationMessage = `Sorry, you've reached your weekly call limit of ${limitInfo.maxCalls} calls. You currently have ${limitInfo.currentCalls} calls this week. Your limit resets on Monday.`;
+            } else {
+              confirmationMessage = "Sorry, you've reached your weekly call limit. Your limit resets on Monday.";
+            }
+            console.log('Call not triggered due to weekly limit exceeded');
+          } else {
+            confirmationMessage = "Sorry, I encountered an issue setting up your call. Please try again in a moment.";
+            console.log('Call not triggered for other reason:', callResult.status.reason);
+          }
+        } else {
+          console.log('Call successfully triggered');
+        }
         
         const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID');
         const whatsappApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
@@ -433,7 +451,7 @@ serve(async (req) => {
         }
         
         return new Response(
-          JSON.stringify({ status: 'success', message: 'Call scheduled and triggered' }),
+          JSON.stringify({ status: 'success', message: 'Call request processed' }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200,
