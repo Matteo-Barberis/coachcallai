@@ -53,7 +53,7 @@ const CustomHeroSection = () => {
           <div>
             <ModeSwitcher />
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
-              The AI companion that's always by your side
+              The AI Companion That's Always By Your Side
             </h1>
             
             <p className="text-lg md:text-xl text-gray-600 mb-8">
