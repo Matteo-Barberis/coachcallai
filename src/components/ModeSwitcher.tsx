@@ -2,7 +2,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
-import { ChevronDown } from 'lucide-react';
 
 const ModeSwitcher = () => {
   const navigate = useNavigate();
@@ -32,15 +31,12 @@ const ModeSwitcher = () => {
   return (
     <div className="mb-8">
       {/* Simple indicator */}
-      <div className="flex items-center justify-center mb-3">
-        <div className="flex items-center space-x-2 text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-          <span>3 Modes Available</span>
-          <ChevronDown className="w-3 h-3" />
-        </div>
+      <div className="text-center mb-4">
+        <span className="text-xs text-gray-400 font-medium">3 Modes Available</span>
       </div>
       
       {/* Mode switcher */}
-      <div className="flex items-center space-x-8 text-sm font-medium text-gray-500">
+      <div className="flex items-center justify-center space-x-8 text-sm font-medium text-gray-500">
         {modes.map((mode) => (
           <button
             key={mode.key}
