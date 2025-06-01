@@ -15,7 +15,7 @@ const CustomHeroSection = () => {
   const theme = useTheme();
   const [rotatingWord, setRotatingWord] = useState("Always");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Always", "Growing", "Learning", "Evolving", "Adapting", "Supporting", "Guiding"];
+  const rotatingWords = ["Always", "Growing", "Learning", "Evolving"];
   
   useEffect(() => {
     const interval = setInterval(() => {
