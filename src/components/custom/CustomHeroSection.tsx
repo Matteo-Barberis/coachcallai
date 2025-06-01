@@ -13,9 +13,9 @@ const CustomHeroSection = () => {
   const { session } = useSessionContext();
   const location = useLocation();
   const theme = useTheme();
-  const [rotatingWord, setRotatingWord] = useState("Always");
+  const [rotatingWord, setRotatingWord] = useState("Connected");
   const [fadeState, setFadeState] = useState("fade-in");
-  const rotatingWords = ["Always", "Growing", "Learning", "Evolving"];
+  const rotatingWords = ["Connected", "Supported", "Understood", "Heard", "Guided", "Comforted", "Empowered"];
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,7 +53,7 @@ const CustomHeroSection = () => {
           <div>
             <ModeSwitcher />
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
-              The AI Companion That's {' '}
+              Stay {' '}
               <span 
                 className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
                 style={{
@@ -64,7 +64,7 @@ const CustomHeroSection = () => {
                   WebkitBackgroundClip: 'text',
                 }}
               >{rotatingWord}</span> <br />
-              By Your Side
+              with Your AI Companion
             </h1>
             
             <p className="text-lg md:text-xl text-gray-600 mb-8">
