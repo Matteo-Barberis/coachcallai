@@ -29,7 +29,7 @@ const ModeSwitcher = () => {
   };
 
   return (
-    <div className="flex items-center space-x-8 text-sm font-medium text-gray-500 mb-8">
+    <div className="flex items-center space-x-8 text-sm font-medium text-gray-500 mb-4">
       {modes.map((mode) => (
         <button
           key={mode.key}
