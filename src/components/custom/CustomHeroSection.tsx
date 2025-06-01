@@ -53,18 +53,7 @@ const CustomHeroSection = () => {
           <div>
             <ModeSwitcher />
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${theme.titleGradient}`}>
-              Stay {' '}
-              <span 
-                className={`inline-block relative ${fadeState} border-b-2 ${theme.border} pb-1 ${theme.primary}`}
-                style={{
-                  transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
-                  opacity: fadeState === 'fade-in' ? 1 : 0,
-                  transform: fadeState === 'fade-in' ? 'translateY(0)' : 'translateY(10px)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                }}
-              >{rotatingWord}</span> <br />
-              with Your AI Companion
+              The AI companion that's always by your side
             </h1>
             
             <p className="text-lg md:text-xl text-gray-600 mb-8">
