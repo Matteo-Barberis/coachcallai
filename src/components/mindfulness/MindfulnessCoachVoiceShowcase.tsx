@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -11,24 +12,9 @@ import { useNavigate } from "react-router-dom";
 // Mindfulness mode ID - updated to use the correct database ID
 const MINDFULNESS_MODE_ID = "d26fec70-6a76-43fe-9077-6b1ae598dcca";
 
-const coachPersonalities = {
-  "empathetic": {
-    name: "Compassionate Guide",
-    description: "A gentle, nurturing presence that offers deep empathy and understanding. This companion provides emotional support with warmth and helps you process feelings with loving kindness."
-  },
-  "results": {
-    name: "Mindful Motivator", 
-    description: "Combines gentle encouragement with purposeful guidance. This companion helps you build positive habits and mindful practices while maintaining a supportive, non-judgmental approach."
-  },
-  "friendly": {
-    name: "Peaceful Friend",
-    description: "A warm, uplifting companion that brings joy and positivity to your days. This friend celebrates your journey with genuine enthusiasm and offers constant encouragement for your well-being."
-  }
-};
-
 const MindfulnessCoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
-  const [activePersonality, setActivePersonality] = useState<string>("empathetic");
+  const [activePersonality, setActivePersonality] = useState<any>(null);
   const [coachName, setCoachName] = useState<string>("Your Companion");
   const { session } = useSessionContext();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,28 +24,34 @@ const MindfulnessCoachVoiceShowcase = () => {
   
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
-    setActivePersonality(personalityType);
-    fetchCoachName(coachId);
+    fetchCoachData(coachId);
   };
 
-  const fetchCoachName = async (coachId: string) => {
+  const fetchCoachData = async (coachId: string) => {
     try {
       const { data, error } = await supabase
         .from('assistants')
-        .select('name')
+        .select(`
+          name,
+          personalities (
+            name,
+            behaviour_summary
+          )
+        `)
         .eq('id', coachId)
         .single();
       
       if (error) {
-        console.error("Error fetching coach name:", error);
+        console.error("Error fetching coach data:", error);
         return;
       }
       
       if (data) {
         setCoachName(data.name);
+        setActivePersonality(data.personalities);
       }
     } catch (error) {
-      console.error("Error fetching coach name:", error);
+      console.error("Error fetching coach data:", error);
     }
   };
 
@@ -165,14 +157,16 @@ const MindfulnessCoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Presence</h4>
                   <div className="space-y-4">
-                    <div className="bg-purple-50 rounded-lg p-4 border border-purple-100 animate-fadeIn">
-                      <h5 className="font-semibold text-purple-600">
-                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
-                      </h5>
-                      <p className="text-gray-600 mt-1">
-                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
-                      </p>
-                    </div>
+                    {activePersonality && (
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-100 animate-fadeIn">
+                        <h5 className="font-semibold text-purple-600">
+                          {activePersonality.name}
+                        </h5>
+                        <p className="text-gray-600 mt-1">
+                          {activePersonality.behaviour_summary}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

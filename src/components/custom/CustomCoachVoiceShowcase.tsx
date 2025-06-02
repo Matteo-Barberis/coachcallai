@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -12,25 +13,10 @@ import { useTheme } from "@/hooks/useTheme";
 // Custom mode ID - updated to use the correct database ID
 const CUSTOM_MODE_ID = "cc5d220e-d1d1-4d5c-b865-f5ff78c70e7d";
 
-const coachPersonalities = {
-  "empathetic": {
-    name: "Empathetic Supporter",
-    description: "Focuses on emotional well-being and positive reinforcement. This companion listens deeply, validates your feelings, and encourages self-compassion while gently guiding you toward your goals."
-  },
-  "results": {
-    name: "Results-Driven Motivator",
-    description: "Direct, focused on metrics and clear outcomes. This companion delivers honest feedback, challenges you to push beyond comfort zones, and emphasizes accountability to achieve measurable results."
-  },
-  "friendly": {
-    name: "Friendly Encourager",
-    description: "Provides positive, uplifting feedback and motivational support. This companion celebrates your wins, offers encouraging words during setbacks, and maintains an optimistic outlook to keep you inspired."
-  }
-};
-
 const CustomCoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
-  const [activePersonality, setActivePersonality] = useState<string>("empathetic"); // Default to empathetic
-  const [coachName, setCoachName] = useState<string>("Companion"); // Default companion name
+  const [activePersonality, setActivePersonality] = useState<any>(null);
+  const [coachName, setCoachName] = useState<string>("Companion");
   const {
     session
   } = useSessionContext();
@@ -42,25 +28,34 @@ const CustomCoachVoiceShowcase = () => {
 
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
-    setActivePersonality(personalityType);
-    fetchCoachName(coachId);
+    fetchCoachData(coachId);
   };
 
-  const fetchCoachName = async (coachId: string) => {
+  const fetchCoachData = async (coachId: string) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('assistants').select('name').eq('id', coachId).single();
+      const { data, error } = await supabase
+        .from('assistants')
+        .select(`
+          name,
+          personalities (
+            name,
+            behaviour_summary
+          )
+        `)
+        .eq('id', coachId)
+        .single();
+      
       if (error) {
-        console.error("Error fetching companion name:", error);
+        console.error("Error fetching coach data:", error);
         return;
       }
+      
       if (data) {
         setCoachName(data.name);
+        setActivePersonality(data.personalities);
       }
     } catch (error) {
-      console.error("Error fetching companion name:", error);
+      console.error("Error fetching coach data:", error);
     }
   };
 
@@ -153,14 +148,16 @@ const CustomCoachVoiceShowcase = () => {
                 <CardContent className="p-6">
                   <h4 className="font-medium text-lg mb-3">{coachName}'s Personality</h4>
                   <div className="space-y-4">
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
-                      <h5 className={`font-semibold ${theme.primary}`}>
-                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.name}
-                      </h5>
-                      <p className="text-gray-600 mt-1">
-                        {coachPersonalities[activePersonality as keyof typeof coachPersonalities]?.description}
-                      </p>
-                    </div>
+                    {activePersonality && (
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 animate-fadeIn">
+                        <h5 className={`font-semibold ${theme.primary}`}>
+                          {activePersonality.name}
+                        </h5>
+                        <p className="text-gray-600 mt-1">
+                          {activePersonality.behaviour_summary}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
