@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -9,8 +8,8 @@ import { useSessionContext } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-// Mindfulness mode ID (you'll need to update this with the actual ID)
-const MINDFULNESS_MODE_ID = "mindfulness-mode-id";
+// Mindfulness mode ID - updated to use the correct database ID
+const MINDFULNESS_MODE_ID = "d26fec70-6a76-43fe-9077-6b1ae598dcca";
 
 const coachPersonalities = {
   "empathetic": {

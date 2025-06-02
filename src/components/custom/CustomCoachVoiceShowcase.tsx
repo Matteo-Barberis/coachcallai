@@ -9,8 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 
-// Hardcoded accountability mode ID as requested
-const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
+// Custom mode ID - updated to use the correct database ID
+const CUSTOM_MODE_ID = "cc5d220e-d1d1-4d5c-b865-f5ff78c70e7d";
 
 const coachPersonalities = {
   "empathetic": {
@@ -140,7 +140,7 @@ const CustomCoachVoiceShowcase = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <CoachSelect onCoachSelect={handleCoachSelect} defaultPersonalityType={!session ? "empathetic" : undefined} suppressToast={true} modeId={ACCOUNTABILITY_MODE_ID} />
+                  <CoachSelect onCoachSelect={handleCoachSelect} defaultPersonalityType={!session ? "empathetic" : undefined} suppressToast={true} modeId={CUSTOM_MODE_ID} />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice
                   </p>
