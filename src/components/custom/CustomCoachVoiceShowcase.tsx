@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Volume2, UserRound, Play, Pause } from 'lucide-react';
@@ -12,7 +11,6 @@ import { useTheme } from "@/hooks/useTheme";
 
 // Hardcoded accountability mode ID as requested
 const ACCOUNTABILITY_MODE_ID = "a62991a7-2e22-4f17-bd3c-4752a5b6b13a";
-
 const coachPersonalities = {
   "empathetic": {
     name: "Empathetic Supporter",
@@ -27,38 +25,33 @@ const coachPersonalities = {
     description: "Provides positive, uplifting feedback and motivational support. This coach celebrates your wins, offers encouraging words during setbacks, and maintains an optimistic outlook to keep you inspired."
   }
 };
-
 const CustomCoachVoiceShowcase = () => {
   const [activeCoach, setActiveCoach] = useState<string | null>(null);
   const [activePersonality, setActivePersonality] = useState<string>("empathetic"); // Default to empathetic
   const [coachName, setCoachName] = useState<string>("Coach"); // Default coach name
-  const { session } = useSessionContext();
+  const {
+    session
+  } = useSessionContext();
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
-  
   const handleCoachSelect = (coachId: string, personalityType: string) => {
     setActiveCoach(coachId);
     setActivePersonality(personalityType);
-    
     fetchCoachName(coachId);
   };
-
   const fetchCoachName = async (coachId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('assistants')
-        .select('name')
-        .eq('id', coachId)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('assistants').select('name').eq('id', coachId).single();
       if (error) {
         console.error("Error fetching coach name:", error);
         return;
       }
-      
       if (data) {
         setCoachName(data.name);
       }
@@ -66,34 +59,27 @@ const CustomCoachVoiceShowcase = () => {
       console.error("Error fetching coach name:", error);
     }
   };
-
   useEffect(() => {
     if (!audio) {
       const sampleAudio = new Audio();
-      
       sampleAudio.oncanplaythrough = () => {
         console.log("Audio has loaded and can be played");
         setAudioLoaded(true);
       };
-      
-      sampleAudio.onerror = (e) => {
+      sampleAudio.onerror = e => {
         console.error("Error loading audio:", e);
         console.error("Audio error details:", sampleAudio.error);
         setAudioLoaded(false);
       };
-      
       sampleAudio.onended = () => {
         setIsPlaying(false);
       };
-      
+
       // Update the audio source to the specific Supabase storage URL
       sampleAudio.src = "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/call_sample.mp3";
-      
       sampleAudio.load();
-      
       setAudio(sampleAudio);
     }
-    
     return () => {
       if (audio) {
         audio.pause();
@@ -101,34 +87,27 @@ const CustomCoachVoiceShowcase = () => {
       }
     };
   }, []);
-
   const handlePlaySampleCall = () => {
     if (!audio) return;
-    
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
     } else {
       audio.play().then(() => {
         setIsPlaying(true);
-      }).catch((error) => {
+      }).catch(error => {
         console.error("Error playing audio:", error);
       });
     }
   };
-
   const handleSignupNavigation = () => {
     navigate('/auth/sign-up');
   };
-
-  return (
-    <section className="py-20 px-4 bg-white">
+  return <section className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme.titleGradient}`}>Choose Your Perfect AI Companion</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choose a coach with a voice and personality that resonates with you or create your own
-          </p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">Choose a companion with a voice and personality that resonates with you or create your own</p>
         </div>
         
         <div className="bg-gray-50 rounded-xl shadow-lg p-8 border border-gray-200">
@@ -153,12 +132,8 @@ const CustomCoachVoiceShowcase = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <CoachSelect 
-                    onCoachSelect={handleCoachSelect} 
-                    defaultPersonalityType={!session ? "empathetic" : undefined}
-                    suppressToast={true}
-                    modeId={ACCOUNTABILITY_MODE_ID} // Pass the hardcoded mode ID
-                  />
+                  <CoachSelect onCoachSelect={handleCoachSelect} defaultPersonalityType={!session ? "empathetic" : undefined} suppressToast={true} modeId={ACCOUNTABILITY_MODE_ID} // Pass the hardcoded mode ID
+                />
                   <p className="text-sm text-gray-500 italic ml-4">
                     Click the speaker icon to hear the voice
                   </p>
@@ -186,38 +161,24 @@ const CustomCoachVoiceShowcase = () => {
               <div className="mt-6 bg-gray-50 rounded-lg border border-gray-200 p-6">
                 <h4 className="font-medium text-lg mb-4">Hear a Real Coaching Call</h4>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                  <Button 
-                    onClick={handlePlaySampleCall}
-                    variant="outline" 
-                    size="sm"
-                    className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${theme.border} ${theme.primary} ${theme.hover} mx-auto sm:mx-0`}
-                    disabled={!audioLoaded}
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-6 w-6" />
-                    ) : (
-                      <Play className="h-6 w-6" />
-                    )}
+                  <Button onClick={handlePlaySampleCall} variant="outline" size="sm" className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${theme.border} ${theme.primary} ${theme.hover} mx-auto sm:mx-0`} disabled={!audioLoaded}>
+                    {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                   </Button>
                   <div>
                     <p className="font-medium text-center sm:text-left">Sample Accountability Call</p>
                     <p className="text-sm text-gray-500 text-center sm:text-left">Listen to how our AI coaches keep users on track</p>
                   </div>
                 </div>
-                {isPlaying && (
-                  <div className="mt-4">
+                {isPlaying && <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div className={`h-full ${theme.progressBg} animate-progress`}></div>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default CustomCoachVoiceShowcase;
