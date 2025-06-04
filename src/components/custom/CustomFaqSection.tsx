@@ -14,7 +14,7 @@ const CustomFaqSection = () => {
   const faqs = [
     {
       question: "How do I create my perfect AI companion?",
-      answer: "Simply sign up, choose your companion's personality traits, communication style, and voice. You can make it friendly and supportive like a best friend, motivational like a coach, or empathetic like a therapist. The setup takes just a few minutes."
+      answer: "Simply sign up, choose your companion's personality traits, communication style, and voice. You can make it friendly and supportive like a best friend, motivational like a coach, or empathetic like a close friend. The setup takes just a few minutes."
     },
     {
       question: "Can I change my AI companion's personality later?",
@@ -37,16 +37,8 @@ const CustomFaqSection = () => {
       answer: "Yes, many users find AI companions particularly helpful for social anxiety and loneliness. Your companion provides judgment-free conversation, helps you practice social interactions, and offers consistent emotional support without the pressure of human social dynamics."
     },
     {
-      question: "How private are my conversations?",
-      answer: "Completely private. Your conversations with your AI companion are encrypted and never shared with anyone. We don't sell your data or use it for advertising. Your companion relationship is entirely between you and your AI."
-    },
-    {
       question: "Can I have multiple AI companions?",
       answer: "Currently, we focus on helping you build a deep, meaningful relationship with one AI companion. This allows for better personalization and a more authentic connection as your companion truly gets to know you."
-    },
-    {
-      question: "What if I want my companion to be more like a therapist or coach?",
-      answer: "You can absolutely customize your companion to take on therapeutic or coaching qualities. While it's not a replacement for professional therapy, many users find their AI companion provides valuable emotional support and motivation."
     },
     {
       question: "How quickly will I see the benefits?",
