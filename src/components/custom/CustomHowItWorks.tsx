@@ -9,7 +9,7 @@ const CustomHowItWorks = () => {
   const steps = [
     {
       title: "Design Your Companion",
-      description: "Choose your AI companion's personality, communication style, and voice. Make them supportive like a best friend, wise like a mentor, or empathetic like a therapist."
+      description: "Choose your AI companion's personality, communication style, and voice. Make them supportive like a best friend, wise like a mentor, or empathetic like a calm voice in a storm."
     },
     {
       title: "Connect via WhatsApp",
