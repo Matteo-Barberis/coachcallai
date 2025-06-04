@@ -249,23 +249,14 @@ const Account = () => {
   };
 
   const validatePhoneNumber = (): boolean => {
-    const extractNationalNumber = (value: string) => {
-      const matchedCode = countryCodes.find(c => value.startsWith(c.code));
-      return matchedCode ? value.substring(matchedCode.code.length).trim() : value;
-    };
-    
-    const nationalNumber = extractNationalNumber(phone.replace(/\s+/g, ''));
-    
-    if (!nationalNumber || nationalNumber.length === 0) {
+    if (!phone || phone.trim() === '') {
       setPhoneError('Phone number is required');
       return false;
     }
     
-    const e164Regex = /^\+[1-9]\d{1,14}$/;
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    
-    if (!cleanedPhone || !e164Regex.test(cleanedPhone)) {
-      setPhoneError('Please enter a valid phone number with country code');
+    // Basic validation - the Shadcn component handles detailed validation
+    if (!phone.startsWith('+') || phone.length < 8) {
+      setPhoneError('Please enter a valid phone number');
       return false;
     }
     
@@ -300,8 +291,8 @@ const Account = () => {
                       phone_verification_expires_at?: null, full_name?: string } = {};
       
       if (phone !== initialPhone) {
-        const cleanedPhone = phone.replace(/\s+/g, '');
-        updates.phone = cleanedPhone;
+        // Phone is already in E.164 format from the Shadcn component
+        updates.phone = phone;
         updates.phone_verified = false;
         updates.phone_verification_code = null;
         updates.phone_verification_expires_at = null;
@@ -329,7 +320,7 @@ const Account = () => {
       }
       
       if (phone !== initialPhone) {
-        setInitialPhone(phone.replace(/\s+/g, ''));
+        setInitialPhone(phone);
       }
       
       if (fullName !== initialFullName) {
