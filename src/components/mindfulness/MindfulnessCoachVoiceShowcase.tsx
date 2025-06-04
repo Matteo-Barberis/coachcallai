@@ -17,9 +17,6 @@ const MindfulnessCoachVoiceShowcase = () => {
   const [activePersonality, setActivePersonality] = useState<any>(null);
   const [coachName, setCoachName] = useState<string>("Your Companion");
   const { session } = useSessionContext();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
   
   const handleCoachSelect = (coachId: string, personalityType: string) => {
@@ -52,52 +49,6 @@ const MindfulnessCoachVoiceShowcase = () => {
       }
     } catch (error) {
       console.error("Error fetching coach data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (!audio) {
-      const sampleAudio = new Audio();
-      
-      sampleAudio.oncanplaythrough = () => {
-        console.log("Audio has loaded and can be played");
-        setAudioLoaded(true);
-      };
-      
-      sampleAudio.onerror = (e) => {
-        console.error("Error loading audio:", e);
-        setAudioLoaded(false);
-      };
-      
-      sampleAudio.onended = () => {
-        setIsPlaying(false);
-      };
-      
-      sampleAudio.src = "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/call_sample.mp3";
-      sampleAudio.load();
-      setAudio(sampleAudio);
-    }
-    
-    return () => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    };
-  }, []);
-
-  const handlePlaySampleCall = () => {
-    if (!audio) return;
-    
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error("Error playing audio:", error);
-      });
     }
   };
 
@@ -170,36 +121,6 @@ const MindfulnessCoachVoiceShowcase = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              <div className="mt-6 bg-purple-50 rounded-lg border border-purple-200 p-6">
-                <h4 className="font-medium text-lg mb-4">Hear a Mindful Conversation</h4>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                  <Button 
-                    onClick={handlePlaySampleCall}
-                    variant="outline" 
-                    size="sm"
-                    className="h-12 w-12 mb-3 sm:mb-0 rounded-full border-purple-300 text-purple-600 hover:bg-purple-50 mx-auto sm:mx-0"
-                    disabled={!audioLoaded}
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-6 w-6" />
-                    ) : (
-                      <Play className="h-6 w-6" />
-                    )}
-                  </Button>
-                  <div>
-                    <p className="font-medium text-center sm:text-left">Sample Mindfulness Session</p>
-                    <p className="text-sm text-gray-500 text-center sm:text-left">Experience how your companion guides with gentle care</p>
-                  </div>
-                </div>
-                {isPlaying && (
-                  <div className="mt-4">
-                    <div className="h-2 bg-purple-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-purple-500 animate-progress"></div>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>

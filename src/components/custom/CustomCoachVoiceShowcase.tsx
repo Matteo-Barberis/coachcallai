@@ -20,9 +20,6 @@ const CustomCoachVoiceShowcase = () => {
   const {
     session
   } = useSessionContext();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [audioLoaded, setAudioLoaded] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -56,49 +53,6 @@ const CustomCoachVoiceShowcase = () => {
       }
     } catch (error) {
       console.error("Error fetching coach data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (!audio) {
-      const sampleAudio = new Audio();
-      sampleAudio.oncanplaythrough = () => {
-        console.log("Audio has loaded and can be played");
-        setAudioLoaded(true);
-      };
-      sampleAudio.onerror = e => {
-        console.error("Error loading audio:", e);
-        console.error("Audio error details:", sampleAudio.error);
-        setAudioLoaded(false);
-      };
-      sampleAudio.onended = () => {
-        setIsPlaying(false);
-      };
-
-      // Update the audio source to the specific Supabase storage URL
-      sampleAudio.src = "https://pwiqicyfwvwwgqbxhmvv.supabase.co/storage/v1/object/public/audio/call_sample.mp3";
-      sampleAudio.load();
-      setAudio(sampleAudio);
-    }
-    return () => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    };
-  }, []);
-
-  const handlePlaySampleCall = () => {
-    if (!audio) return;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      audio.play().then(() => {
-        setIsPlaying(true);
-      }).catch(error => {
-        console.error("Error playing audio:", error);
-      });
     }
   };
 
@@ -161,24 +115,6 @@ const CustomCoachVoiceShowcase = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              <div className="mt-6 bg-gray-50 rounded-lg border border-gray-200 p-6">
-                <h4 className="font-medium text-lg mb-4">Hear a Real Companion Call</h4>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                  <Button onClick={handlePlaySampleCall} variant="outline" size="sm" className={`h-12 w-12 mb-3 sm:mb-0 rounded-full ${theme.border} ${theme.primary} ${theme.hover} mx-auto sm:mx-0`} disabled={!audioLoaded}>
-                    {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                  </Button>
-                  <div>
-                    <p className="font-medium text-center sm:text-left">Sample Accountability Call</p>
-                    <p className="text-sm text-gray-500 text-center sm:text-left">Listen to how our AI companions keep users on track</p>
-                  </div>
-                </div>
-                {isPlaying && <div className="mt-4">
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className={`h-full ${theme.progressBg} animate-progress`}></div>
-                    </div>
-                  </div>}
-              </div>
             </div>
           </div>
         </div>
