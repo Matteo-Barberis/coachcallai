@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -28,7 +27,21 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">2. Description of Service</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">2. Age Requirements</h2>
+          <p className="text-gray-600 mb-4">
+            You must be at least 18 years of age to use our Service. By using Coach Call AI, you represent and warrant that you are at least 18 years old.
+          </p>
+          <p className="text-gray-600 mb-4">
+            If you are under 18 years of age, you are not permitted to use the Service under any circumstances. 
+            We do not knowingly collect personal information from individuals under 18 years of age.
+          </p>
+          <p className="text-gray-600 mb-4">
+            If we discover that a user is under 18 years of age, we will immediately terminate their account and delete any personal information we have collected from them.
+          </p>
+        </section>
+        
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">3. Description of Service</h2>
           <p className="text-gray-600 mb-4">
             Coach Call AI provides AI-powered coaching services through WhatsApp messaging and automated phone calls. 
             Our Service is designed to help users set and achieve personal and professional goals through regular 
@@ -40,7 +53,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">3. Account Registration and Security</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">4. Account Registration and Security</h2>
           <p className="text-gray-600 mb-4">
             To use certain features of our Service, you may need to create an account. You are responsible for:
           </p>
@@ -57,7 +70,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">4. WhatsApp Integration and Phone Call Service</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">5. WhatsApp Integration and Phone Call Service</h2>
           <p className="text-gray-600 mb-4">
             By using our WhatsApp messaging and automated phone call features, you agree to:
           </p>
@@ -77,7 +90,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">5. Subscription and Payments</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">6. Subscription and Payments</h2>
           <p className="text-gray-600 mb-4">
             Some aspects of our Service may require a paid subscription. By subscribing to our Service, you agree to:
           </p>
@@ -97,7 +110,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">6. User Conduct and Content</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">7. User Conduct and Content</h2>
           <p className="text-gray-600 mb-4">
             You agree not to use the Service to:
           </p>
@@ -117,7 +130,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">7. Intellectual Property</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">8. Intellectual Property</h2>
           <p className="text-gray-600 mb-4">
             All content, features, and functionality of our Service, including but not limited to text, graphics, logos, 
             icons, images, audio clips, digital downloads, data compilations, and software, are owned by Coach Call AI, 
@@ -131,7 +144,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">8. Limitation of Liability</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">9. Limitation of Liability</h2>
           <p className="text-gray-600 mb-4">
             To the maximum extent permitted by applicable law, Coach Call AI and its officers, directors, employees, agents, 
             and affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, 
@@ -150,7 +163,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">9. Disclaimer of Warranties</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">10. Disclaimer of Warranties</h2>
           <p className="text-gray-600 mb-4">
             The Service is provided "as is" and "as available" without warranties of any kind, whether express or implied. 
             Coach Call AI does not warrant that the Service will be uninterrupted, secure, or error-free, that defects will be corrected, 
@@ -166,7 +179,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">10. Changes to Terms</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">11. Changes to Terms</h2>
           <p className="text-gray-600 mb-4">
             We may modify these Terms from time to time. When we make changes, we will update the "Last Updated" 
             date at the top of this page. We will provide notice of material changes through the Service or by other means.
@@ -177,7 +190,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">11. Termination</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">12. Termination</h2>
           <p className="text-gray-600 mb-4">
             We may terminate or suspend your access to the Service immediately, without prior notice or liability, 
             for any reason, including, without limitation, if you breach these Terms.
@@ -190,7 +203,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">12. Governing Law and Jurisdiction</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">13. Governing Law and Jurisdiction</h2>
           <p className="text-gray-600 mb-4">
             These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], 
             without regard to its conflict of law provisions.
@@ -202,7 +215,7 @@ const TermsOfService = () => {
         </section>
         
         <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">13. Contact Information</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">14. Contact Information</h2>
           <p className="text-gray-600 mb-4">
             If you have any questions about these Terms, please contact us at:
           </p>
