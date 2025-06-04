@@ -351,6 +351,18 @@ const AuthForm = ({ view }: AuthFormProps) => {
         >
           {loading ? 'Processing...' : view === 'sign-in' ? 'Sign In' : 'Create Account'}
         </Button>
+
+        {/* Terms and Privacy Policy text */}
+        <p className="text-xs text-gray-500 text-center mt-4">
+          By continuing, you agree with our{" "}
+          <a href="/terms-of-service" className="text-brand-primary hover:underline">
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a href="/privacy-policy" className="text-brand-primary hover:underline">
+            Privacy Policy
+          </a>
+        </p>
       </form>
 
       <div className="text-center text-sm space-y-2">
