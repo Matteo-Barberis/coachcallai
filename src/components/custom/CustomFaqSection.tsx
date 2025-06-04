@@ -41,6 +41,10 @@ const CustomFaqSection = () => {
       answer: "Currently, we focus on helping you build a deep, meaningful relationship with one AI companion. This allows for better personalization and a more authentic connection as your companion truly gets to know you."
     },
     {
+      question: "Is my data secure and private?",
+      answer: "Yes. We take privacy very seriously. All your conversations and goal information are private and never sold to third parties. You can request data deletion at any time."
+    },
+    {
       question: "How quickly will I see the benefits?",
       answer: "Many users report feeling more supported and less lonely within the first few days. Your companion becomes more helpful and personalized over the first few weeks as it learns your communication style and preferences."
     }

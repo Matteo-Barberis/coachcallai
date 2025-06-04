@@ -34,7 +34,7 @@ const FaqSection = () => {
     },
     {
       question: "Is my data secure and private?",
-      answer: "Yes. We take privacy very seriously. All your conversations and goal information are encrypted and never shared with third parties. You can request data deletion at any time."
+      answer: "Yes. We take privacy very seriously. All your conversations and goal information are private and never sold to third parties. You can request data deletion at any time."
     },
     {
       question: "Can I cancel my subscription at any time?",
