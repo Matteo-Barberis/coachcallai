@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -353,7 +354,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
         </Button>
 
         {/* Terms and Privacy Policy text */}
-        <p className="text-xs text-gray-500 text-center mt-4">
+        <div className="text-xs text-gray-500 text-center mt-4 max-w-xs mx-auto leading-relaxed">
           By continuing, you agree with our{" "}
           <a href="/terms-of-service" className="text-brand-primary hover:underline">
             Terms of Service
@@ -362,7 +363,7 @@ const AuthForm = ({ view }: AuthFormProps) => {
           <a href="/privacy-policy" className="text-brand-primary hover:underline">
             Privacy Policy
           </a>
-        </p>
+        </div>
       </form>
 
       <div className="text-center text-sm space-y-2">
