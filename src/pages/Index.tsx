@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
@@ -21,7 +20,7 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | AI Accountability Partner with Phone Calls & WhatsApp</title>
-        <meta key="accountability-description" name="description" content="Coach Call AI keeps you accountable through WhatsApp messages and phone calls, helping you achieve your goals and build lasting habits." />
+        <meta name="description" content="Coach Call AI keeps you accountable through WhatsApp messages and phone calls, helping you achieve your goals and build lasting habits." />
         <meta key="accountability-og-title" property="og:title" content="Coach Call AI | Your AI Accountability Partner" />
         <meta key="accountability-og-description" property="og:description" content="Coach Call AI keeps you accountable through WhatsApp messages and phone calls, helping you achieve your goals and build lasting habits." />
         <meta key="accountability-og-url" property="og:url" content="https://coachcall.ai/accountability" />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
@@ -20,7 +19,7 @@ const CustomLanding = () => {
     <div className="min-h-screen bg-white">
       <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | Your Personal AI Companion for Life Support & Guidance</title>
-        <meta key="custom-description" name="description" content="Meet your AI companion that's always by your side on WhatsApp and voice calls. Get personalized support, gentle reminders, and empathetic conversations tailored to your unique style and needs." />
+        <meta name="description" content="Meet your AI companion that's always by your side on WhatsApp and voice calls. Get personalized support, gentle reminders, and empathetic conversations tailored to your unique style and needs." />
         <meta key="custom-og-title" property="og:title" content="Coach Call AI | Your Personal AI Companion for Life Support" />
         <meta key="custom-og-description" property="og:description" content="Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it." />
         <meta key="custom-og-url" property="og:url" content="https://coachcall.ai/" />

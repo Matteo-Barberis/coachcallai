@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
@@ -20,7 +19,7 @@ const MindfulnessLanding = () => {
     <div className="min-h-screen bg-white">
       <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | AI Mindfulness Companion for Inner Peace & Self-Love</title>
-        <meta key="mindfulness-description" name="description" content="Your personal AI mindfulness companion for daily guidance, gratitude practices, and mindful moments. Nurture inner peace and self-love through WhatsApp and voice call support." />
+        <meta name="description" content="Your personal AI mindfulness companion for daily guidance, gratitude practices, and mindful moments. Nurture inner peace and self-love through WhatsApp and voice call support." />
         <meta key="mindfulness-og-title" property="og:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />
         <meta key="mindfulness-og-description" property="og:description" content="Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey." />
         <meta key="mindfulness-og-url" property="og:url" content="https://coachcall.ai/mindfulness" />
