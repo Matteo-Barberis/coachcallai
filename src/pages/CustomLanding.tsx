@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import CustomHeroSection from '@/components/custom/CustomHeroSection';
@@ -19,18 +19,7 @@ import { generateSEOData } from '@/utils/seoData';
 
 const CustomLanding = () => {
   const location = useLocation();
-  console.log('🌐 CustomLanding location:', location);
-  
   const seoData = generateSEOData(location.pathname);
-  console.log('📊 CustomLanding seoData:', seoData);
-
-  useEffect(() => {
-    console.log('🔄 CustomLanding useEffect - Route changed to:', location.pathname);
-    
-    // Check initial DOM state
-    const initialMeta = document.querySelector('meta[name="description"]');
-    console.log('🏁 Initial meta description on route change:', initialMeta?.getAttribute('content'));
-  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-white">

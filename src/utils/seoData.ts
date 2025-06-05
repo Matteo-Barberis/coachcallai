@@ -9,8 +9,6 @@ interface SEOData {
 }
 
 export const generateSEOData = (route: string): SEOData => {
-  console.log('🔧 generateSEOData called with route:', route);
-  
   let seoData: SEOData;
   
   switch (route) {
@@ -59,7 +57,5 @@ export const generateSEOData = (route: string): SEOData => {
       break;
   }
   
-  console.log('📝 Generated SEO data for route', route, ':', seoData);
-  console.log('📝 Description being returned:', seoData.description);
   return seoData;
 };
