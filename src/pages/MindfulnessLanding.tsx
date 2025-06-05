@@ -18,7 +18,7 @@ import StickyCta from '@/components/StickyCta';
 const MindfulnessLanding = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Helmet>
+      <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | AI Mindfulness Companion for Inner Peace & Self-Love</title>
         <meta name="description" content="Your personal AI mindfulness companion for daily guidance, gratitude practices, and mindful moments. Nurture inner peace and self-love through WhatsApp and voice call support." />
         <meta property="og:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />

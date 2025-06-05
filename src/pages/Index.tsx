@@ -19,7 +19,7 @@ import CoachVoiceShowcase from '@/components/CoachVoiceShowcase';
 const Index = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Helmet>
+      <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | AI Accountability Partner with Phone Calls & WhatsApp</title>
         <meta name="description" content="Coach Call AI keeps you accountable through WhatsApp messages and phone calls, helping you achieve your goals and build lasting habits." />
         <meta property="og:title" content="Coach Call AI | Your AI Accountability Partner" />

@@ -18,7 +18,7 @@ import StickyCta from '@/components/StickyCta';
 const CustomLanding = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Helmet>
+      <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | Your Personal AI Companion for Life Support & Guidance</title>
         <meta name="description" content="Meet your AI companion that's always by your side on WhatsApp and voice calls. Get personalized support, gentle reminders, and empathetic conversations tailored to your unique style and needs." />
         <meta property="og:title" content="Coach Call AI | Your Personal AI Companion for Life Support" />
