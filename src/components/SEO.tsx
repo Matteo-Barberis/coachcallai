@@ -21,6 +21,16 @@ const SEO: React.FC<SEOProps> = ({
   twitterDescription,
   routeKey
 }) => {
+  console.log('SEO Component Debug:', {
+    routeKey,
+    title,
+    description,
+    ogTitle: ogTitle || title,
+    ogDescription: ogDescription || description,
+    twitterTitle: twitterTitle || title,
+    twitterDescription: twitterDescription || description
+  });
+
   return (
     <Helmet key={routeKey}>
       <title>{title}</title>

@@ -19,7 +19,10 @@ import { generateSEOData } from '@/utils/seoData';
 
 const CustomLanding = () => {
   const location = useLocation();
+  console.log('CustomLanding location:', location);
+  
   const seoData = generateSEOData(location.pathname);
+  console.log('CustomLanding seoData:', seoData);
 
   return (
     <div className="min-h-screen bg-white">
