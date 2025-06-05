@@ -20,13 +20,13 @@ const MindfulnessLanding = () => {
     <div className="min-h-screen bg-white">
       <Helmet defer={false} encodeSpecialCharacters={false}>
         <title>Coach Call AI | AI Mindfulness Companion for Inner Peace & Self-Love</title>
-        <meta name="description" content="Your personal AI mindfulness companion for daily guidance, gratitude practices, and mindful moments. Nurture inner peace and self-love through WhatsApp and voice call support." />
-        <meta property="og:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />
-        <meta property="og:description" content="Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey." />
-        <meta property="og:url" content="https://coachcall.ai/mindfulness" />
-        <meta property="twitter:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />
-        <meta property="twitter:description" content="Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey." />
-        <meta property="twitter:url" content="https://coachcall.ai/mindfulness" />
+        <meta key="mindfulness-description" name="description" content="Your personal AI mindfulness companion for daily guidance, gratitude practices, and mindful moments. Nurture inner peace and self-love through WhatsApp and voice call support." />
+        <meta key="mindfulness-og-title" property="og:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />
+        <meta key="mindfulness-og-description" property="og:description" content="Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey." />
+        <meta key="mindfulness-og-url" property="og:url" content="https://coachcall.ai/mindfulness" />
+        <meta key="mindfulness-twitter-title" property="twitter:title" content="Coach Call AI | AI Mindfulness Companion for Inner Peace" />
+        <meta key="mindfulness-twitter-description" property="twitter:description" content="Experience daily guidance, gratitude practices, and mindful moments with an AI companion designed to nurture your inner well-being and self-love journey." />
+        <meta key="mindfulness-twitter-url" property="twitter:url" content="https://coachcall.ai/mindfulness" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
