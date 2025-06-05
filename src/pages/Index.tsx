@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HelmetProvider, Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
@@ -15,36 +15,40 @@ import FeaturesShowcase from '@/components/FeaturesShowcase';
 import DashboardPreview from '@/components/DashboardPreview';
 import UseCaseShowcase from '@/components/UseCaseShowcase';
 import CoachVoiceShowcase from '@/components/CoachVoiceShowcase';
+import SEO from '@/components/SEO';
+import { generateSEOData } from '@/utils/seoData';
 
 const Index = () => {
+  const location = useLocation();
+  const seoData = generateSEOData(location.pathname);
+
   return (
-    <HelmetProvider>
-      <div className="min-h-screen bg-white">
-        <Helmet>
-          <title>Coach Call AI | Your Personal AI Companion for Life Support & Guidance</title>
-          <meta name="description" content="Meet your AI companion that's always by your side on WhatsApp and voice calls. Get personalized support, gentle reminders, and empathetic conversations tailored to your unique style and needs." />
-          <meta property="og:title" content="Coach Call AI | Your Personal AI Companion for Life Support" />
-          <meta property="og:description" content="Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it." />
-          <meta name="twitter:title" content="Coach Call AI | Your Personal AI Companion for Life Support" />
-          <meta name="twitter:description" content="Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it." />
-        </Helmet>
-        <Header />
-        <main>
-          <HeroSection />
-          <FeaturesShowcase />
-          <HowItWorks />
-          <DashboardPreview />
-          <CoachVoiceShowcase />
-          <UseCaseShowcase />
-          <EnhancedTestimonials />
-          <PricingSection />
-          <FaqSection />
-          <CtaSection />
-        </main>
-        <Footer />
-        <StickyCta />
-      </div>
-    </HelmetProvider>
+    <div className="min-h-screen bg-white">
+      <SEO
+        title={seoData.title}
+        description={seoData.description}
+        ogTitle={seoData.ogTitle}
+        ogDescription={seoData.ogDescription}
+        twitterTitle={seoData.twitterTitle}
+        twitterDescription={seoData.twitterDescription}
+        routeKey="accountability-landing"
+      />
+      <Header />
+      <main>
+        <HeroSection />
+        <FeaturesShowcase />
+        <HowItWorks />
+        <DashboardPreview />
+        <CoachVoiceShowcase />
+        <UseCaseShowcase />
+        <EnhancedTestimonials />
+        <PricingSection />
+        <FaqSection />
+        <CtaSection />
+      </main>
+      <Footer />
+      <StickyCta />
+    </div>
   );
 };
 
