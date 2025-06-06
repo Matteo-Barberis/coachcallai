@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import CustomHeroSection from '@/components/custom/CustomHeroSection';
 import CustomFeaturesShowcase from '@/components/custom/CustomFeaturesShowcase';
@@ -16,10 +16,37 @@ import Footer from '@/components/Footer';
 import StickyCta from '@/components/StickyCta';
 import SEO from '@/components/SEO';
 import { generateSEOData } from '@/utils/seoData';
+import { useSessionContext } from '@/context/SessionContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const CustomLanding = () => {
   const location = useLocation();
   const seoData = generateSEOData(location.pathname);
+  const { session } = useSessionContext();
+  const navigate = useNavigate();
+
+  // Check if user is authenticated and redirect based on onboarding status
+  useEffect(() => {
+    if (session?.user) {
+      const checkOnboardingStatus = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_onboarding')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!error && data) {
+          if (data.is_onboarding) {
+            navigate('/onboarding');
+          } else {
+            navigate('/dashboard');
+          }
+        }
+      };
+      
+      checkOnboardingStatus();
+    }
+  }, [session, navigate]);
 
   return (
     <div className="min-h-screen bg-white">
