@@ -25,7 +25,7 @@ const CustomLanding = () => {
   const { session } = useSessionContext();
   const navigate = useNavigate();
 
-  // Check if user is authenticated and redirect based on onboarding status
+  // Only redirect users who haven't completed onboarding
   useEffect(() => {
     if (session?.user) {
       const checkOnboardingStatus = async () => {
@@ -35,12 +35,8 @@ const CustomLanding = () => {
           .eq('id', session.user.id)
           .single();
 
-        if (!error && data) {
-          if (data.is_onboarding) {
-            navigate('/onboarding');
-          } else {
-            navigate('/dashboard');
-          }
+        if (!error && data && data.is_onboarding) {
+          navigate('/onboarding');
         }
       };
       
