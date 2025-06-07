@@ -47,11 +47,11 @@ export const generateSEOData = (route: string): SEOData => {
     
     default:
       seoData = {
-        title: 'Coach Call AI | Your Personal AI Companion for Life Support & Guidance with Phone Calls & WhatsApp',
+        title: 'Coach Call AI | Your Personal AI Companion for Friendship & Support with Phone Calls & WhatsApp',
         description: 'Meet your AI companion that\'s always by your side on WhatsApp and voice calls. Get personalized support, gentle reminders, and empathetic conversations tailored to your unique style and needs.',
-        ogTitle: 'Coach Call AI | Your Personal AI Companion for Life Support with Phone Calls & WhatsApp',
+        ogTitle: 'Coach Call AI | Your Personal AI Companion for Friendship & Support with Phone Calls & WhatsApp',
         ogDescription: 'Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it.',
-        twitterTitle: 'Coach Call AI | Your Personal AI Companion for Life Support with Phone Calls & WhatsApp',
+        twitterTitle: 'Coach Call AI | Your Personal AI Companion for Friendship & Support with Phone Calls & WhatsApp',
         twitterDescription: 'Your ever-present AI companion on WhatsApp and voice calls. Gentle reminders, tough love, or empathy — the style you need, when you need it.'
       };
       break;
