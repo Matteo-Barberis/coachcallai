@@ -246,16 +246,16 @@ const Dashboard = () => {
                   <CardDescription className="text-sm leading-relaxed">
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="flex-1 flex items-start gap-2">
-                        <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                        <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0 text-black" />
                         <span className="text-gray-500">
-                          <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
+                          <strong className="text-black">WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
                           You can also message anytime for motivation, chat, or reminders.
                         </span>
                       </div>
                       <div className="flex-1 flex items-start gap-2">
-                        <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                        <Phone className="h-4 w-4 mt-0.5 flex-shrink-0 text-black" />
                         <span className="text-gray-500">
-                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates. 
+                          <strong className="text-black">Voice Calls:</strong> Schedule recurring calls or set specific dates. 
                           For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
                         </span>
                       </div>
