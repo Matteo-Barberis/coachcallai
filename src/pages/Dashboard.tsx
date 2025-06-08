@@ -5,7 +5,7 @@ import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle, Info, Phone, MessageSquare } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import ModeDisplayBadge from '@/components/ModeDisplayBadge';
 import CallUsageIndicator from '@/components/CallUsageIndicator';
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Dashboard = () => {
   const { session, loading, userProfile } = useSessionContext();
@@ -233,6 +234,36 @@ const Dashboard = () => {
           
           <div className="mt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* How it Works Info Card */}
+              <Card className="md:col-span-2 bg-blue-50 border-blue-200">
+                <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Info className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-lg text-blue-900">How Your AI Coach Works</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-blue-800 text-sm leading-relaxed">
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className="flex-1 flex items-start gap-2">
+                        <MessageSquare className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <span>
+                          <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
+                          You can also message anytime for motivation, chat, or reminders.
+                        </span>
+                      </div>
+                      <div className="flex-1 flex items-start gap-2">
+                        <Phone className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <span>
+                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates. 
+                          For instant calls, just text <code className="bg-blue-100 px-1 rounded">/call</code> on WhatsApp.
+                        </span>
+                      </div>
+                    </div>
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">Set Your Coaching Objectives</h3>
                 <p className="text-sm text-gray-500 mb-4">
