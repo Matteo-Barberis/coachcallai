@@ -1,12 +1,11 @@
 
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle, Info, Phone, MessageSquare, ChevronDown, MemoryStick, Milestone } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle, Info, Phone, MessageSquare, ChevronDown } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import ModeDisplayBadge from '@/components/ModeDisplayBadge';
 import CallUsageIndicator from '@/components/CallUsageIndicator';
@@ -223,38 +222,20 @@ const Dashboard = () => {
                   <CollapsibleContent>
                     <CardContent>
                       <CardDescription className="text-sm leading-relaxed">
-                        <div className="flex flex-col gap-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-start gap-2">
-                              <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-500">
-                                <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
-                                You can also message anytime to chat or get encouragement.
-                              </span>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-500">
-                                <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates from the Schedule Calls section on the website. 
-                                For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
-                              </span>
-                            </div>
+                        <div className="flex flex-col md:flex-row gap-4">
+                          <div className="flex-1 flex items-start gap-2">
+                            <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-500">
+                              <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
+                              You can also message anytime to chat or get encouragement.
+                            </span>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
-                            <div className="flex items-start gap-2">
-                              <MemoryStick className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-500">
-                                <strong>Memory:</strong> Your coach remembers everything you tell it and personalizes the experience to you, 
-                                building a deeper understanding of your goals and challenges over time.
-                              </span>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <Milestone className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-500">
-                                <strong>Progress:</strong> The AI will record achievements and important milestones in your life. 
-                                You can track your progress and growth over time from the "See Your Progress" section.
-                              </span>
-                            </div>
+                          <div className="flex-1 flex items-start gap-2">
+                            <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-500">
+                              <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates from the Schedule Calls section on the website. 
+                              For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
+                            </span>
                           </div>
                         </div>
                       </CardDescription>
@@ -320,5 +301,4 @@ const Dashboard = () => {
       </main>
     </div>;
 };
-
 export default Dashboard;
