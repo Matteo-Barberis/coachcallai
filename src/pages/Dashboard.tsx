@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -235,34 +234,30 @@ const Dashboard = () => {
           <div className="mt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* How it Works Info Card */}
-              <Card className="md:col-span-2 bg-purple-50 border-purple-200">
-                <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <div className="flex items-center gap-2">
-                    <Info className="h-5 w-5 text-purple-600" />
-                    <CardTitle className="text-lg text-purple-900">How Your AI Coach Works</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-purple-800 text-sm leading-relaxed">
-                    <div className="flex flex-col md:flex-row gap-4">
-                      <div className="flex-1 flex items-start gap-2">
-                        <MessageSquare className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                        <span>
-                          <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
-                          You can also message anytime for motivation, chat, or reminders.
-                        </span>
-                      </div>
-                      <div className="flex-1 flex items-start gap-2">
-                        <Phone className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                        <span>
-                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates. 
-                          For instant calls, just text <code className="bg-purple-100 px-1 rounded">/call</code> on WhatsApp.
-                        </span>
-                      </div>
+              <div className="md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="h-5 w-5 text-gray-600" />
+                  <h3 className="font-medium">How Your AI Coach Works</h3>
+                </div>
+                <div className="text-sm text-gray-600 leading-relaxed">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 flex items-start gap-2">
+                      <MessageSquare className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <span>
+                        <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
+                        You can also message anytime for motivation, chat, or reminders.
+                      </span>
                     </div>
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                    <div className="flex-1 flex items-start gap-2">
+                      <Phone className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <span>
+                        <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates. 
+                        For instant calls, just text <code className="bg-gray-200 px-1 rounded">/call</code> on WhatsApp.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <h3 className="font-medium mb-2">Set Your Coaching Objectives</h3>
