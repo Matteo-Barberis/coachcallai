@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { useSessionContext } from '@/context/SessionContext';
@@ -213,7 +214,7 @@ const Dashboard = () => {
               <Card className="md:col-span-2 bg-gray-50 border-gray-200">
                 <Collapsible open={isHowItWorksOpen} onOpenChange={setIsHowItWorksOpen}>
                   <CollapsibleTrigger asChild>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 cursor-pointer hover:bg-gray-100 transition-colors">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 cursor-pointer hover:bg-gray-100 transition-colors">
                       <CardTitle className="text-lg font-medium">How Your AI Coach Works</CardTitle>
                       <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isHowItWorksOpen ? 'rotate-180' : ''}`} />
                     </CardHeader>
