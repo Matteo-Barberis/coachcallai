@@ -240,7 +240,7 @@ const Dashboard = () => {
                               </span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex items-start gap-2">
                               <MemoryStick className="h-4 w-4 mt-0.5 flex-shrink-0" />
                               <span className="text-gray-500">
