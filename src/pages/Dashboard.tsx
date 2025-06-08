@@ -4,7 +4,7 @@ import { useSessionContext } from '@/context/SessionContext';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle, Info, Phone, MessageSquare } from "lucide-react";
+import { CalendarDays, Target, MessageCircle, BarChart2, HelpCircle, AlertCircle, Info, Phone, MessageSquare, ChevronDown } from "lucide-react";
 import CoachSelect from '@/components/CoachSelect';
 import ModeDisplayBadge from '@/components/ModeDisplayBadge';
 import CallUsageIndicator from '@/components/CallUsageIndicator';
@@ -13,6 +13,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 const Dashboard = () => {
   const {
     session,
@@ -28,9 +30,11 @@ const Dashboard = () => {
   const [isCheckingProfile, setIsCheckingProfile] = useState(true);
   const [isCallingDemo, setIsCallingDemo] = useState(false);
   const [lastDemoCallAt, setLastDemoCallAt] = useState<string | null>(null);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const {
     toast
   } = useToast();
+
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (!session?.user.id) return;
@@ -69,6 +73,7 @@ const Dashboard = () => {
       setIsCheckingProfile(false);
     }
   }, [session, navigate, toast]);
+  
   const getDaysRemaining = () => {
     if (!userProfile?.trial_start_date) return 0;
     const trialStartDate = new Date(userProfile.trial_start_date);
@@ -79,6 +84,7 @@ const Dashboard = () => {
     const daysRemaining = Math.ceil((trialEndDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(0, daysRemaining);
   };
+  
   const handleTestCall = async () => {
     if (!session?.user.id) return;
     setIsCallingDemo(true);
@@ -110,6 +116,7 @@ const Dashboard = () => {
       setIsCallingDemo(false);
     }
   };
+  
   const isTestCallAvailable = () => {
     if (!lastDemoCallAt) return true;
     const lastCallDate = new Date(lastDemoCallAt);
@@ -117,6 +124,7 @@ const Dashboard = () => {
     const hoursDifference = (now.getTime() - lastCallDate.getTime()) / (1000 * 60 * 60);
     return hoursDifference >= 24;
   };
+  
   const getTestCallTooltip = () => {
     if (!lastDemoCallAt) return null;
     if (!isTestCallAvailable()) {
@@ -128,13 +136,16 @@ const Dashboard = () => {
     }
     return null;
   };
+  
   const handleUpgradeClick = () => {
     sessionStorage.setItem('scrollToBasicPlan', 'true');
     navigate('/account');
   };
+
   if (loading || isCheckingProfile) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
+
   return <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
@@ -198,34 +209,38 @@ const Dashboard = () => {
           
           <div className="mt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* How it Works Info Card */}
+              {/* How it Works Info Card - Now Collapsible */}
               <Card className="md:col-span-2 bg-gray-50 border-gray-200">
-                <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                  <div className="flex items-center gap-2">
-                    
-                    <CardTitle className="text-lg font-medium">How Your AI Coach Works</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm leading-relaxed">
-                    <div className="flex flex-col md:flex-row gap-4">
-                      <div className="flex-1 flex items-start gap-2">
-                        <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-500">
-                          <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
-                          You can also message anytime to chat or get encouragement.
-                        </span>
-                      </div>
-                      <div className="flex-1 flex items-start gap-2">
-                        <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-500">
-                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates from the Schedule Calls section on the website. 
-                          For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
-                        </span>
-                      </div>
-                    </div>
-                  </CardDescription>
-                </CardContent>
+                <Collapsible open={isHowItWorksOpen} onOpenChange={setIsHowItWorksOpen}>
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 cursor-pointer hover:bg-gray-100 transition-colors">
+                      <CardTitle className="text-lg font-medium">How Your AI Coach Works</CardTitle>
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isHowItWorksOpen ? 'rotate-180' : ''}`} />
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <CardDescription className="text-sm leading-relaxed">
+                        <div className="flex flex-col md:flex-row gap-4">
+                          <div className="flex-1 flex items-start gap-2">
+                            <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-500">
+                              <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
+                              You can also message anytime to chat or get encouragement.
+                            </span>
+                          </div>
+                          <div className="flex-1 flex items-start gap-2">
+                            <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-500">
+                              <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates from the Schedule Calls section on the website. 
+                              For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
+                            </span>
+                          </div>
+                        </div>
+                      </CardDescription>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Collapsible>
               </Card>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
