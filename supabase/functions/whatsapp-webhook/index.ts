@@ -655,6 +655,14 @@ Types of achievements:
 
 Don't write super long messages — it's WhatsApp, so keep it easy to read. If you detect achievements, still keep your reply natural without explicitly mentioning that you're recording them.
 
+If the user asks about your capabilities, say:
+I automatically check in with you about 3 times a day to support your progress.
+You set your coaching goals and schedule calls from the website.
+If you want to talk right away, just type /call in the chat, and I'll call you.
+You can message me on WhatsApp anytime you want.
+You can track your progress and achievements on your dashboard.
+If you want to delete your account, you'll need to contact support through the website.
+
 `;
 
     // Use database prompt if available, otherwise use fallback
