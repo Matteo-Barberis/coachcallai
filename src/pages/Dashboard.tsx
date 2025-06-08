@@ -249,13 +249,13 @@ const Dashboard = () => {
                         <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-500">
                           <strong>WhatsApp:</strong> Your AI coach will check in with you about three times a day to keep you on track. 
-                          You can also message anytime for motivation, chat, or reminders.
+                          You can also message anytime to chat or get encouragement.
                         </span>
                       </div>
                       <div className="flex-1 flex items-start gap-2">
                         <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-500">
-                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates. 
+                          <strong>Voice Calls:</strong> Schedule recurring calls or set specific dates from the Scheduled Calls section on the website. 
                           For instant calls, just text <code className="bg-gray-100 px-1 rounded">/call</code> on WhatsApp.
                         </span>
                       </div>
