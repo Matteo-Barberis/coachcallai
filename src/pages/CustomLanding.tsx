@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import CustomHeroSection from '@/components/custom/CustomHeroSection';
@@ -24,6 +24,7 @@ const CustomLanding = () => {
   const seoData = generateSEOData(location.pathname);
   const { session } = useSessionContext();
   const navigate = useNavigate();
+  const [showBadge, setShowBadge] = useState(true);
 
   // Only redirect users who haven't completed onboarding
   useEffect(() => {
@@ -44,6 +45,20 @@ const CustomLanding = () => {
     }
   }, [session, navigate]);
 
+    // Add scroll event listener to handle badge visibility
+    useEffect(() => {
+      const handleScroll = () => {
+        const scrollPosition = window.scrollY;
+        // Show badge when near top, hide when scrolled down
+        // Adjust the threshold (300) as needed
+        setShowBadge(scrollPosition < 300);
+      };
+  
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+  
+
   return (
     <div className="min-h-screen bg-white">
       <SEO
@@ -56,7 +71,36 @@ const CustomLanding = () => {
         routeKey="custom-landing"
       />
       <Header />
-      <main>
+        <main>
+        {/* Custom Bolt.new Badge */}
+        <style>
+          {`
+            .bolt-badge {
+              transition: all 0.3s ease;
+            }
+            @keyframes badgeHover {
+              0% { transform: scale(1) rotate(0deg); }
+              50% { transform: scale(1.1) rotate(22deg); }
+              100% { transform: scale(1) rotate(0deg); }
+            }
+            .bolt-badge:hover {
+              animation: badgeHover 0.6s ease-in-out;
+            }
+            .badge-container {
+              transition: opacity 0.5s ease, transform 0.5s ease;
+            }
+          `}
+        </style>
+        <div className={`fixed top-16 right-4 z-50 badge-container ${showBadge ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}`}>
+          <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" 
+            className="block transition-all duration-300 hover:shadow-2xl">
+            <img src="https://storage.bolt.army/white_circle_360x360.png" 
+                alt="Built with Bolt.new badge" 
+                className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-lg bolt-badge"
+            />
+          </a>
+        </div>
+
         <CustomHeroSection />
         <CustomFeaturesShowcase />
         <CustomHowItWorks />
