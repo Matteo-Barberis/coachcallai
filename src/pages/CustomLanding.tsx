@@ -94,7 +94,7 @@ const CustomLanding = () => {
         <div className={`fixed top-16 right-4 z-50 badge-container hidden ${showBadge ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}`}>
           <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" 
             className="block transition-all duration-300">
-            <img src="https://storage.bolt.army/white_circle_360x360.png" 
+            <img src="/white_circle_360x360.png" 
                 alt="Built with Bolt.new badge" 
                 className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-lg bolt-badge"
             />
