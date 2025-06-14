@@ -1,69 +1,175 @@
-# Welcome to your Lovable project
 
-## Project info
+# CoachCall.ai
 
-**URL**: https://lovable.dev/projects/f26063bd-2813-491b-a2c3-c41d55d29dfa
+**AI-Powered Personal Coaching Through Voice & WhatsApp**
 
-## How can I edit this code?
+CoachCall.ai is an innovative AI coaching platform that provides personalized guidance through natural voice conversations and WhatsApp messaging. Our AI coaches help users achieve their goals across multiple domains including accountability, mindfulness, and custom coaching experiences.
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+### Core Functionality
+- **Voice-First Coaching**: Natural AI conversations through phone calls
+- **WhatsApp Integration**: Seamless coaching through familiar messaging
+- **Multi-Modal Coaching**: Accountability, Mindfulness, and Custom coaching modes
+- **Progress Tracking**: Comprehensive analytics and insights
+- **Personalized Experience**: Tailored coaching based on user goals and preferences
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f26063bd-2813-491b-a2c3-c41d55d29dfa) and start prompting.
+### Platform Capabilities
+- **Smart Scheduling**: Automated call scheduling and reminders
+- **Real-time Analytics**: Track progress, trends, and achievements
+- **Custom Coach Voices**: Multiple AI coach personalities and voices
+- **Goal Management**: Set, track, and achieve personal objectives
+- **Achievement System**: Milestone tracking and celebration
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠 Tech Stack
 
-**Use your preferred IDE**
+### Frontend
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **shadcn/ui** component library
+- **React Router** for navigation
+- **React Query** for state management
+- **Recharts** for data visualization
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Backend & Infrastructure
+- **Supabase** for database and authentication
+- **VAPI** for AI voice integration
+- **Stripe** for payment processing
+- **Vercel** for deployment
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Key Libraries
+- Lucide React (icons)
+- React Hook Form (forms)
+- Zod (validation)
+- Date-fns (date handling)
 
-Follow these steps:
+## 🏁 Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Prerequisites
+- Node.js 18+ and npm
+- Supabase account
+- VAPI account (for voice features)
+- Stripe account (for payments)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Clone the repository**
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd <YOUR_PROJECT_NAME>
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file with:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   # Add other required environment variables
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   Navigate to `http://localhost:5173`
+
+## 📁 Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   ├── custom/         # Custom coaching mode components
+│   └── mindfulness/    # Mindfulness coaching components
+├── pages/              # Route components
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions
+├── context/            # React context providers
+├── config/             # Configuration files
+└── integrations/       # Third-party integrations
 ```
 
-**Edit a file directly in GitHub**
+## 🎯 Features by Mode
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Accountability Coaching
+- Goal setting and tracking
+- Progress monitoring
+- Habit formation support
+- Regular check-ins and motivation
 
-**Use GitHub Codespaces**
+### Mindfulness Coaching
+- Meditation guidance
+- Stress management techniques
+- Mindful living practices
+- Emotional regulation support
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Custom Coaching
+- Personalized coaching experiences
+- Flexible goal frameworks
+- Adaptive conversation flows
+- Custom achievement metrics
 
-## What technologies are used for this project?
+## 🚀 Deployment
 
-This project is built with .
+### Quick Deploy with Lovable
+1. Open [Lovable Project](https://lovable.dev/projects/f26063bd-2813-491b-a2c3-c41d55d29dfa)
+2. Click Share → Publish
+3. Your app will be live instantly
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Custom Domain Deployment
+For custom domains, we recommend Netlify:
+1. Connect your repository to Netlify
+2. Configure build settings
+3. Set up environment variables
+4. Deploy
 
-## How can I deploy this project?
+See [Custom Domain Guide](https://docs.lovable.dev/tips-tricks/custom-domain/) for detailed instructions.
 
-Simply open [Lovable](https://lovable.dev/projects/f26063bd-2813-491b-a2c3-c41d55d29dfa) and click on Share -> Publish.
+## 🤝 Contributing
 
-## I want to use a custom domain - is that possible?
+We welcome contributions! Here's how to get started:
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Make your changes**
+4. **Test thoroughly**
+5. **Commit your changes**
+   ```bash
+   git commit -m 'Add amazing feature'
+   ```
+6. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+7. **Open a Pull Request**
+
+### Development Guidelines
+- Follow TypeScript best practices
+- Use Tailwind CSS for styling
+- Write clean, self-documenting code
+- Test new features thoroughly
+- Maintain responsive design principles
+
+## 📝 License
+
+This project is proprietary software. All rights reserved.
+
+## 🆘 Support
+
+Need help? Reach out to us:
+- **Email**: support@coachcall.ai
+- **Website**: [coachcall.ai](https://coachcall.ai)
+
+---
+
+**Built with ❤️ using React, TypeScript, and VAPI**
